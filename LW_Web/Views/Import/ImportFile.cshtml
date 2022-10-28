@@ -1,0 +1,72 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_LayoutPage.cshtml";
+}
+
+@model LW_Web.Models.ImportFilesModel
+
+
+<!-- Start Content-->
+<div class="container-fluid">
+
+    <!-- start page title -->
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box">
+                <div class="page-title-right">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item active">Import</li>
+                    </ol>
+                </div>
+                <h4 class="page-title">Import Data Files</h4>
+            </div>
+        </div>
+    </div>
+    <!-- end page title -->
+    <!-- SORTLY -->
+    <div class="col-6">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="header-title">File Selection and Import</h4>
+                <p class="text-muted font-14">Choose a File Type and upload your file. Keep this window open until the import is complete.</p>
+
+                @Html.Raw(ViewBag.Message)
+
+                @using (Html.BeginForm("ImportFile", "Import", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal" }))
+                {
+                    <div class="row mb-3">
+                        <div class="col">
+                            @Html.DropDownList("ImportFileList", "Choose File Type")
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col">
+                            @Html.TextBox("file", "", new { type = "file", @class = "form-control" })
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-2">
+                            <button type="submit" id="btnUpload" class="btn btn-primary">Upload</button>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <span id="counterMsg"></span>
+                        </div>
+                    </div>
+                }
+            </div> <!-- end card-body -->
+        </div>  <!-- end card -->
+    </div>  
+    <!-- end col -->
+
+    <script type="text/javascript" src="~/assets/js-custom/importFilePage.js"></script>
+
+
+
+
+
+

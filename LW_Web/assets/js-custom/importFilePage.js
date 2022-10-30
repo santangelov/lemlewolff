@@ -18,5 +18,9 @@ $(function () {
 
             return false;
         }, 4000);
+
+        $("#counterMsg").html("Progress: reading file...");
+
+        $('#btnUpload').addClass('disabled');
     });
 });

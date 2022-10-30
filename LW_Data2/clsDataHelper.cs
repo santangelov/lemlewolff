@@ -48,6 +48,7 @@ namespace LW_Data
             }
             catch (Exception ex)
             {
+                
                 data_err_msg = ex.Message;
                 cn.Dispose();
                 return false;

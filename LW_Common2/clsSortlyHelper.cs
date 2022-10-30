@@ -5,6 +5,7 @@ using System.Data.OleDb;
 using System.Configuration;
 using LW_Data;
 using System.Threading;
+using System;
 
 namespace LW_Common
 {
@@ -39,6 +40,7 @@ namespace LW_Common
             DataTable sourceTable = ds.Tables[0];
 
             RowsProcessed = 0;
+            DateTime CreateDate = DateTime.Now;
             int NumToProcess = sourceTable.Rows.Count;
             if (NumToProcess > 0)
             {
@@ -65,6 +67,8 @@ namespace LW_Common
                     dh.cmd.Parameters.AddWithValue("@PONumber", r["Purchase Order Number"].ToString());
                     dh.cmd.Parameters.AddWithValue("@WONumber", r["Work Order Number"].ToString());
                     dh.cmd.Parameters.AddWithValue("@WODate", r["WO Date"].ToString());
+                    dh.cmd.Parameters.AddWithValue("@CreatedBy", "User1");
+                    dh.cmd.Parameters.AddWithValue("@CreateDate", CreateDate);
 
                     dh.cmd.Parameters.AddWithValue("@NoReturn", true);  // Force it to not return data for speed
                     bool isSuccess = dh.ExecuteSPCMD("spSortlyWorkOrderUpdate", false);

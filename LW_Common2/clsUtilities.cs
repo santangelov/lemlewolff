@@ -21,6 +21,11 @@ namespace LW_Common
     public class clsUtilities
     {
 
+        /// <summary>
+        /// The Countets are stored in memory cache
+        /// </summary>
+        /// <param name="CounterName"></param>
+        /// <param name="counterText"></param>
         public static void WriteToCounter(string CounterName, string counterText)
         {
             clsCounter C = new clsCounter { Count = counterText };

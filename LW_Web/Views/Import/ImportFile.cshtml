@@ -42,7 +42,14 @@
 
                     <div class="row mb-3">
                         <div class="col">
-                            @Html.TextBox("file", "", new { type = "file", @class = "form-control" })
+                            @Html.LabelFor(m => m.WorkSheetName)
+                            @Html.TextBox("WorkSheetName", Model.WorkSheetName, new { @class = "form-control" })
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col">
+                            @Html.TextBox("file", Model.UploadedFile, new { type = "file", @class = "form-control" })
                         </div>
                     </div>
 

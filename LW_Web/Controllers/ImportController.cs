@@ -7,41 +7,37 @@ using System.Runtime.Remoting.Contexts;
 using System.Web;
 using System.Web.Mvc;
 using LW_Common;
+using LW_Data;
 using LW_Web.Models;
 
 namespace LW_Web.Controllers
 {
     public class ImportController : Controller
     {
-        private void FillForm(ref ImportFilesModel model)
-        {
-            model.ImportFileList.Add(new SelectListItem { Text = "ADP", Value = "ADP" });
-            model.ImportFileList.Add(new SelectListItem { Text = "AMC Time", Value = "AMC" });
-            model.ImportFileList.Add(new SelectListItem { Text = "Sortly", Value = "Sortly" });
-            model.ImportFileList.Add(new SelectListItem { Text = "Yardi", Value = "Yardi" });
-        }
 
         // GET: Import
         [HttpGet]
         public ActionResult ImportFile(String filetype)
         {
-            ImportFilesModel model = new ImportFilesModel();
-            FillForm(ref model);
-            return View(model);
+            return View(new ImportFilesModel());
         }
 
         [HttpPost]
         public ActionResult ImportFile(HttpPostedFileBase file)
         {
-            ImportFilesModel model = new ImportFilesModel();
-            FillForm(ref model);
-            string _path = "";
             Server.ScriptTimeout = 1200;
+            string _path = "";
 
-            string FileType = Request["ImportFileList"].ToString();
+            // Read form Response 
+            string FileType = Request["ImportFileList"];
+            string worksheetName = Request["WorkSheetName"];
+
+            // Populate the Model
+            ImportFilesModel model = new ImportFilesModel(FileType);
+            model.WorkSheetName = worksheetName;
+            ViewBag.Message = "";
 
             clsUtilities.WriteToCounter(FileType, "Uploading Data...");
-            ViewBag.Message = "";
 
             if (file == null) 
             { 
@@ -72,16 +68,33 @@ namespace LW_Web.Controllers
                 else if (FileType == "AMC")
                 {
                     clsAMCTimeHelper s = new clsAMCTimeHelper();
-                    if (s.Import_AMCTime_File(_path))
+
+                    // Get the list of WorkSheets
+                    List<string> sheetNames = clsExcelHelper.GetWorksheetNames(_path);
+                    string openSheetName = "";
+
+                    if (sheetNames.Count == 1)
                     {
-                        ViewBag.Message = clsWebFormHelper.SuccessBoxMsgHTML("Success! " + s.RowsProcessed.ToString() + " row(s) successfully processed.");
+                        openSheetName = sheetNames[0].ToString();
+                    }else
+                    {
+                        openSheetName = model.WorkSheetName;
                     }
-                    else { ViewBag.Message = clsWebFormHelper.ErrorBoxMsgHTML("Error! Error after processing " + s.RowsProcessed.ToString() + " row(s).</span>"); }
+
+                    if (s.Import_AMCTime_File(_path, openSheetName))
+                    {
+                        ViewBag.Message = clsWebFormHelper.SuccessBoxMsgHTML("Success! " + s.RowsProcessed.ToString() + " row(s) successfully processed. ");
+                        if (s.error_message != "")
+                        {
+                            ViewBag.Message += clsWebFormHelper.ErrorBoxMsgHTML("With Errors:\n" + s.error_message);
+                        }
+                    }
+                    else { ViewBag.Message = clsWebFormHelper.ErrorBoxMsgHTML("Error! Error after processing " + s.RowsProcessed.ToString() + " row(s). " + s.error_message); }
                 }
             }
             catch (Exception e)
             {
-                ViewBag.Message = clsWebFormHelper.ErrorBoxMsgHTML("File upload failed!! " + e);
+                ViewBag.Message = clsWebFormHelper.ErrorBoxMsgHTML("File upload failed!! " + e.Message);
             }
 
             return View(model);

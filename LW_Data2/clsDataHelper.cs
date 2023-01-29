@@ -57,5 +57,44 @@ namespace LW_Data
             return true;
         }
 
+        public DataTable GetDataTableCMD(string sqlStoredProcedure, ref SqlCommand cmd)
+        {
+            string connStr = ConfigurationManager.ConnectionStrings["LWSQLConnStrRO"].ConnectionString;
+            SqlConnection cn = new SqlConnection(connStr);
+            data_err_msg = "";
+
+            cmd.Connection = cn;
+            cmd.CommandText = sqlStoredProcedure;
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            SqlDataAdapter DA = new SqlDataAdapter(cmd);
+            DataSet ds = new DataSet();
+
+            try
+            {
+                DA.Fill(ds);
+            }
+            catch (Exception e)
+            {
+                data_err_msg = e.Message;
+            }
+            finally
+            {
+                DA.Dispose();
+                cn.Close();
+            }
+
+            if (ds.Tables.Count == 0)
+            {
+                data_err_msg = "No tables returned. " + data_err_msg;
+                return null;
+            }
+            else
+            {
+                return ds.Tables[0];
+            }
+
+        }
+
     }
 }                                               

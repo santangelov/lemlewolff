@@ -29,5 +29,6 @@ namespace LW_Web.Models
         [DisplayName("Name of Worksheet (if more than 1)")]
         public string WorkSheetName { get; set; }
 
+        public string Error_log { get; set; }
     }
 }

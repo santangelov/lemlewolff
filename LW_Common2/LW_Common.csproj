@@ -65,6 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="clsAMCTimeHelper.cs" />
+    <Compile Include="clsYardiHelper.cs" />
     <Compile Include="clsSortlyHelper.cs" />
     <Compile Include="clsUtilities.cs" />
     <Compile Include="clsWebFormHelper.cs" />

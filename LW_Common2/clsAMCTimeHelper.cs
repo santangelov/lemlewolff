@@ -27,7 +27,7 @@ namespace LW_Common
             using (var conn = new OleDbConnection(clsExcelHelper.GetExcelConnectionString(FilePathAndName)))
             {
                 conn.Open();
-                OleDbDataAdapter adapter = new OleDbDataAdapter(string.Format("SELECT * FROM [{0}$A4:N80000] WHERE [Payroll Name] > ''", WorksheetName), conn);
+                OleDbDataAdapter adapter = new OleDbDataAdapter(string.Format("SELECT * FROM [{0}$A4:N] WHERE [Payroll Name] > ''", WorksheetName), conn);
                 adapter.Fill(ds);
                 conn.Close();
                 conn.Dispose();
@@ -42,12 +42,13 @@ namespace LW_Common
             {
                 foreach (DataRow r in sourceTable.Rows)
                 {
+                    string uniqueID = r["File Number"].ToString() + "; " + r["Time In"].ToString() + "; " + r["Time Out"].ToString();
                     try
                     {
                         clsDataHelper dh = new clsDataHelper();
                         // Change Period to "#" and brackets [] to Parenthasis () int eh field names from Excel
                         dh.cmd.Parameters.AddWithValue("@CompanyCode", r["Company Code"].ToString());
-                        dh.cmd.Parameters.AddWithValue("@PayrollName", r["Payroll Name"].ToString());
+                        dh.cmd.Parameters.AddWithValue("@PayrollName", r["Payroll Name"].ToString().Replace("\t"," "));
                         dh.cmd.Parameters.AddWithValue("@FileNumber", r["File Number"].ToString());
                         dh.cmd.Parameters.AddWithValue("@TimeIn", "1/1/1900 " + r["Time In"].ToString());
                         dh.cmd.Parameters.AddWithValue("@TimeOut", "1/1/1900 " + r["Time Out"].ToString());
@@ -72,15 +73,15 @@ namespace LW_Common
                         }
                         else
                         {
-                            clsUtilities.WriteToCounter("AMC", "ERROR IN ROW " + RowsProcessed.ToString("#,###") + ". " + dh.data_err_msg);
-                            error_message += "ERROR IN ROW " + RowsProcessed.ToString("#,###") + ". " + dh.data_err_msg + "\n";
+                            clsUtilities.WriteToCounter("AMC", "ERROR IN ROW " + RowsProcessed.ToString("#,###") + ". " + dh.data_err_msg + "; " + uniqueID);
+                            error_message += "ERROR IN ROW " + RowsProcessed.ToString("#,###") + ". " + dh.data_err_msg + "; " + uniqueID + "\n";
                         }
                     }
                     catch (Exception e)
                     {
                         // Show the error and continue - later we need to record this somewhere 
-                        clsUtilities.WriteToCounter("AMC", "ERROR IN ROW " + RowsProcessed.ToString("#,###") + ". " + e.Message);
-                        error_message += "ERROR READING ROW " + RowsProcessed.ToString("#,###") + ". " + e.Message + "\n";
+                        clsUtilities.WriteToCounter("AMC", "ERROR IN ROW " + RowsProcessed.ToString("#,###") + ". " + e.Message + "; " + uniqueID);
+                        error_message += "ERROR READING ROW " + RowsProcessed.ToString("#,###") + ". " + e.Message + "; " + uniqueID + "\n";
                     }
                 }
             }

@@ -76,7 +76,8 @@ namespace LW_Web.Controllers
                     if (sheetNames.Count == 1)
                     {
                         openSheetName = sheetNames[0].ToString();
-                    }else
+                    }
+                    else
                     {
                         openSheetName = model.WorkSheetName;
                     }
@@ -91,6 +92,21 @@ namespace LW_Web.Controllers
                     }
                     else { ViewBag.Message = clsWebFormHelper.ErrorBoxMsgHTML("Error! Error after processing " + s.RowsProcessed.ToString() + " row(s). " + s.error_message); }
                 }
+                else if (FileType == "Yardi")
+                {
+                    clsYardiHelper y = new clsYardiHelper();
+                    if (y.Import_YardiWO_File(_path))
+                    {
+                        ViewBag.Message = clsWebFormHelper.SuccessBoxMsgHTML("Success! " + y.RowsProcessed.ToString() + " row(s) successfully processed.");
+                    }
+                    else { ViewBag.Message = clsWebFormHelper.ErrorBoxMsgHTML("Error! Error after processing " + y.RowsProcessed.ToString() + " row(s).</span>"); }
+
+                    if (y.Error_Log != "")
+                    {
+                        model.Error_log = "<div style='color=Red'>" + y.Error_Log.Replace("\r\n", "<br>") + "</div>";
+                    }
+                }
+
             }
             catch (Exception e)
             {

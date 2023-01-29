@@ -6,6 +6,7 @@ using System.Configuration;
 using LW_Data;
 using System.Threading;
 using System;
+using System.Text.RegularExpressions;
 
 namespace LW_Common
 {
@@ -46,6 +47,19 @@ namespace LW_Common
             {
                 foreach (DataRow r in sourceTable.Rows)
                 {
+                    // Get the WO NUmber from Folder-Level-2
+                    string WONumber = r["Subfolder-level2"].ToString();
+                    if (WONumber != "") { 
+                        if (WONumber.Trim().ToUpper().StartsWith("WO"))
+                        {
+                            WONumber = Regex.Match(WONumber, @"\d{6}").Value;
+                        }
+                        else
+                        {
+                            WONumber = string.Empty;
+                        }
+                    }
+
                     clsDataHelper dh = new clsDataHelper();
                     dh.cmd.Parameters.AddWithValue("@SortlyID", r["SID"].ToString());
                     dh.cmd.Parameters.AddWithValue("@itemName", r["Entry Name"].ToString());
@@ -65,7 +79,7 @@ namespace LW_Common
                     dh.cmd.Parameters.AddWithValue("@QR2", r["Barcode/QR2-Data"].ToString());
                     dh.cmd.Parameters.AddWithValue("@QR2Type", r["Barcode/QR2-Type"].ToString());
                     dh.cmd.Parameters.AddWithValue("@PONumber", r["Purchase Order Number"].ToString());
-                    dh.cmd.Parameters.AddWithValue("@WONumber", r["Work Order Number"].ToString());
+                    dh.cmd.Parameters.AddWithValue("@WONumber", WONumber.ToString());
                     dh.cmd.Parameters.AddWithValue("@WODate", r["WO Date"].ToString());
                     dh.cmd.Parameters.AddWithValue("@CreatedBy", "User1");
                     dh.cmd.Parameters.AddWithValue("@CreateDate", CreateDate);

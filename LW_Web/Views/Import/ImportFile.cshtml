@@ -32,6 +32,8 @@
 
                 @Html.Raw(ViewBag.Message)
 
+                @Html.Raw(Model.Error_log)
+
                 @using (Html.BeginForm("ImportFile", "Import", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal" }))
                 {
                     <div class="row mb-3">

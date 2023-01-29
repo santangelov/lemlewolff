@@ -7,6 +7,7 @@ using System.IO;
 using Newtonsoft.Json;
 using System.Diagnostics.PerformanceData;
 using System.Runtime.Caching;
+using System.Data;
 
 namespace LW_Common
 {
@@ -20,6 +21,7 @@ namespace LW_Common
 
     public class clsUtilities
     {
+        public string err_msg = "";
 
         /// <summary>
         /// The Countets are stored in memory cache
@@ -63,5 +65,28 @@ namespace LW_Common
             }
 
         }
+        public static string DataTableToDelimitedFile(ref DataTable dt, string Delimiter)
+        {
+            try
+            {
+                var builder = new StringBuilder();
+                // The headers
+                string[] columnNames = dt.Columns.Cast<DataColumn>().Select(x => x.ColumnName).ToArray();
+                builder.AppendLine(String.Join("\t", columnNames));
+
+                // The Data
+                foreach (DataRow row in dt.Rows)
+                {
+                    builder.AppendLine(String.Join("\t", row.ItemArray));
+                }
+                //File.WriteAllText(outFile, builder.ToString());
+                return builder.ToString();
+            }
+            catch (Exception e)
+            {
+                return "ERROR: " + e.Message;
+            }
+        }
     }
+    
 }

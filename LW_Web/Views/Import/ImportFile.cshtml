@@ -23,56 +23,96 @@
         </div>
     </div>
     <!-- end page title -->
-    <!-- SORTLY -->
-    <div class="col-6">
-        <div class="card">
-            <div class="card-body">
-                <h4 class="header-title">File Selection and Import</h4>
-                <p class="text-muted font-14">Choose a File Type and upload your file. Keep this window open until the import is complete.</p>
 
-                @Html.Raw(ViewBag.Message)
+    <div class="row">
 
-                @Html.Raw(Model.Error_log)
+        <!-- IMPORTS -->
+        <div class="col-6">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="header-title">File Selection and Import</h4>
+                    <p class="text-muted font-14">Choose a File Type and upload your file. Keep this window open until the import is complete.</p>
 
-                @using (Html.BeginForm("ImportFile", "Import", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal" }))
-                {
-                    <div class="row mb-3">
-                        <div class="col">
-                            @Html.DropDownList("ImportFileList", "Choose File Type")
+                    @Html.Raw(ViewBag.Message)
+
+                    @Html.Raw(Model.Error_log)
+
+                    @using (Html.BeginForm("ImportFile", "Import", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal" }))
+                    {
+                        <div class="row mb-3">
+                            <div class="col">
+                                @Html.DropDownList("ImportFileList", "Choose File Type")
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="row mb-3">
-                        <div class="col">
-                            @Html.LabelFor(m => m.WorkSheetName)
-                            @Html.TextBox("WorkSheetName", Model.WorkSheetName, new { @class = "form-control" })
+                        <div class="row mb-3">
+                            <div class="col">
+                                @Html.LabelFor(m => m.WorkSheetName)
+                                @Html.TextBox("WorkSheetName", Model.WorkSheetName, new { @class = "form-control" })
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="row mb-3">
-                        <div class="col">
-                            @Html.TextBox("file", Model.UploadedFile, new { type = "file", @class = "form-control" })
+                        <div class="row mb-3">
+                            <div class="col">
+                                @Html.TextBox("file", Model.UploadedFile, new { type = "file", @class = "form-control" })
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="row mb-3">
-                        <div class="col-2">
-                            <button type="submit" id="btnUpload" class="btn btn-primary">Upload</button>
+                        <div class="row mb-3">
+                            <div class="col">
+                                @Html.CheckBox("chkDelDataFirst", false, new { @class = "form-control" })
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="row mb-3">
-                        <div class="col-12">
-                            <span id="counterMsg"></span>
+                        <div class="row mb-3">
+                            <div class="col-4">
+                                <button type="submit" id="btnUpload" class="btn btn-primary w-100">Upload</button>
+                            </div>
                         </div>
-                    </div>
-                }
-            </div> <!-- end card-body -->
-        </div>  <!-- end card -->
-    </div>  
-    <!-- end col -->
 
-    <script type="text/javascript" src="~/assets/js-custom/importFilePage.js"></script>
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <span id="counterMsg"></span>
+                            </div>
+                        </div>
+                    }
+                </div> <!-- end card-body -->
+            </div>  <!-- end card -->
+        </div>
+        <!-- end col -->
+
+        <!-- MAINTENANCE -->
+        <div class="col-6">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="header-title">Maintenance</h4>
+                    <p class="text-muted font-14">After importing all files use the Process Data button to create the export data. After creating export data use the Export button to download the file.</p>
+                    @using (Html.BeginForm("RunAllSQL", "Import", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal" }))
+                    {
+                        <div class="row mb">
+                            <div class="col-10">
+                                <button type="submit" id="btnProcessAll" class="btn btn-primary w-100">Process Data</button>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <span id="MaintenanceMsg"></span>
+                            </div>
+                        </div>
+                    }
+
+                    @Html.Raw(ViewBag.Message2)
+
+                    @Html.Raw(Model.Error_log2)
+
+                </div> <!-- end card-body -->
+            </div>  <!-- end card -->
+        </div>
+        <!-- end col -->
+    </div>
+
+<script type="text/javascript" src="~/assets/js-custom/importFilePage.js"></script>
 
 
 

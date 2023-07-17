@@ -15,9 +15,9 @@ namespace LW_Web.Models
         {
             ImportFileList = new List<SelectListItem>();
             ImportFileList.Add(new SelectListItem { Text = "ADP", Value = "ADP", Selected=(selectedValue == "ADP" ? true : false) });
-            ImportFileList.Add(new SelectListItem { Text = "AMC Time", Value = "AMC", Selected = (selectedValue == "AMC" ? true : false) });
             ImportFileList.Add(new SelectListItem { Text = "Sortly", Value = "Sortly", Selected = (selectedValue == "Sortly" ? true : false) });
-            ImportFileList.Add(new SelectListItem { Text = "Yardi", Value = "Yardi", Selected = (selectedValue == "Yardi" ? true : false) });
+            ImportFileList.Add(new SelectListItem { Text = "Yardi Work Orders (CSV)", Value = "YardiWO", Selected = (selectedValue == "YardiWO" ? true : false) });
+            ImportFileList.Add(new SelectListItem { Text = "Yardi POs (CSV)", Value = "YardiPO", Selected = (selectedValue == "YardiPO" ? true : false) });
         }
 
         [DisplayName("ImportFileList")]
@@ -30,5 +30,9 @@ namespace LW_Web.Models
         public string WorkSheetName { get; set; }
 
         public string Error_log { get; set; }
+        public string Error_log2 { get; set; }
+
+        [DisplayName("Delete data before loading.")]
+        public bool DeleteDataFirst { get; set; }
     }
 }

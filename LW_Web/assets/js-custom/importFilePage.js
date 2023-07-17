@@ -23,4 +23,5 @@ $(function () {
 
         $('#btnUpload').addClass('disabled');
     });
+
 });

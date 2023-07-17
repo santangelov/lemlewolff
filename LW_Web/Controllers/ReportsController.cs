@@ -42,7 +42,7 @@ namespace LW_Web.Controllers
 
             DataTable dt = new DataTable();
             clsDataHelper H = new clsDataHelper();
-            dt = H.GetDataTableCMD("spReport_Master", ref cmd);
+            dt = H.GetDataTableCMD("spReport_Master2", ref cmd);
 
             if (H.data_err_msg != "")
             {
@@ -51,7 +51,6 @@ namespace LW_Web.Controllers
             }
             else
             {
-                //string outfile = ""; //  "C:\\Users\\Vincent\\Source\\Repos\\lemlewolff\\LW_Web\\_Exports\\MASTER-" + DateTime.Now.ToString("yyMMdd-hhmmss") + ".xls";
                 string document = LW_Common.clsUtilities.DataTableToDelimitedFile(ref dt, "\t");
 
                 if (document.StartsWith("ERROR:") || document == "")
@@ -61,7 +60,6 @@ namespace LW_Web.Controllers
                 }
 
                 var stream = new MemoryStream(Encoding.UTF8.GetBytes(document ?? ""));
-                // application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
                 return File(stream, "text/tab-separated-values", "MASTER-" + DateTime.Now.ToString("yyyyMMdd-hhmmss") + ".xls");
             }
 

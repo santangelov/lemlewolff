@@ -2070,6 +2070,7 @@
     <Content Include="assets\vendor\twitter-bootstrap-wizard\bootstrap\fonts\glyphicons-halflings-regular.eot" />
     <Content Include="assets\vendor\twitter-bootstrap-wizard\bootstrap\fonts\glyphicons-halflings-regular.ttf" />
     <Content Include="assets\vendor\twitter-bootstrap-wizard\bootstrap\fonts\glyphicons-halflings-regular.woff" />
+    <Content Include="_FileUploads\placeholder.txt" />
     <None Include="assets\jquery\jquery-3.6.0.intellisense.js" />
     <Content Include="assets\jquery\jquery-3.6.0.js" />
     <Content Include="assets\jquery\jquery-3.6.0.min.js" />
@@ -2150,7 +2151,7 @@
     <Folder Include="assets\vendor\moment\src\" />
     <Folder Include="assets\vendor\twitter-bootstrap-wizard\examples\" />
     <Folder Include="Views\Home\" />
-    <Folder Include="_FileUploads\" />
+    <Folder Include="Views\Maintenance\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LW_Common2\LW_Common.csproj">

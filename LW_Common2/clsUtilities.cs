@@ -24,7 +24,7 @@ namespace LW_Common
         public string err_msg = "";
 
         /// <summary>
-        /// The Countets are stored in memory cache
+        /// The Counters are stored in memory cache
         /// </summary>
         /// <param name="CounterName"></param>
         /// <param name="counterText"></param>

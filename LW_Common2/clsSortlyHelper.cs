@@ -7,6 +7,7 @@ using LW_Data;
 using System.Threading;
 using System;
 using System.Text.RegularExpressions;
+using System.Collections.Generic;
 
 namespace LW_Common
 {
@@ -14,8 +15,9 @@ namespace LW_Common
     {
         public string error_message { get; set; }
         public int RowsProcessed { get; set; }
+        public string WarningMsg { get; set; }
 
-        public bool Import_Sortly_File(string FilePathAndName)
+        public bool Import_Sortly_File(string FilePathAndName, string WorksheetName)
         {
 
             DataTable dtImport = new DataTable();
@@ -24,15 +26,23 @@ namespace LW_Common
 
             string FolderOnly = Path.GetDirectoryName(FilePathAndName);
             string FileNameOnly = Path.GetFileName(FilePathAndName);
-            //string connectionString = string.Format(@"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=""{0}"";Extended Properties=""Excel 12.0 Xml;HDR=Yes;FMT=Delimited"";", FilePathAndName);
-            string connectionString = string.Format(@"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=""{0}"";Extended Properties=""text;HDR=Yes;FMT=Delimited"";", FolderOnly);
+
+            //CSV:  string connectionString = string.Format(@"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=""{0}"";Extended Properties=""text;HDR=Yes;FMT=Delimited;ImportMixedTypes=Text;MaxScanRows=0;"";", FolderOnly);
+            //using (var conn = new OleDbConnection(connectionString))
+            //{
+            //    conn.Open();
+            //    OleDbDataAdapter adapter = new OleDbDataAdapter("SELECT * FROM [" + FileNameOnly + "]", conn);
+            //    adapter.Fill(ds);
+            //    conn.Close();
+            //    conn.Dispose();
+            //}
 
             DataSet ds = new DataSet("Temp");
-            using (var conn = new OleDbConnection(connectionString))
+
+            using (var conn = new OleDbConnection(clsExcelHelper.GetExcelConnectionString(FilePathAndName)))
             {
                 conn.Open();
-                OleDbDataAdapter adapter = new OleDbDataAdapter("SELECT * FROM [" + FileNameOnly + "]", conn);
-                //OleDbDataAdapter adapter = new OleDbDataAdapter("SELECT * FROM [Sheet1$]", conn);
+                OleDbDataAdapter adapter = new OleDbDataAdapter(string.Format("SELECT * FROM [{0}$A1:AO]", WorksheetName), conn);
                 adapter.Fill(ds);
                 conn.Close();
                 conn.Dispose();
@@ -40,55 +50,75 @@ namespace LW_Common
 
             DataTable sourceTable = ds.Tables[0];
 
-            RowsProcessed = 0;
             DateTime CreateDate = DateTime.Now;
             int NumToProcess = sourceTable.Rows.Count;
             if (NumToProcess > 0)
             {
+                // Validate the import file first - All columns are required
+                string NotFoundStr = "";
+                foreach (string s in new List<string> { "Entry Name", "SID", "Quantity", "Price", "Value", "Sell price", "Notes", "Primary Folder", "Subfolder-level1", "Subfolder-level2", "Subfolder-level3", "Subfolder-level4", "LANDED COST", "WO Date" })
+                {
+                    if (!sourceTable.Columns.Contains(s)) if (NotFoundStr == "") NotFoundStr += s; else NotFoundStr += ", " + s;
+                }
+                if (NotFoundStr != "")
+                {
+                    WarningMsg = "Sortly Import file NOT loaded. Columns not found: " + NotFoundStr;
+                    return false;
+                }
+
+                // Add rows
+                RowsProcessed = 0;
+                clsUtilities.WriteToCounter("Sortly", "0 of " + NumToProcess.ToString("#,###"));
+
+                int rowCount = 0;
                 foreach (DataRow r in sourceTable.Rows)
                 {
-                    // Get the WO NUmber from Folder-Level-2
-                    string WONumber = r["Subfolder-level2"].ToString();
-                    if (WONumber != "") { 
-                        if (WONumber.Trim().ToUpper().StartsWith("WO"))
-                        {
-                            WONumber = Regex.Match(WONumber, @"\d{6}").Value;
-                        }
-                        else
-                        {
-                            WONumber = string.Empty;
-                        }
-                    }
+                    rowCount++;
+
+                    /* THe WO Number will be calculated later for Sorty data at this point - 
+                     * So no WO Number will be imported now. Later we can set the WO Mumber during the import if we want. 
+                     * It is in the Folder columns */
+
+                    // Get the WO NUmber from Folders - look in different folder levels
+                    //string WONumber = String.Empty;
+                    //if (r["Subfolder-level2"].ToString().StartsWith("WO")) { WONumber = r["Subfolder-level2"].ToString(); }
+                    //if (WONumber == "" && r["Subfolder-level3"].ToString().StartsWith("WO")) { WONumber = r["Subfolder-level3"].ToString(); }
+                    //if (WONumber == "" && r["Subfolder-level4"].ToString().StartsWith("WO")) { WONumber = r["Subfolder-level4"].ToString(); }
+                    //if (WONumber == "" && r["Subfolder-level1"].ToString().StartsWith("WO")) { WONumber = r["Subfolder-level1"].ToString(); }
+                    //if (WONumber == "" && r["Primary Folder"].ToString().StartsWith("WO")) { WONumber = r["Primary Folder"].ToString(); }
+                    //if (WONumber != "") { WONumber = Regex.Match(WONumber, @"\d{6}").Value; }
+
+                    // Importing the Excel Sortly file. Not all columns are imported
+                    // Just make sure the names of the r[] entries match the column headers
 
                     clsDataHelper dh = new clsDataHelper();
+                    //dh.cmd.Parameters.AddWithValue("@WONumber", WONumber.ToString());
+                    dh.cmd.Parameters.AddWithValue("@ItemName", r["Entry Name"].ToString());
                     dh.cmd.Parameters.AddWithValue("@SortlyID", r["SID"].ToString());
-                    dh.cmd.Parameters.AddWithValue("@itemName", r["Entry Name"].ToString());
-                    dh.cmd.Parameters.AddWithValue("@itemGroupName", r["Item Group Name"].ToString());
-                    dh.cmd.Parameters.AddWithValue("@attribute1", r["Attribute 1 Option"].ToString());
-                    dh.cmd.Parameters.AddWithValue("@Qty", r["Quantity"]);
-                    dh.cmd.Parameters.AddWithValue("@minLevel", r["Min Level"]);
+                    dh.cmd.Parameters.AddWithValue("@Quantity", clsFunc.CastToInt(r["Quantity"],0));
                     dh.cmd.Parameters.AddWithValue("@unitPrice", r["Price"]);
-                    dh.cmd.Parameters.AddWithValue("@unitValue", r["Value"]);
+                    dh.cmd.Parameters.AddWithValue("@TotalValue", r["Value"]);
                     dh.cmd.Parameters.AddWithValue("@sellPrice", r["Sell price"]);
                     dh.cmd.Parameters.AddWithValue("@Notes", r["Notes"].ToString());
-                    dh.cmd.Parameters.AddWithValue("@folderLevel1", r["Primary Folder"].ToString());
-                    dh.cmd.Parameters.AddWithValue("@folderLevel2", r["Subfolder-level1"].ToString());
-                    dh.cmd.Parameters.AddWithValue("@folderLevel3", r["Subfolder-level2"].ToString());
-                    dh.cmd.Parameters.AddWithValue("@folderLevel4", r["Subfolder-level3"].ToString());
-                    dh.cmd.Parameters.AddWithValue("@QR1", r["Barcode/QR1-Data"].ToString());
-                    dh.cmd.Parameters.AddWithValue("@QR2", r["Barcode/QR2-Data"].ToString());
-                    dh.cmd.Parameters.AddWithValue("@QR2Type", r["Barcode/QR2-Type"].ToString());
-                    dh.cmd.Parameters.AddWithValue("@PONumber", r["Purchase Order Number"].ToString());
-                    dh.cmd.Parameters.AddWithValue("@WONumber", WONumber.ToString());
-                    dh.cmd.Parameters.AddWithValue("@WODate", r["WO Date"].ToString());
+                    dh.cmd.Parameters.AddWithValue("@PrimaryFolder", r["Primary Folder"].ToString());
+                    dh.cmd.Parameters.AddWithValue("@SubFolderLevel1", r["Subfolder-level1"].ToString());
+                    dh.cmd.Parameters.AddWithValue("@SubFolderLevel2", r["Subfolder-level2"].ToString());
+                    dh.cmd.Parameters.AddWithValue("@SubFolderLevel3", r["Subfolder-level3"].ToString());
+                    dh.cmd.Parameters.AddWithValue("@SubFolderLevel4", r["Subfolder-level4"].ToString());
+                    if (r["LANDED COST"].ToString().Trim() != "") dh.cmd.Parameters.AddWithValue("@LandedCost", clsFunc.CastToDec(r["LANDED COST"], 0));
+                    if (r["WO Date"].ToString().Trim() != "") dh.cmd.Parameters.AddWithValue("@WODate", r["WO Date"].ToString());  // Do not pass parameter if blank to make it NULL
                     dh.cmd.Parameters.AddWithValue("@CreatedBy", "User1");
                     dh.cmd.Parameters.AddWithValue("@CreateDate", CreateDate);
 
                     dh.cmd.Parameters.AddWithValue("@NoReturn", true);  // Force it to not return data for speed
                     bool isSuccess = dh.ExecuteSPCMD("spSortlyWorkOrderUpdate", false);
-                    if (isSuccess) RowsProcessed++;
+                    if (isSuccess) RowsProcessed++; else WarningMsg += " || row " + rowCount.ToString() +": " + dh.data_err_msg;
                     if (RowsProcessed % 15 == 0) clsUtilities.WriteToCounter("Sortly", RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###"));  // only update every 15 records
                 }
+
+                // Run the after Stored Procedures to clean up fields
+                clsDataHelper sp = new clsDataHelper();
+                if (!sp.ExecuteSPCMD("spRptBuilder_WOReview_04_SortlyFixes", false)) WarningMsg += " || spRptBuilder_WOReview_04_SortlyFixes: " + sp.data_err_msg;
             }
             return true;
         }

@@ -9,6 +9,19 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LW_Data", "LW_Data2\LW_Data
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LW_Common", "LW_Common2\LW_Common.csproj", "{4936DE28-743A-4609-B232-256D3F3A2FFE}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "YardiExportSQL", "YardiExportSQL", "{C9253149-FCBD-40D6-8270-8893EBB28947}"
+	ProjectSection(SolutionItems) = preProject
+		YardiExportSQL\01 - WO List.sql = YardiExportSQL\01 - WO List.sql
+		YardiExportSQL\02 - PO List.sql = YardiExportSQL\02 - PO List.sql
+		YardiExportSQL\Run all Procedures.sql = YardiExportSQL\Run all Procedures.sql
+		YardiExportSQL\03 - WO Invemtory List.sql = YardiExportSQL\03 - WO Invemtory List.sql
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ExcelTemplates", "ExcelTemplates", "{9BF5F220-EDBD-4F35-9C21-E1C4CCD652C5}"
+	ProjectSection(SolutionItems) = preProject
+		ExcelTemplates\_Template - WOAnalysis_01 - MMM-MMM.xlsx = ExcelTemplates\_Template - WOAnalysis_01 - MMM-MMM.xlsx
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

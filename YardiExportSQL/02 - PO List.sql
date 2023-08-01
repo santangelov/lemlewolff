@@ -1,0 +1,50 @@
+/* ==== PO - Purchase Orders from Yardi
+	built from rs_5_Maint_PO_Dir.txt
+*/
+
+DECLARE @Date1 datetime = '1/1/2023'  -- inclusive
+DECLARE @Date2 datetime = '7/1/2023'  -- not inclusive
+
+select distinct 
+	wo.scode as WONumber,
+    wo.dtCall as CallDate,
+	po.scode as PONumber,
+    v.uCode as VendorCode, 
+    v.uLastName as VendorName,
+    tm.InvoiceDate, 
+    acct.sCode as AcctCode,
+    CASE WHEN acct.sCode in ('600100', '711340') --OR wo.sCategory in ('AFP', 'APH-Boiler','APH-Plumbing') 
+         THEN 'LABOR' ELSE 'MATERIALS' END as AcctCategory,
+    acct.sDesc as AcctDesc,
+    isnull(podet.dTranTotalCost,0) as IndivPOTotal,
+    isnull(po.DTOTAL,0) as POAmount,
+    isnull(wo.cTotal0, 0) as WOAndInvoiceAmt,
+    NULL as LaborPricingOutside,
+ 	po.SEXPTYPE expensetype,
+	po.SREQUESTEDBY Requested,
+    format(po.DTORDEREDDATE,'MM/dd/yyyy') as PODate,
+    t.sDateCreated as Batch_Date
+
+from mm2wo wo
+	inner join mm2po po on wo.hmy=po.hWo
+    left join mm2podet podet on podet.hPo = po.hmy 
+    left outer join vendor v on po.hVendor = v.hMyPerson
+    left join acct on hPayAcct = acct.hMy
+    left join trans t on wo.hChgRcd = t.hMy
+	left join (	
+          select d.hPoDet, format(tr.SDATEOCCURRED,'MM/dd/yyyy') as InvoiceDate
+          from trans tr 
+      			inner join detail d on tr.hmy = d.hInvOrRec 
+      		where tr.void=0 and tr.itype=3 
+    )tm on tm.hPoDet=podet.hmy 
+where 	
+	(wo.dtCall >= @Date1 and wo.dtCall < @Date2)		 -- Call Date
+    OR (t.sDateCreated >= @Date1 and t.sDateCreated < @Date2)  -- My Batch Date
+    OR (wo.dtWCompl >= @Date1 and wo.dtWCompl < @Date2)
+	OR (wo.scode in (   -- Not using the joined table [b] because it makes query too slow. BATCH DATES
+		select distinct wo.sCode
+		from trans tr inner join MM2WO wo on tr.HPARENT2 = wo.hchgrcd
+		where tr.HPARENT2 <> 0 
+			and tr.SDATEOCCURRED >= @Date1
+			and tr.SDATEOCCURRED < @Date2)
+		)

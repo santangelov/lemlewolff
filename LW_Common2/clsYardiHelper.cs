@@ -56,6 +56,8 @@ namespace LW_Common
                     dh.cmd.Parameters.AddWithValue("@StartDate", r["StartDate"]);
                     dh.cmd.Parameters.AddWithValue("@SchedDate", r["SchedDate"]);
                     dh.cmd.Parameters.AddWithValue("@CompleteDate", r["CompleteDate"]);
+                    dh.cmd.Parameters.AddWithValue("@BatchID", r["BatchID"]);
+                    dh.cmd.Parameters.AddWithValue("@BatchDate", r["BatchDate"]);
                     dh.cmd.Parameters.AddWithValue("@Employee", r["Employee"]);
                     dh.cmd.Parameters.AddWithValue("@BriefDesc", r["BriefDesc"]);
                     dh.cmd.Parameters.AddWithValue("@Quantity", r["Quantity"]);
@@ -63,6 +65,7 @@ namespace LW_Common
                     dh.cmd.Parameters.AddWithValue("@FullDesc", r["FullDesc"]);
                     dh.cmd.Parameters.AddWithValue("@UnitPrice", r["UnitPrice"]);
                     dh.cmd.Parameters.AddWithValue("@PayAmt", r["PayAmt"]);
+                    dh.cmd.Parameters.AddWithValue("@TransBatchDate", r["woBatchOccuredDate"]);
 
                     dh.cmd.Parameters.AddWithValue("@CreatedBy", "User1");
                     dh.cmd.Parameters.AddWithValue("@CreateDate", CreateDate);

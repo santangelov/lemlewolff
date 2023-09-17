@@ -13,13 +13,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "YardiExportSQL", "YardiExpo
 	ProjectSection(SolutionItems) = preProject
 		YardiExportSQL\01 - WO List.sql = YardiExportSQL\01 - WO List.sql
 		YardiExportSQL\02 - PO List.sql = YardiExportSQL\02 - PO List.sql
-		YardiExportSQL\Run all Procedures.sql = YardiExportSQL\Run all Procedures.sql
 		YardiExportSQL\03 - WO Invemtory List.sql = YardiExportSQL\03 - WO Invemtory List.sql
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ExcelTemplates", "ExcelTemplates", "{9BF5F220-EDBD-4F35-9C21-E1C4CCD652C5}"
-	ProjectSection(SolutionItems) = preProject
-		ExcelTemplates\_Template - WOAnalysis_01 - MMM-MMM.xlsx = ExcelTemplates\_Template - WOAnalysis_01 - MMM-MMM.xlsx
+		YardiExportSQL\Run all Procedures.sql = YardiExportSQL\Run all Procedures.sql
 	EndProjectSection
 EndProject
 Global

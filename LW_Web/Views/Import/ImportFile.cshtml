@@ -41,7 +41,7 @@
                     {
                         <div class="row mb-3">
                             <div class="col">
-                                @Html.DropDownList("ImportFileList", "Choose File Type")
+                                @Html.DropDownList("SelectedFile", Model.ImportFileList, "Choose File Type" )
                             </div>
                         </div>
 
@@ -54,13 +54,16 @@
 
                         <div class="row mb-3">
                             <div class="col">
-                                @Html.TextBox("file", Model.UploadedFile, new { type = "file", @class = "form-control" })
+                                @Html.TextBoxFor(m => m.UploadedFile, new { type = "file", name = "UploadedFile", @class = "form-control" })   <!--("file", Model.UploadedFile, new { type = "file" and comma form-control }) -->
                             </div>
                         </div>
 
                         <div class="row mb-3">
                             <div class="col">
-                                @Html.CheckBox("chkDelDataFirst", false, new { @class = "form-control" })
+                                @Html.CheckBox("DeleteDataFirst", true, new {@class= "form-check-input" })
+                                <label class="form-check-label" for="chkDelDataFirst">
+                                    Delete data first
+                                </label>
                             </div>
                         </div>
 

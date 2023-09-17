@@ -15,8 +15,12 @@ namespace LW_Common
 
         public static bool RunAllReportSQL()
         {
+            // Clear out the results table first
+            clsDataHelper dh1 = new clsDataHelper();
+            dh1.cmd.Parameters.AddWithValue("@FileType", "master");
+            dh1.ExecuteSPCMD("spImport_Delete");
+
             clsDataHelper dh = new clsDataHelper();
-            //dh.cmd = new SqlCommand();
             bool isSuccess = true;
 
             //clsUtilities.WriteToCounter("MaintenanceMsg", "1: Processing WOs...");

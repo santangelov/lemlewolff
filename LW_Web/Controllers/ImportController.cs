@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -16,6 +17,7 @@ namespace LW_Web.Controllers
 {
     public class ImportController : Controller
     {
+        //[vin] left off -- test uploading files and having the table deleted; Test also deletion works on ALL RUNS button
 
         // GET: Import
         [HttpGet]
@@ -25,48 +27,44 @@ namespace LW_Web.Controllers
         }
 
         [HttpPost]
-        public ActionResult ImportFile(HttpPostedFileBase file)
+        public ActionResult ImportFile(ImportFilesModel mdl)   // This will auto-bind the model to the payload
         {
             Server.ScriptTimeout = 1200;
             string _path = "";
-
-            // Read form Response 
-            string FileType = Request["ImportFileList"];
-            string worksheetName = Request["WorkSheetName"];
-            bool   DelDataFirst = Convert.ToBoolean(Request["chkDelDataFirst"].ToString());
-
-            // Populate the Model
-            ImportFilesModel model = new ImportFilesModel(FileType);
-            model.WorkSheetName = worksheetName;
             ViewBag.Message = "";
 
-            clsUtilities.WriteToCounter(FileType, "Uploading Data...");
+            clsUtilities.WriteToCounter(mdl.SelectedFile, "Uploading Data...");
 
-            if (file == null) 
+            if (mdl.UploadedFile == null) 
             { 
                 ViewBag.Message = clsWebFormHelper.ErrorBoxMsgHTML("No File chosen to upload.");
-                return View(model);
+                return View(mdl);
+            }
+
+            if (mdl.DeleteDataFirst == true)
+            {
+                DeleteTable(mdl.SelectedFile);
             }
 
             try
             {
-                if (file.ContentLength > 0)
+                if (mdl.UploadedFile.ContentLength > 0)
                 {
-                    string _FileName = Path.GetFileName(file.FileName);
+                    string _FileName = Path.GetFileName(mdl.UploadedFile.FileName);
                     _path = Path.Combine(Server.MapPath("~/_FileUploads"), _FileName);
-                    file.SaveAs(_path);
+                    mdl.UploadedFile.SaveAs(_path);
                 }
 
                 // Delete data first if checked
-                if (DelDataFirst)
+                if (mdl.DeleteDataFirst)
                 {
                     clsDataHelper dh = new clsDataHelper();
-                    dh.cmd.Parameters.AddWithValue("@FileType", FileType);
+                    dh.cmd.Parameters.AddWithValue("@FileType", mdl.SelectedFile);
                     dh.ExecuteSPCMD("spImport_Delete", true);
                 }
 
                 // Import the files
-                if (FileType == "Sortly")
+                if (mdl.SelectedFile == "Sortly")
                 {
                     clsSortlyHelper s = new clsSortlyHelper();
 
@@ -74,7 +72,7 @@ namespace LW_Web.Controllers
                     List<string> sheetNames = clsExcelHelper.GetWorksheetNames(_path);
                     string openSheetName = "";
 
-                    if (sheetNames.Count == 1) openSheetName = sheetNames[0].ToString(); else openSheetName = model.WorkSheetName;
+                    if (sheetNames.Count == 1) openSheetName = sheetNames[0].ToString(); else openSheetName = mdl.WorkSheetName;
 
                     if (s.Import_Sortly_File(_path, openSheetName))
                     {
@@ -85,7 +83,7 @@ namespace LW_Web.Controllers
                     }
                     else { ViewBag.Message = clsWebFormHelper.ErrorBoxMsgHTML("Error! Error after processing " + s.RowsProcessed.ToString() + " row(s).</span>"); }
                 }
-                else if (FileType == "ADP")
+                else if (mdl.SelectedFile == "ADP")
                 {
                     clsADPHelper s = new clsADPHelper();
 
@@ -93,7 +91,7 @@ namespace LW_Web.Controllers
                     List<string> sheetNames = clsExcelHelper.GetWorksheetNames(_path);
                     string openSheetName = "";
 
-                    if (sheetNames.Count == 1) openSheetName = sheetNames[0].ToString(); else openSheetName = model.WorkSheetName;
+                    if (sheetNames.Count == 1) openSheetName = sheetNames[0].ToString(); else openSheetName = mdl.WorkSheetName;
 
                     if (s.Import_ADP_File(_path, openSheetName))
                     {
@@ -105,7 +103,7 @@ namespace LW_Web.Controllers
                     }
                     else { ViewBag.Message = clsWebFormHelper.ErrorBoxMsgHTML("Error! Error after processing " + s.RowsProcessed.ToString() + " row(s). " + s.error_message); }
                 }
-                else if (FileType == "YardiWO")
+                else if (mdl.SelectedFile == "YardiWO")
                 {
                     clsYardiHelper y = new clsYardiHelper();
                     if (y.Import_YardiWO_File(_path))
@@ -116,10 +114,10 @@ namespace LW_Web.Controllers
 
                     if (y.Error_Log != "")
                     {
-                        model.Error_log = "<div style='color=Red'>" + y.Error_Log.Replace("\r\n", "<br>") + "</div>";
+                        mdl.Error_log = "<div style='color=Red'>" + y.Error_Log.Replace("\r\n", "<br>") + "</div>";
                     }
                 }
-                else if (FileType == "YardiPO")
+                else if (mdl.SelectedFile == "YardiPO")
                 {
                     clsYardiHelper y = new clsYardiHelper();
                     if (y.Import_YardiPO_File(_path))
@@ -130,7 +128,7 @@ namespace LW_Web.Controllers
 
                     if (y.Error_Log != "")
                     {
-                        model.Error_log = "<div style='color=Red'>" + y.Error_Log.Replace("\r\n", "<br>") + "</div>";
+                        mdl.Error_log = "<div style='color=Red'>" + y.Error_Log.Replace("\r\n", "<br>") + "</div>";
                     }
                 }
 
@@ -140,7 +138,7 @@ namespace LW_Web.Controllers
                 ViewBag.Message = clsWebFormHelper.ErrorBoxMsgHTML("File upload failed!! " + e.Message);
             }
 
-            return View(model);
+            return View(mdl);
         }
 
         [HttpPost]
@@ -168,6 +166,21 @@ namespace LW_Web.Controllers
         {
             clsCounter C = clsUtilities.ReadCounter(fileType);
             return Json(C);
+        }
+
+        private bool DeleteTable(string TableFlag)
+        {
+            //IF @FileType = 'Sortly'         DELETE FROM tblImport_Sortly
+            //ELSE IF @FileType = 'ADP'       DELETE FROM tblImport_ADP
+            //ELSE IF @FileType = 'YardiWO'   DELETE FROM tblImport_Yardi_WOList
+            //ELSE IF @FileType = 'YardiPO'   DELETE FROM tblImport_Yardi_POs
+            //ELSE IF @FileType = 'master'    DELETE FROM tblMasterWOReview
+
+            if (TableFlag.IsEmpty()) return false;
+
+            clsDataHelper dh = new clsDataHelper();
+            dh.cmd.Parameters.AddWithValue("@FileType", TableFlag);
+            return dh.ExecuteSPCMD("spImport_Delete");
         }
 
     }

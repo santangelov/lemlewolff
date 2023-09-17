@@ -28,7 +28,7 @@ namespace LW_Common
             using (var conn = new OleDbConnection(clsExcelHelper.GetExcelConnectionString(FilePathAndName)))
             {
                 conn.Open();
-                OleDbDataAdapter adapter = new OleDbDataAdapter(@"SELECT * FROM [" + WorksheetName + "$A5:N] WHERE [Payroll Name] > ''", conn); // Filtering so we don't pick up the TOTAL rows
+                OleDbDataAdapter adapter = new OleDbDataAdapter(@"SELECT * FROM [" + WorksheetName + "$A5:Z] WHERE [Payroll Name] > ''", conn); // Filtering so we don't pick up the TOTAL rows
                 adapter.Fill(ds);
                 conn.Close();
                 conn.Dispose();

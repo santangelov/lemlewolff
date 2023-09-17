@@ -11,19 +11,22 @@ namespace LW_Web.Models
 {
     public class ImportFilesModel
     {
-        public ImportFilesModel(string selectedValue = "")
+        public ImportFilesModel()
         {
             ImportFileList = new List<SelectListItem>();
-            ImportFileList.Add(new SelectListItem { Text = "ADP", Value = "ADP", Selected=(selectedValue == "ADP" ? true : false) });
-            ImportFileList.Add(new SelectListItem { Text = "Sortly", Value = "Sortly", Selected = (selectedValue == "Sortly" ? true : false) });
-            ImportFileList.Add(new SelectListItem { Text = "Yardi Work Orders (CSV)", Value = "YardiWO", Selected = (selectedValue == "YardiWO" ? true : false) });
-            ImportFileList.Add(new SelectListItem { Text = "Yardi POs (CSV)", Value = "YardiPO", Selected = (selectedValue == "YardiPO" ? true : false) });
+            ImportFileList.Add(new SelectListItem { Text = "ADP", Value = "ADP", Selected=(SelectedFile == "ADP" ? true : false) });
+            ImportFileList.Add(new SelectListItem { Text = "Sortly (xlsx)", Value = "Sortly", Selected = (SelectedFile == "Sortly" ? true : false) });
+            ImportFileList.Add(new SelectListItem { Text = "Yardi Work Orders (CSV)", Value = "YardiWO", Selected = (SelectedFile == "YardiWO" ? true : false) });
+            ImportFileList.Add(new SelectListItem { Text = "Yardi POs (CSV)", Value = "YardiPO", Selected = (SelectedFile == "YardiPO" ? true : false) });
         }
 
-        [DisplayName("ImportFileList")]
+        [DisplayName("Import File List")]
         public List<SelectListItem> ImportFileList { get; set; }
 
-        [DisplayName("file")]
+        [DisplayName("Selected File")]
+        public string SelectedFile { get; set; }
+
+        [DisplayName("The File")]
         public HttpPostedFileBase UploadedFile { get; set; }
 
         [DisplayName("Name of Worksheet (if more than 1)")]

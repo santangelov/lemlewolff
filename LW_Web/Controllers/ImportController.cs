@@ -17,8 +17,6 @@ namespace LW_Web.Controllers
 {
     public class ImportController : Controller
     {
-        //[vin] left off -- test uploading files and having the table deleted; Test also deletion works on ALL RUNS button
-
         // GET: Import
         [HttpGet]
         public ActionResult ImportFile(String filetype)

@@ -2070,6 +2070,7 @@
     <Content Include="assets\vendor\twitter-bootstrap-wizard\bootstrap\fonts\glyphicons-halflings-regular.eot" />
     <Content Include="assets\vendor\twitter-bootstrap-wizard\bootstrap\fonts\glyphicons-halflings-regular.ttf" />
     <Content Include="assets\vendor\twitter-bootstrap-wizard\bootstrap\fonts\glyphicons-halflings-regular.woff" />
+    <Content Include="_Downloads\placeholder.txt" />
     <Content Include="_FileUploads\placeholder.txt" />
     <None Include="assets\jquery\jquery-3.6.0.intellisense.js" />
     <Content Include="assets\jquery\jquery-3.6.0.js" />
@@ -2094,7 +2095,7 @@
   <ItemGroup>
     <Content Include="Views\web.config" />
     <None Include="packages.config" />
-    <Content Include="Views\Import\ImportFile.cshtml" />
+    <Content Include="Views\Shared\ImportFile.cshtml" />
     <Content Include="assets\jquery\jquery-3.6.0.slim.min.map" />
     <Content Include="assets\jquery\jquery-3.6.0.min.map" />
     <Content Include="Views\Shared\_LayoutPage.cshtml" />
@@ -2163,6 +2164,17 @@
       <Project>{a1382675-953d-42ca-ad30-8431f89368c4}</Project>
       <Name>LW_Data</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="Microsoft.Office.Core">
+      <Guid>{2DF8D04C-5BFA-101B-BDE5-00AA0044DE52}</Guid>
+      <VersionMajor>2</VersionMajor>
+      <VersionMinor>8</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>primary</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

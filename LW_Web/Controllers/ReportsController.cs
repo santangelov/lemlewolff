@@ -27,6 +27,29 @@ namespace LW_Web.Controllers
         }
 
         [HttpPost]
+        public ActionResult GetWOAnalysisReport(bool pass = true)
+        {
+            Server.ScriptTimeout = 1200;
+            ImportFilesModel model = new ImportFilesModel();
+
+            clsReportHelper R = new clsReportHelper();
+            string NewFileName = "WOAnalysis_" + DateTime.Now.ToString("yy-MM-dd") + ".xlsx";
+
+            if (R.CreateWOAnalysisReport(NewFileName))
+            {
+                ViewBag.Message3 = "<div class=\"alert alert-success\"><strong><a href=\"\\_Downloads\\" + NewFileName + "\" target='_blank'>Download " + NewFileName + "</a></strong></div>";
+                model.Error_log3 = "";
+            }
+            else
+            {
+                ViewBag.Message3 = R.error_message;
+                model.Error_log3 = "<div class=\"alert alert-danger\"><strong>Error!</strong> Error creating download file.</div>";
+            }
+
+            return View("ImportFile", model);
+        }
+
+        [HttpPost]
         public ActionResult Reports()
         {
             Reportsmodel model = new Reportsmodel();

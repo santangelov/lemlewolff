@@ -32,8 +32,9 @@ namespace LW_Web.Models
         [DisplayName("Name of Worksheet (if more than 1)")]
         public string WorkSheetName { get; set; }
 
-        public string Error_log { get; set; }
-        public string Error_log2 { get; set; }
+        public string Error_log { get; set; }    // Imports
+        public string Error_log2 { get; set; }   // Maintenance
+        public string Error_log3 { get; set; }   // Reports
 
         [DisplayName("Delete data before loading.")]
         public bool DeleteDataFirst { get; set; }

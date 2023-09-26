@@ -111,6 +111,33 @@
 
                 </div> <!-- end card-body -->
             </div>  <!-- end card -->
+
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="header-title">Reports</h4>
+                    <p class="text-muted font-14">Returns the current and last processed report. You should probably run the Maintenance process first if it has not been run.</p>
+                    @using (Html.BeginForm("GetWOAnalysisReport", "Reports", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal" }))
+                    {
+                        <div class="row mb">
+                            <div class="col-10">
+                                <button type="submit" id="btnWOAnalysisReport" class="btn btn-primary w-100">Download Analysis Report</button>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <span id="DownloadReportMsg"></span>
+                            </div>
+                        </div>
+                    }
+
+                    @Html.Raw(ViewBag.Message3)
+
+                    @Html.Raw(Model.Error_log3)
+
+                </div> <!-- end card-body -->
+            </div>  <!-- end card -->
+
         </div>
         <!-- end col -->
     </div>

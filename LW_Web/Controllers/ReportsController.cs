@@ -35,7 +35,7 @@ namespace LW_Web.Controllers
             clsReportHelper R = new clsReportHelper();
             string NewFileName = "WOAnalysis_" + DateTime.Now.ToString("yy-MM-dd") + ".xlsx";
 
-            if (R.CreateWOAnalysisReport(NewFileName))
+            if (R.FillExcel_WOAnalysisReport(NewFileName))
             {
                 ViewBag.Message3 = "<div class=\"alert alert-success\"><strong><a href=\"\\_Downloads\\" + NewFileName + "\" target='_blank'>Download " + NewFileName + "</a></strong></div>";
                 model.Error_log3 = "";

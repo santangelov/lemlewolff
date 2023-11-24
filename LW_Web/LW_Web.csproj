@@ -308,15 +308,20 @@
     <Content Include="assets\jquery\jquery-3.6.0.slim.min.js" />
     <Content Include="Web.config" />
     <Content Include="_Templates\_Template - WOAnalysis_01 - MMM-MMM.xlsx" />
+    <Content Include="_Templates\_Template - Inventory.xlsx" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\ImportInventoryController.cs" />
     <Compile Include="Controllers\ImportController.cs" />
+    <Compile Include="Controllers\LoginController.cs" />
     <Compile Include="Controllers\ReportsController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\ImportInventoryModel.cs" />
+    <Compile Include="Models\LoginModel.cs" />
     <Compile Include="Models\ReportsModel.cs" />
     <Compile Include="Models\ImportFilesModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -329,6 +334,8 @@
     <Content Include="assets\jquery\jquery-3.6.0.min.map" />
     <Content Include="Views\Shared\_LayoutPage.cshtml" />
     <Content Include="Views\Reports\Reports.cshtml" />
+    <Content Include="Views\Shared\Login.cshtml" />
+    <Content Include="Views\Shared\ImportInventoryFiles.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -339,6 +346,7 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Views\Home\" />
+    <Folder Include="Views\Login\" />
     <Folder Include="Views\Maintenance\" />
   </ItemGroup>
   <ItemGroup>

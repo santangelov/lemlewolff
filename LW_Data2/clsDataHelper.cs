@@ -24,7 +24,7 @@ namespace LW_Data
 
 
         /// <summary>
-        /// This will opena nd clsoe the connection with each call. This is always opened as Read-Write
+        /// This will open and close the connection with each call. This is always opened as Read-Write
         /// </summary>
         /// <param name="sqlStoredProcedure"></param>
         /// <param name="ConnectionStr"></param>

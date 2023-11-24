@@ -7,6 +7,7 @@ using LW_Data;
 using System.Threading;
 using System;
 using System.Collections.Generic;
+using System.Security.Policy;
 
 namespace LW_Common
 {
@@ -67,7 +68,7 @@ namespace LW_Common
                         dh.cmd.Parameters.AddWithValue("@TimeIn", "1/1/1900 " + r["Time In"].ToString());
                         dh.cmd.Parameters.AddWithValue("@TimeOut", "1/1/1900 " + r["Time Out"].ToString());
                         dh.cmd.Parameters.AddWithValue("@Location", r["Timecard Work Location"]);
-                        dh.cmd.Parameters.AddWithValue("@WONumber", r["Timecard Work W#O#"]);
+                        dh.cmd.Parameters.AddWithValue("@WONumber", (r["Timecard Work W#O#"].ToString() == "") ? r["Timecard Work W#O"] : r["Timecard Work W#O#"]);  // WO Number could be in two diff columns
                         dh.cmd.Parameters.AddWithValue("@Department", r["Worked Department"]);
                         dh.cmd.Parameters.AddWithValue("@PayDate", r["Payroll Pay Date"]);
                         dh.cmd.Parameters.AddWithValue("@PayCode", r["Pay Code (Timecard)"].ToString());  // in the file it's "[Timecard]"

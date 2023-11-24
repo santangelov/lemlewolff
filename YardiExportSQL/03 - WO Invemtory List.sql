@@ -1,26 +1,34 @@
-/* SUPPLIES Inventory Report - based on WO List Report */
+/*  WO - Work Order Inventory
+	-- These are the SALES (minus)
+*/
 
-Select  
-rtrim(wo.sCode) as WONumber,
-rtrim(p.sCode) as Property,
-rtrim(u.sCode) as Unit,
-wo.dtCall Call_Date,
-wo.sBriefDesc Brief_Desc,
-wod.dquan as Qty,
-st.sCode as Stock,
-wod.sdesc as StockDesc,
-wod.dUnitPrice as UnitPrice,
-wod.dPayAmt as PayAmt
+Select 
+    rtrim(wo.sCode) as WONumber,
+    wo.sCategory as Category,
+    wo.sBriefDesc as BriefDesc,
+    st.sCode as ItemCode,
+    wod.sdesc as ItemDesc,
+    wod.dquan as Qty,
+    wod.dUnitPrice as UnitPrice,
+    wod.dPayAmt as TotalAmt,
+	wo.dtWCompl as CompleteDate,
+    wo.sExpenseType as ExpenseType,
+	rtrim(ltrim(p.sAddr1)) + ', ' + rtrim(ltrim(p.sAddr2)) as Client, 
+    v.uLastName as Vendor
 From
-MM2WO wo left outer join mm2wodet wod on (wo.hmy=wod.hWo)
-left outer join mm2stock st on (wod.hStock = st.hMy)
-left outer join Person ps on (wod.hPerson = ps.hMy)
-left outer join property p on (wo.hProperty = p.hMy)
-left outer join unit u on (wo.hUnit = u.hMy)
+    MM2WO wo 
+    left join mm2wodet wod on (wo.hmy=wod.hWo)
+    left join mm2stock st on (wod.hStock = st.hMy)
+    left join mmasset a on (wo.hasset = a.hMy)
+    left join vendor v on (wo.hVendor = v.hMyPerson)
+    left join property p on (wo.hProperty = p.hMy)
 where 
 	wo.sStatus in ('Work Completed')
-    AND wo.sCode is not null -- WONumber
-    AND wo.sCategory in ('Supplies')
-    AND (year(wo.dtCall) = 2023 AND month(wo.dtCall) in (1,2,3,4,5,6)
-		OR (year(wo.dtWCompl) = 2023))
+    and wo.sCategory in ('Violation', 'Supplies', 'APH-Plumbing', 'Repairs', 'Plumbing', 'APH-Boiler')
+    and wod.dquan is not null
+    and wo.dtWCompl is not null
+    and st.sCode like '__-%'
+    and wo.dtWCompl > '8/1/2023' and wo.dtWCompl < '10/1/2023'
+    --and wo.sCode = 477183
 order by wo.hMy
+

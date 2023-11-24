@@ -30,6 +30,7 @@ namespace LW_Common
         public static string WOAnalysisReportTemplatePath = HostingEnvironment.ApplicationPhysicalPath + "_Templates";   // C:\\Users\\Vincent\\Source\\Repos\\lemlewolff\\LW_Web
         public static string WOAnalysisReportDownloadPath = HostingEnvironment.ApplicationPhysicalPath + "_Downloads";
         public static string WOAnalysisReportTemplateFileName = "_Template - WOAnalysis_01 - MMM-MMM.xlsx";
+        public static string InventoryReportTemplateFileName = "_Template - Inventory.xlsx";
 
         public bool FillExcel_WOAnalysisReport(string NewFileName)
         {
@@ -70,6 +71,37 @@ namespace LW_Common
             return true;
         }
 
+        public bool FillExcel_InventoryReport(string NewFileName)
+        {
+            string TargetPathAndFileName = WOAnalysisReportDownloadPath + "\\" + NewFileName;
+
+            // Delete any existing file of the same name
+            try
+            {
+                System.IO.File.Delete(TargetPathAndFileName);
+            }
+            catch (Exception) { }
+
+            // Copy the Template file first to the new file name
+            System.IO.File.Copy(WOAnalysisReportTemplatePath + "\\" + InventoryReportTemplateFileName, TargetPathAndFileName, true);   // Default to overwrite = true
+
+            Excel.Application xlApp = new Excel.Application();
+            xlApp.Visible = false;
+            xlApp.UserControl = false;
+            Excel.Workbook xlWorkbook = xlApp.Workbooks.Open(TargetPathAndFileName);
+
+            clsExcelHelper E = new clsExcelHelper();
+
+            //  PAGE 1. Fill in the full report
+            E.FillExcelRangeFromSP(ref xlWorkbook, "spInventoryReport", 1, 2, 1);
+
+            // Close Excel Session
+            E.CleanUpExcelSession(ref xlApp, ref xlWorkbook, TargetPathAndFileName);
+
+            return true;
+        }
+
+
         public static bool RunAllReportSQL()
         {
             // Clear out the results table first
@@ -99,6 +131,25 @@ namespace LW_Common
             if (isSuccess) isSuccess = dh.ExecuteSPCMD("spRptBuilder_WOReview_06_Calcs", true);
 
             //clsUtilities.WriteToCounter("MaintenanceMsg", "7: DONE");
+
+            return isSuccess;
+        }
+
+        public static bool ProcessInventorySQL()
+        {
+            // Clear out the results table first
+            //clsDataHelper dh1 = new clsDataHelper();
+            //dh1.cmd.Parameters.AddWithValue("@FileType", "master");
+            //dh1.ExecuteSPCMD("spImport_Delete");
+
+            clsDataHelper dh = new clsDataHelper();
+            bool isSuccess = true;
+
+            clsUtilities.WriteToCounter("MaintenanceMsg", "1: Importing...");
+            if (isSuccess) isSuccess = dh.ExecuteSPCMD("spRptBuilder_Inventory_01_Import", true);
+
+            clsUtilities.WriteToCounter("MaintenanceMsg", "2: Processing Mods...");
+            if (isSuccess) isSuccess = dh.ExecuteSPCMD("spRptBuilder_Inventory_02_Mods", true);
 
             return isSuccess;
         }

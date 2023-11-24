@@ -15,6 +15,137 @@ namespace LW_Common
         public int RowsProcessed { get; set; }
         public string Error_Log { get; set; }
 
+        public bool Import_YardiWO_InventoryFile(string FilePathAndName)
+        {
+            Error_Log = "";
+
+            DataTable dtImport = new DataTable();
+
+            clsUtilities.WriteToCounter("Yardi WOs", "Starting...");
+
+            // Always delete contents of temp table first
+            clsDataHelper dh1 = new clsDataHelper();
+            dh1.cmd.Parameters.AddWithValue("@FileType", "InventoryWO");
+            dh1.ExecuteSPCMD("spImport_Delete");
+
+            string FolderOnly = Path.GetDirectoryName(FilePathAndName);
+            string FileNameOnly = Path.GetFileName(FilePathAndName);
+            string connectionString = string.Format(@"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=""{0}"";Extended Properties=""text;HDR=Yes;FMT=Delimited;ImportMixedTypes=Text;MaxScanRows=0;"";", FolderOnly);
+
+            DataSet ds = new DataSet("Temp");
+            using (var conn = new OleDbConnection(connectionString))
+            {
+                conn.Open();
+                OleDbDataAdapter adapter = new OleDbDataAdapter("SELECT * FROM [" + FileNameOnly + "]", conn);
+                adapter.Fill(ds);
+                conn.Close();
+                conn.Dispose();
+            }
+
+            DataTable sourceTable = ds.Tables[0];
+
+            RowsProcessed = 0;
+            DateTime CreateDate = DateTime.Now;
+            int NumToProcess = sourceTable.Rows.Count;
+            if (NumToProcess > 0)
+            {
+                foreach (DataRow r in sourceTable.Rows)
+                {
+                    clsDataHelper dh = new clsDataHelper();
+                    dh.cmd.Parameters.AddWithValue("@WONumber", r["WONumber"].ToString());
+                    dh.cmd.Parameters.AddWithValue("@Category", r["Category"]);
+                    dh.cmd.Parameters.AddWithValue("@BriefDesc", r["BriefDesc"]);
+                    dh.cmd.Parameters.AddWithValue("@ItemCode", r["ItemCode"]);
+                    dh.cmd.Parameters.AddWithValue("@ItemDesc", r["ItemDesc"]);
+                    dh.cmd.Parameters.AddWithValue("@Qty", r["Qty"]);
+                    dh.cmd.Parameters.AddWithValue("@UnitPrice", r["UnitPrice"]);
+                    dh.cmd.Parameters.AddWithValue("@TotalAmt", r["TotalAmt"]);
+                    dh.cmd.Parameters.AddWithValue("@CompleteDate", r["CompleteDate"]);
+                    dh.cmd.Parameters.AddWithValue("@Vendor", r["Vendor"]);
+                    dh.cmd.Parameters.AddWithValue("@Client", r["Client"]);
+
+                    bool isSuccess = dh.ExecuteSPCMD("spYardiWOsInvItemsUpdate", false);   // Importing to tblImport_Inv_Yardi_WOItems
+                    RowsProcessed++;
+                    if (!isSuccess)
+                    {
+                        clsUtilities.WriteToCounter("YardiWO", "Error: " + dh.data_err_msg + " (" + RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###") + ")");
+                        Error_Log += DateTime.Now.ToString() + ": Item Code " + r["ItemCode"].ToString() + "; WO Number: " + r["WONumber"].ToString() + "; ERROR: " + dh.data_err_msg + "\r\n";
+                    }
+                    else
+                    {
+                        if (RowsProcessed % 15 == 0) clsUtilities.WriteToCounter("YardiWO", RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###"));  // only update every 15 records
+                    }
+                }
+            }
+            return true;
+        }
+
+        public bool Import_YardiPO_InventoryFile(string FilePathAndName)
+        {
+            Error_Log = "";
+
+            DataTable dtImport = new DataTable();
+
+            clsUtilities.WriteToCounter("Yardi POs", "Starting...");
+
+            // Always delete contents of temp table first
+            clsDataHelper dh1 = new clsDataHelper();
+            dh1.cmd.Parameters.AddWithValue("@FileType", "InventoryPO");
+            dh1.ExecuteSPCMD("spImport_Delete");
+
+            string FolderOnly = Path.GetDirectoryName(FilePathAndName);
+            string FileNameOnly = Path.GetFileName(FilePathAndName);
+            string connectionString = string.Format(@"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=""{0}"";Extended Properties=""text;HDR=Yes;FMT=Delimited;ImportMixedTypes=Text;MaxScanRows=0;"";", FolderOnly);
+
+            DataSet ds = new DataSet("Temp");
+            using (var conn = new OleDbConnection(connectionString))
+            {
+                conn.Open();
+                OleDbDataAdapter adapter = new OleDbDataAdapter("SELECT * FROM [" + FileNameOnly + "]", conn);
+                adapter.Fill(ds);
+                conn.Close();
+                conn.Dispose();
+            }
+
+            DataTable sourceTable = ds.Tables[0];
+
+            RowsProcessed = 0;
+            DateTime CreateDate = DateTime.Now;
+            int NumToProcess = sourceTable.Rows.Count;
+            if (NumToProcess > 0)
+            {
+                foreach (DataRow r in sourceTable.Rows)
+                {
+                    clsDataHelper dh = new clsDataHelper();
+                    dh.cmd.Parameters.AddWithValue("@PONumber", r["PONumber"].ToString());
+                    dh.cmd.Parameters.AddWithValue("@WONumber", r["WONumber"].ToString());
+                    dh.cmd.Parameters.AddWithValue("@vendor", r["vendor"]);
+                    dh.cmd.Parameters.AddWithValue("@QtyOrdered", r["QtyOrdered"]);
+                    dh.cmd.Parameters.AddWithValue("@ExpenseType", r["ExpenseType"]);
+                    dh.cmd.Parameters.AddWithValue("@UnitPrice", r["UnitPrice"]);
+                    dh.cmd.Parameters.AddWithValue("@TotalCost", r["TotalCost"]);
+                    dh.cmd.Parameters.AddWithValue("@OrderDate", r["OrderDate"]);
+                    dh.cmd.Parameters.AddWithValue("@ReceivedDate", r["ReceivedDate"]);
+                    dh.cmd.Parameters.AddWithValue("@ItemCode", r["ItemCode"]);
+                    dh.cmd.Parameters.AddWithValue("@ItemDesc", r["ItemDesc"]);
+                    dh.cmd.Parameters.AddWithValue("@Client", r["Client"]);
+
+                    bool isSuccess = dh.ExecuteSPCMD("spYardiPOsInvItemsUpdate", false);   // Importing to tblImport_Inv_Yardi_POItems
+                    RowsProcessed++;
+                    if (!isSuccess)
+                    {
+                        clsUtilities.WriteToCounter("YardiWO", "Error: " + dh.data_err_msg + " (" + RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###") + ")");
+                        Error_Log += DateTime.Now.ToString() + ": Item Code " + r["ItemCode"].ToString() + "; PO Number: " + r["PONumber"].ToString() + "; ERROR: " + dh.data_err_msg + "\r\n";
+                    }
+                    else
+                    {
+                        if (RowsProcessed % 15 == 0) clsUtilities.WriteToCounter("YardiPO", RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###"));  // only update every 15 records
+                    }
+                }
+            }
+            return true;
+        }
+
         public bool Import_YardiWO_File(string FilePathAndName)
         {
             Error_Log = "";
@@ -156,6 +287,71 @@ namespace LW_Common
             return true;
         }
 
+        public bool Import_YardiWO_GeneralFile(string FilePathAndName)
+        {
+            Error_Log = "";
+
+            DataTable dtImport = new DataTable();
+
+            clsUtilities.WriteToCounter("Yardi WOs", "Starting...");
+
+            string FolderOnly = Path.GetDirectoryName(FilePathAndName);
+            string FileNameOnly = Path.GetFileName(FilePathAndName);
+            string connectionString = string.Format(@"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=""{0}"";Extended Properties=""text;HDR=Yes;FMT=Delimited;ImportMixedTypes=Text;MaxScanRows=0;"";", FolderOnly);
+
+            DataSet ds = new DataSet("Temp");
+            using (var conn = new OleDbConnection(connectionString))
+            {
+                conn.Open();
+                OleDbDataAdapter adapter = new OleDbDataAdapter("SELECT * FROM [" + FileNameOnly + "]", conn);
+                adapter.Fill(ds);
+                conn.Close();
+                conn.Dispose();
+            }
+
+            DataTable sourceTable = ds.Tables[0];
+
+            RowsProcessed = 0;
+            DateTime CreateDate = DateTime.Now;
+            int NumToProcess = sourceTable.Rows.Count;
+            if (NumToProcess > 0)
+            {
+                foreach (DataRow r in sourceTable.Rows)
+                {
+                    clsDataHelper dh = new clsDataHelper();
+                    dh.cmd.Parameters.AddWithValue("@WONumber", r["WONumber"].ToString());
+                    dh.cmd.Parameters.AddWithValue("@CompleteDate", r["CompleteDate"]);
+
+                    bool isSuccess = dh.ExecuteSPCMD("spWorkOrderStagingUpdate", false);
+                    RowsProcessed++;
+                    if (!isSuccess)
+                    {
+                        clsUtilities.WriteToCounter("YardiWO", "Error: " + dh.data_err_msg + " (" + RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###") + ")");
+                        Error_Log += DateTime.Now.ToString() + ": WO Number: " + r["WONumber"].ToString() + "; ERROR: " + dh.data_err_msg + "\r\n";
+                    }
+                    else
+                    {
+                        if (RowsProcessed % 15 == 0) clsUtilities.WriteToCounter("YardiWO", RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###"));  // only update every 15 records
+                    }
+                }
+
+                // Then run the processing part - we always just run this without having to run the processsing step seperately because we use this
+                // and may want to run this seperatly from the rest
+                clsDataHelper dh2 = new clsDataHelper();
+                bool isSuccess2 = dh2.ExecuteSPCMD("spRptBuilder_WorkOrdersImport_01", false);
+                if (!isSuccess2)
+                {
+                    clsUtilities.WriteToCounter("YardiWO", "Error: " + dh2.data_err_msg + " (" + RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###") + ")");
+                    Error_Log += DateTime.Now.ToString() + " ERROR: " + dh2.data_err_msg + "\r\n";
+                }
+                else
+                {
+                    if (RowsProcessed % 15 == 0) clsUtilities.WriteToCounter("YardiWO", "Success (You do not have to Process after this import)");  // This jut runs, there are no record counts to show
+                }
+
+            }
+            return true;
+        }
 
     }
 }

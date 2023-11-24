@@ -1,0 +1,142 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_LayoutPage.cshtml";
+}
+
+@model LW_Web.Models.ImportInventoryModel
+
+
+<!-- Start Content-->
+<div class="container-fluid">
+
+    <!-- start page title -->
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box">
+                <div class="page-title-right">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item active">Inventory</li>
+                    </ol>
+                </div>
+                <h4 class="page-title">Import Inventory Data</h4>
+            </div>
+        </div>
+    </div>
+    <!-- end page title -->
+
+    <div class="row">
+
+        <!-- IMPORTS -->
+        <div class="col-6">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="header-title">File Selection and Import</h4>
+                    <p class="text-muted font-14">Choose a File Type and upload your file. Keep this window open until the import is complete.</p>
+
+                    @Html.Raw(ViewBag.Message)
+
+                    @Html.Raw(Model.Error_log)
+
+                    @using (Html.BeginForm("ImportInventoryFiles", "ImportInventory", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal" }))
+                    {
+                        <div class="row mb-3">
+                            <div class="col">
+                                @Html.DropDownList("SelectedFile", Model.ImportFileList, "Choose File Type" )
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col">
+                                @Html.LabelFor(m => m.WorkSheetName)
+                                @Html.TextBox("WorkSheetName", Model.WorkSheetName, new { @class = "form-control" })
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col">
+                                @Html.TextBoxFor(m => m.UploadedFile, new { type = "file", name = "UploadedFile", @class = "form-control" })   <!--("file", Model.UploadedFile, new { type = "file" and comma form-control }) -->
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-4">
+                                <button type="submit" id="btnUpload" name="btnUpload" class="btn btn-primary w-100">Upload</button>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <span id="counterMsg"></span>
+                            </div>
+                        </div>
+                    }
+                </div> <!-- end card-body -->
+            </div>  <!-- end card -->
+        </div>
+        <!-- end col -->
+
+        <!-- MAINTENANCE -->
+        <div class="col-6">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="header-title">Maintenance</h4>
+                    <p class="text-muted font-14">After importing all files use the Process Data button to create the export data. After creating export data use the Export button to download the file.</p>
+                    @using (Html.BeginForm("RunAllSQL", "ImportInventory", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal" }))
+                    {
+                        <div class="row mb">
+                            <div class="col-10">
+                                <button type="submit" id="btnProcessAll" class="btn btn-primary w-100">Process Data</button>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <span id="MaintenanceMsg"></span>
+                            </div>
+                        </div>
+                    }
+
+                    @Html.Raw(ViewBag.Message2)
+
+                    @Html.Raw(Model.Error_log2)
+
+                </div> <!-- end card-body -->
+            </div>  <!-- end card -->
+
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="header-title">Inventory Reports</h4>
+                    <p class="text-muted font-14">Returns the current and last processed report. You should probably run the Maintenance process first if it has not been run.</p>
+                    @using (Html.BeginForm("GetInventoryReport", "Reports", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal" }))
+                    {
+                        <div class="row mb">
+                            <div class="col-10">
+                                <button type="submit" id="btnWOAnalysisReport" class="btn btn-primary w-100">Download Analysis Report</button>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <span id="DownloadReportMsg"></span>
+                            </div>
+                        </div>
+                    }
+
+                    @Html.Raw(ViewBag.Message3)
+
+                    @Html.Raw(Model.Error_log3)
+
+                </div> <!-- end card-body -->
+            </div>  <!-- end card -->
+
+        </div>
+        <!-- end col -->
+    </div>
+
+<script type="text/javascript" src="~/assets/js-custom/importFilePage.js"></script>
+
+
+
+
+
+

@@ -3,7 +3,7 @@
 $(function () {
 
     $('#btnUpload').on('click', function () {
-        var e = document.getElementById("ImportFileList");
+        var e = document.getElementById("SelectedFile");
 
         var x = setInterval(function () {
             $.ajax({

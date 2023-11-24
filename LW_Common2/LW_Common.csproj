@@ -69,6 +69,7 @@
     <Compile Include="clsFunc.cs" />
     <Compile Include="clsFunc_ArchiveFromVB.cs" />
     <Compile Include="clsReportHelper.cs" />
+    <Compile Include="clsSecurity.cs" />
     <Compile Include="clsYardiHelper.cs" />
     <Compile Include="clsSortlyHelper.cs" />
     <Compile Include="clsUtilities.cs" />

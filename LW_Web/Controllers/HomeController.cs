@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LW_Web.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -11,7 +12,8 @@ namespace LW_Web.Controllers
         // GET: Home
         public ActionResult Index()
         {
-            return RedirectToAction("ImportFile", "Import");
+            LoginModel mdl = new LoginModel();
+            return View("Login", mdl);
         }
     }
 }

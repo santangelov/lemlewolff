@@ -120,12 +120,12 @@ namespace LW_Web.Controllers
             return View("ImportInventoryFiles", model);
         }
 
-        //[HttpPost]
-        //public ActionResult Counter(string fileType)
-        //{
-        //    clsCounter C = clsUtilities.ReadCounter(fileType);
-        //    return Json(C);
-        //}
+        [HttpPost]
+        public ActionResult Counter(string fileType)
+        {
+            clsCounter C = clsUtilities.ReadCounter(fileType);
+            return Json(C);
+        }
 
     }
 }

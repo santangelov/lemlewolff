@@ -53,12 +53,14 @@ namespace LW_Web.Controllers
         public ActionResult GetInventoryReport(bool pass = true)
         {
             Server.ScriptTimeout = 1200;
-            ImportFilesModel model = new ImportFilesModel();
+            ImportInventoryModel model = new ImportInventoryModel();
 
             clsReportHelper R = new clsReportHelper();
-            string NewFileName = "Inventory_" + DateTime.Now.ToString("yy-MM-dd") + ".xlsx";
+            string StartDate = "10/01/2023";  // Inclusive
+            string EndDate = "12/01/2023";   // Not-Inclusive
+            string NewFileName = "Inventory_ByDay_" + DateTime.Parse(StartDate).ToString("yy-MM-dd") + " to " + DateTime.Parse(EndDate).ToString("yy-MM-dd") + ".xlsx";
 
-            if (R.FillExcel_InventoryReport(NewFileName))
+            if (R.FillExcel_InventoryDailyPivotReport(NewFileName, StartDate, EndDate))
             {
                 ViewBag.Message3 = "<div class=\"alert alert-success\"><strong><a href=\"\\_Downloads\\" + NewFileName + "\" target='_blank'>Download " + NewFileName + "</a></strong></div>";
                 model.Error_log3 = "";
@@ -69,7 +71,7 @@ namespace LW_Web.Controllers
                 model.Error_log3 = "<div class=\"alert alert-danger\"><strong>Error!</strong> Error creating download file.</div>";
             }
 
-            return View("ImportFile", model);
+            return View("ImportInventoryFiles", model);
         }
 
 

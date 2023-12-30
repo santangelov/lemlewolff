@@ -8,7 +8,7 @@ namespace LW_Web.Models
 {
     public class LoginModel
     {
-
+        // jrebuth@lemlewolff.com // jre5925#lemlewolff
         public LoginModel() { }
         public string Error_log { get; set; }    // Imports
 

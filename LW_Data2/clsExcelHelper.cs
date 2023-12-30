@@ -21,18 +21,50 @@ namespace LW_Data
 
     public class clsExcelHelper
     {
-        public bool FillExcelRangeFromSP(ref Excel.Workbook xlWorkbook, string StoredProcedure, int WorksheetNumber, int CellStartRow, int CellStartColumn)
+        public bool FillExcelRangeFromSP(ref Excel.Workbook xlWorkbook, string StoredProcedure, int WorksheetNumber, int CellStartRow, int CellStartColumn, SqlCommand cmd = null)
         {
             // Read the full datatable
             clsDataHelper DH = new clsDataHelper();
-            SqlCommand cmd = new SqlCommand();
+            if (cmd == null) cmd = new SqlCommand();
             System.Data.DataTable sourcedt = DH.GetDataTableCMD(StoredProcedure, ref cmd);
-            int colCount = sourcedt.Columns.Count;
-            int rowCount = sourcedt.Rows.Count;
+
+            return FillExcelRangeFromDT(ref xlWorkbook, ref sourcedt, WorksheetNumber, CellStartRow, CellStartColumn);
+
+                        //int colCount = sourcedt.Columns.Count;
+                        //int rowCount = sourcedt.Rows.Count;
+
+                        //object[,] values = new object[rowCount, colCount];
+                        //int i = 0;
+                        //foreach (DataRow R in sourcedt.Rows)
+                        //{
+                        //    for (int ii = 0; ii < colCount; ii++)
+                        //    {
+                        //        if (!string.IsNullOrEmpty(R[ii].ToString())) values[i, ii] = R[ii];
+                        //    }
+                        //    i++;
+                        //}
+
+                        //Excel._Worksheet xlWorksheet = xlWorkbook.Sheets[WorksheetNumber];
+                        //// Cells[Row, Column]
+                        //Excel.Range xlRange = xlWorksheet.Range[xlWorksheet.Cells[CellStartRow, CellStartColumn], xlWorksheet.Cells[CellStartRow + rowCount - 1, CellStartColumn + colCount - 1]];
+                        //xlRange.Value = values;
+                        //xlWorkbook.Save();
+
+                        ////release com objects to fully kill excel process from running in the background
+                        //Marshal.ReleaseComObject(xlRange);
+                        //Marshal.ReleaseComObject(xlWorksheet);
+
+                        //return true;
+        }
+
+        public bool FillExcelRangeFromDT(ref Excel.Workbook xlWorkbook, ref System.Data.DataTable dt, int WorksheetNumber, int CellStartRow, int CellStartColumn)
+        {
+            int colCount = dt.Columns.Count;
+            int rowCount = dt.Rows.Count;
 
             object[,] values = new object[rowCount, colCount];
             int i = 0;
-            foreach (DataRow R in sourcedt.Rows)
+            foreach (DataRow R in dt.Rows)
             {
                 for (int ii = 0; ii < colCount; ii++)
                 {
@@ -53,6 +85,68 @@ namespace LW_Data
 
             return true;
         }
+
+        /// <summary>
+        ///  Returns the number of columns pasted for the header
+        /// </summary>
+        /// <param name="xlWorkbook"></param>
+        /// <param name="dt"></param>
+        /// <param name="WorksheetNumber"></param>
+        /// <param name="HeaderRowNum"></param>
+        /// <param name="HeaderStartColumn"></param>
+        /// <returns></returns>
+        public int FillExcelHeadersFromDT(ref Excel.Workbook xlWorkbook, ref System.Data.DataTable dt, int WorksheetNumber, int HeaderRowNum, int HeaderStartColumn)
+        {
+            int colCount = dt.Columns.Count;
+            object[,] values = new object[1, colCount];
+
+            int i = 0;
+            foreach (DataColumn C in dt.Columns)
+            {
+                if (!string.IsNullOrEmpty(C.ColumnName)) values[0, i] = C.ColumnName;   // 0 = One row of data for header
+                i++;
+            }
+
+            Excel._Worksheet xlWorksheet = xlWorkbook.Sheets[WorksheetNumber];
+            // Cells[Row, Column]
+            Excel.Range xlRange = xlWorksheet.Range[xlWorksheet.Cells[HeaderRowNum, HeaderStartColumn], xlWorksheet.Cells[HeaderRowNum, HeaderStartColumn + colCount - 1]];
+            xlRange.Value = values;
+            xlWorkbook.Save();
+
+            //release com objects to fully kill excel process from running in the background
+            Marshal.ReleaseComObject(xlRange);
+            Marshal.ReleaseComObject(xlWorksheet);
+
+            return i;  
+        }
+
+        /// <summary>
+        /// Source and Dest strings: ie "A9:L9"
+        /// </summary>
+        /// <param name="xlWorkbook"></param>
+        /// <param name="SourceRange"></param>
+        /// <param name="DestRange"></param>
+        /// <returns></returns>
+        public bool CopyExcelRange(ref Excel.Workbook xlWorkbook, int WorksheetNumber, int SourceCellRow, int SourceCellColumn, int DestStartRow, int DestStartColumn, int DestEndRow, int DestEndColumn)
+        {
+            Excel._Worksheet xlWorksheet = xlWorkbook.Sheets[WorksheetNumber];
+            Excel.Range xlSourceRange = xlWorksheet.Range[xlWorksheet.Cells[SourceCellRow, SourceCellColumn], xlWorksheet.Cells[SourceCellRow, SourceCellColumn]];
+            Excel.Range xlDestRange = xlWorksheet.Range[xlWorksheet.Cells[DestStartRow, DestStartColumn], xlWorksheet.Cells[DestEndRow, DestEndColumn]];
+
+            xlSourceRange.Copy();
+            xlDestRange.PasteSpecial();
+
+            xlWorksheet.Range[xlWorksheet.Cells[1, 1], xlWorksheet.Cells[1, 1]].Select();  // Deselect the copied cells and select Cell A1
+            xlWorkbook.Save();
+
+            //release com objects to fully kill excel process from running in the background
+            Marshal.ReleaseComObject(xlSourceRange);
+            Marshal.ReleaseComObject(xlDestRange);
+            Marshal.ReleaseComObject(xlWorksheet);
+
+            return true;
+        }
+
 
         public bool CleanUpExcelSession(ref Excel.Application xlApp, ref Excel.Workbook xlWorkbook, string TargetPathAndFileName)
         {

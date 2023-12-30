@@ -13,8 +13,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "YardiExportSQL", "YardiExpo
 	ProjectSection(SolutionItems) = preProject
 		YardiExportSQL\01 - WO List.sql = YardiExportSQL\01 - WO List.sql
 		YardiExportSQL\02 - PO List.sql = YardiExportSQL\02 - PO List.sql
-		YardiExportSQL\03 - WO Invemtory List.sql = YardiExportSQL\03 - WO Invemtory List.sql
-		YardiExportSQL\04 - PO Invemtory List.sql = YardiExportSQL\04 - PO Invemtory List.sql
+		YardiExportSQL\03 - WO Inventory List.sql = YardiExportSQL\03 - WO Inventory List.sql
+		YardiExportSQL\05 - WorkOrderGeneral.sql = YardiExportSQL\05 - WorkOrderGeneral.sql
+		YardiExportSQL\04 - PO Inventory List.sql = YardiExportSQL\04 - PO Inventory List.sql
 		YardiExportSQL\Run all Procedures.sql = YardiExportSQL\Run all Procedures.sql
 	EndProjectSection
 EndProject

@@ -27,10 +27,11 @@ namespace LW_Common
         public string error_message { get; set; }
         public string WarningMsg { get; set; }
 
-        public static string WOAnalysisReportTemplatePath = HostingEnvironment.ApplicationPhysicalPath + "_Templates";   // C:\\Users\\Vincent\\Source\\Repos\\lemlewolff\\LW_Web
+        public static string TemplatePath = HostingEnvironment.ApplicationPhysicalPath + "_Templates";   // C:\\Users\\Vincent\\Source\\Repos\\lemlewolff\\LW_Web
         public static string WOAnalysisReportDownloadPath = HostingEnvironment.ApplicationPhysicalPath + "_Downloads";
         public static string WOAnalysisReportTemplateFileName = "_Template - WOAnalysis_01 - MMM-MMM.xlsx";
         public static string InventoryReportTemplateFileName = "_Template - Inventory.xlsx";
+        public static string InventoryReportTemplateFileName_Pivot = "_Template - Inventory Daily Pivot.xlsx";
 
         public bool FillExcel_WOAnalysisReport(string NewFileName)
         {
@@ -44,7 +45,7 @@ namespace LW_Common
             catch (Exception) { }
 
             // Copy the Template file first to the new file name
-            System.IO.File.Copy(WOAnalysisReportTemplatePath + "\\" + WOAnalysisReportTemplateFileName, TargetPathAndFileName, true);   // Default to overwrite = true
+            System.IO.File.Copy(TemplatePath + "\\" + WOAnalysisReportTemplateFileName, TargetPathAndFileName, true);   // Default to overwrite = true
 
             Excel.Application xlApp = new Excel.Application();
             xlApp.Visible = false;
@@ -83,7 +84,7 @@ namespace LW_Common
             catch (Exception) { }
 
             // Copy the Template file first to the new file name
-            System.IO.File.Copy(WOAnalysisReportTemplatePath + "\\" + InventoryReportTemplateFileName, TargetPathAndFileName, true);   // Default to overwrite = true
+            System.IO.File.Copy(TemplatePath + "\\" + InventoryReportTemplateFileName, TargetPathAndFileName, true);   // Default to overwrite = true
 
             Excel.Application xlApp = new Excel.Application();
             xlApp.Visible = false;
@@ -101,6 +102,67 @@ namespace LW_Common
             return true;
         }
 
+        public bool FillExcel_InventoryDailyPivotReport(string NewFileName, string StartDate, string EndDate)
+        {
+            string TargetPathAndFileName = WOAnalysisReportDownloadPath + "\\" + NewFileName;
+
+            // Delete any existing file of the same name
+            try
+            {
+                System.IO.File.Delete(TargetPathAndFileName);
+            }
+            catch (Exception) { }
+
+            // Copy the Template file first to the new file name
+            System.IO.File.Copy(TemplatePath + "\\" + InventoryReportTemplateFileName_Pivot, TargetPathAndFileName, true);   // Default to overwrite = true
+
+            Excel.Application xlApp = new Excel.Application();
+            xlApp.Visible = false;
+            xlApp.UserControl = false;
+            Excel.Workbook xlWorkbook = xlApp.Workbooks.Open(TargetPathAndFileName);
+
+            clsExcelHelper E = new clsExcelHelper();
+
+            // Set the parameters for the stored procedure
+            SqlCommand cmd = new SqlCommand();
+            cmd.Parameters.AddWithValue("@StartDate", StartDate);
+            cmd.Parameters.AddWithValue("@EndDate", EndDate);
+
+            // Run the one Stored Procedure, and it returns a number of tables
+            DataSet ds = new DataSet();
+            clsDataHelper DH = new clsDataHelper();
+            ds = DH.GetDataSetCMD("spRptBuilder_Inventory_PivotByDay", ref cmd);
+
+            // Pass in each table to fill in the worksheets
+            System.Data.DataTable dt = new System.Data.DataTable();
+            
+            // Sheet: Summary,  Dates
+            dt = ds.Tables[0];
+            E.FillExcelRangeFromDT(ref xlWorkbook, ref dt, 1, 2, 1);
+
+            // Sheet: Summary,  Totals
+            dt = ds.Tables[1];
+            E.FillExcelRangeFromDT(ref xlWorkbook, ref dt, 1, 5, 1);
+
+            // Sheet: Detail Data
+            dt = ds.Tables[2];
+            E.FillExcelRangeFromDT(ref xlWorkbook, ref dt, 2, 3, 1);   // Details
+            int numTotalColumns = E.FillExcelHeadersFromDT(ref xlWorkbook, ref dt, 2, 1, 1);   // Header
+            E.CopyExcelRange(ref xlWorkbook, 2, 2, 8, 2, 9, 2, numTotalColumns);  // Names Formula: copy the cell wiht the formula (H8) across all further columns
+
+            // Sheet: Labor
+            dt = ds.Tables[3];
+            E.FillExcelRangeFromDT(ref xlWorkbook, ref dt, 3, 2, 1);
+
+            // Sheet: Vendors
+            dt = ds.Tables[4];
+            E.FillExcelRangeFromDT(ref xlWorkbook, ref dt, 4, 2, 1);
+
+            // Close Excel Session
+            E.CleanUpExcelSession(ref xlApp, ref xlWorkbook, TargetPathAndFileName);
+
+            return true;
+        }
 
         public static bool RunAllReportSQL()
         {
@@ -147,9 +209,6 @@ namespace LW_Common
 
             clsUtilities.WriteToCounter("MaintenanceMsg", "1: Importing...");
             if (isSuccess) isSuccess = dh.ExecuteSPCMD("spRptBuilder_Inventory_01_Import", true);
-
-            clsUtilities.WriteToCounter("MaintenanceMsg", "2: Processing Mods...");
-            if (isSuccess) isSuccess = dh.ExecuteSPCMD("spRptBuilder_Inventory_02_Mods", true);
 
             return isSuccess;
         }

@@ -3,7 +3,7 @@
 */
 
 DECLARE @Date1 datetime = '1/1/2023'  -- inclusive
-DECLARE @Date2 datetime = '8/1/2023'  -- not inclusive
+DECLARE @Date2 datetime = '12/30/2023'  -- not inclusive
 
 select distinct 
 	wo.scode as WONumber,
@@ -28,7 +28,7 @@ select distinct
 from mm2wo wo
 	inner join mm2po po on wo.hmy=po.hWo
     left join mm2podet podet on podet.hPo = po.hmy 
-    left outer join vendor v on po.hVendor = v.hMyPerson
+    left join vendor v on po.hVendor = v.hMyPerson
     left join acct on hPayAcct = acct.hMy
     left join trans t on wo.hChgRcd = t.hMy
 	left join (	

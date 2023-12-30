@@ -127,11 +127,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="assets\css\app-modern-rtl.css" />
-    <Content Include="assets\css\app-modern-rtl.min.css" />
-    <Content Include="assets\css\app-modern.css" />
     <Content Include="assets\css\app-modern.min.css" />
-    <Content Include="assets\css\icons.css" />
     <Content Include="assets\css\icons.min.css" />
     <Content Include="assets\fonts\Nunito-Bold.svg" />
     <Content Include="assets\fonts\Nunito-Light.svg" />
@@ -218,7 +214,6 @@
     <Content Include="assets\images\users\avatar-9.jpg" />
     <Content Include="assets\images\waves.png" />
     <Content Include="assets\js-custom\importFilePage.js" />
-    <Content Include="assets\js\app.js" />
     <Content Include="assets\js\app.min.js" />
     <Content Include="assets\js\hyper-config.js" />
     <Content Include="assets\js\hyper-syntax.js" />
@@ -266,7 +261,6 @@
     <Content Include="assets\js\ui\component.todo.js" />
     <Content Include="assets\js\vendor.min.js" />
     <Content Include="Global.asax" />
-    <Content Include="assets\css\app-modern-rtl.min.css.map" />
     <Content Include="assets\css\app-modern.min.css.map" />
     <Content Include="assets\css\icons.min.css.map" />
     <Content Include="assets\data\ajax_demo_children.json" />
@@ -309,6 +303,7 @@
     <Content Include="Web.config" />
     <Content Include="_Templates\_Template - WOAnalysis_01 - MMM-MMM.xlsx" />
     <Content Include="_Templates\_Template - Inventory.xlsx" />
+    <Content Include="_Templates\_Template - Inventory Daily Pivot.xlsx" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\RouteConfig.cs" />
@@ -345,9 +340,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Views\Home\" />
-    <Folder Include="Views\Login\" />
-    <Folder Include="Views\Maintenance\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LW_Common2\LW_Common.csproj">

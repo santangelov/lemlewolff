@@ -57,6 +57,12 @@ namespace LW_Data
             return true;
         }
 
+        /// <summary>
+        /// This returns one table from the returned dataset
+        /// </summary>
+        /// <param name="sqlStoredProcedure"></param>
+        /// <param name="cmd"></param>
+        /// <returns></returns>
         public DataTable GetDataTableCMD(string sqlStoredProcedure, ref SqlCommand cmd)
         {
             string connStr = ConfigurationManager.ConnectionStrings["LWSQLConnStrRO"].ConnectionString;
@@ -95,6 +101,43 @@ namespace LW_Data
             }
 
         }
+
+        /// <summary>
+        /// This returns a DataSet which can contain multiple tables; Read-Only
+        /// </summary>
+        /// <param name="sqlStoredProcedure"></param>
+        /// <param name="cmd"></param>
+        /// <returns></returns>
+        public DataSet GetDataSetCMD(string sqlStoredProcedure, ref SqlCommand cmd)
+        {
+            string connStr = ConfigurationManager.ConnectionStrings["LWSQLConnStrRO"].ConnectionString;
+            SqlConnection cn = new SqlConnection(connStr);
+            data_err_msg = "";
+
+            cmd.Connection = cn;
+            cmd.CommandText = sqlStoredProcedure;
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            SqlDataAdapter DA = new SqlDataAdapter(cmd);
+            DataSet ds = new DataSet();
+
+            try
+            {
+                DA.Fill(ds);
+            }
+            catch (Exception e)
+            {
+                data_err_msg = e.Message;
+            }
+            finally
+            {
+                DA.Dispose();
+                cn.Close();
+            }
+
+            return ds;
+        }
+
 
     }
 }                                               

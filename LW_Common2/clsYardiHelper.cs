@@ -80,6 +80,11 @@ namespace LW_Common
             return true;
         }
 
+        /// <summary>
+        /// Import POs for the Inventory Report (tblImport_Inv_Yardi_POItems). It also updates tblWorkOrders with some vendor info
+        /// </summary>
+        /// <param name="FilePathAndName"></param>
+        /// <returns></returns>
         public bool Import_YardiPO_InventoryFile(string FilePathAndName)
         {
             Error_Log = "";
@@ -218,6 +223,11 @@ namespace LW_Common
             return true;
         }
 
+        /// <summary>
+        /// Import POs for the WO Review Report (tblMasterWOReview). It also updates tblWorkOrders with some vendor info
+        /// </summary>
+        /// <param name="FilePathAndName"></param>
+        /// <returns></returns>
         public bool Import_YardiPO_File(string FilePathAndName)
         {
             Error_Log = "";
@@ -283,6 +293,12 @@ namespace LW_Common
                         if (RowsProcessed % 15 == 0) clsUtilities.WriteToCounter("YardiPO", RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###"));  // only update every 15 records
                     }
                 }
+
+                /* Do some extra processing to update other tables 
+                    This uses the table we just updated to all at once update tblPurchaseOrders
+                */
+                clsDataHelper dh2 = new clsDataHelper();
+                bool isSuccess2 = dh2.ExecuteSPCMD("spPurchaseOrders_Import", true);
             }
             return true;
         }
@@ -293,7 +309,7 @@ namespace LW_Common
 
             DataTable dtImport = new DataTable();
 
-            clsUtilities.WriteToCounter("Yardi WOs", "Starting...");
+            clsUtilities.WriteToCounter("YardiWO", "Starting...");
 
             string FolderOnly = Path.GetDirectoryName(FilePathAndName);
             string FileNameOnly = Path.GetFileName(FilePathAndName);
@@ -312,17 +328,26 @@ namespace LW_Common
             DataTable sourceTable = ds.Tables[0];
 
             RowsProcessed = 0;
-            DateTime CreateDate = DateTime.Now;
             int NumToProcess = sourceTable.Rows.Count;
             if (NumToProcess > 0)
             {
-                foreach (DataRow r in sourceTable.Rows)
+                // We are loading the tblWorkOrders table directly
+               foreach (DataRow r in sourceTable.Rows)
                 {
                     clsDataHelper dh = new clsDataHelper();
-                    dh.cmd.Parameters.AddWithValue("@WONumber", r["WONumber"].ToString());
-                    dh.cmd.Parameters.AddWithValue("@CompleteDate", r["CompleteDate"]);
+                    dh.cmd.Parameters.AddWithValue("@WONumber",         r["WONumber"].ToString());
+                    dh.cmd.Parameters.AddWithValue("@CompleteDate",     r["CompleteDate"]);
+                    dh.cmd.Parameters.AddWithValue("@Category",         r["Category"]);
+                    dh.cmd.Parameters.AddWithValue("@JObStatus",        r["JObStatus"]);
+                    dh.cmd.Parameters.AddWithValue("@CallDate",         r["CallDate"]);
+                    dh.cmd.Parameters.AddWithValue("@SchedDate",        r["SchedDate"]);
+                    dh.cmd.Parameters.AddWithValue("@BatchID",          r["BatchID"]);
+                    dh.cmd.Parameters.AddWithValue("@BriefDesc",        r["BriefDesc"]);
+                    dh.cmd.Parameters.AddWithValue("@ExpenseType",      r["ExpenseType"]);
+                    dh.cmd.Parameters.AddWithValue("@yardiCreateDate",  r["yardiCreateDate"]);
+                    dh.cmd.Parameters.AddWithValue("@yardiUpdatedDate", r["yardiUpdatedDate"]);
 
-                    bool isSuccess = dh.ExecuteSPCMD("spWorkOrderStagingUpdate", false);
+                    bool isSuccess = dh.ExecuteSPCMD("spWorkOrderUpdate", false);
                     RowsProcessed++;
                     if (!isSuccess)
                     {
@@ -333,20 +358,6 @@ namespace LW_Common
                     {
                         if (RowsProcessed % 15 == 0) clsUtilities.WriteToCounter("YardiWO", RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###"));  // only update every 15 records
                     }
-                }
-
-                // Then run the processing part - we always just run this without having to run the processsing step seperately because we use this
-                // and may want to run this seperatly from the rest
-                clsDataHelper dh2 = new clsDataHelper();
-                bool isSuccess2 = dh2.ExecuteSPCMD("spRptBuilder_WorkOrdersImport_01", false);
-                if (!isSuccess2)
-                {
-                    clsUtilities.WriteToCounter("YardiWO", "Error: " + dh2.data_err_msg + " (" + RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###") + ")");
-                    Error_Log += DateTime.Now.ToString() + " ERROR: " + dh2.data_err_msg + "\r\n";
-                }
-                else
-                {
-                    if (RowsProcessed % 15 == 0) clsUtilities.WriteToCounter("YardiWO", "Success (You do not have to Process after this import)");  // This jut runs, there are no record counts to show
                 }
 
             }

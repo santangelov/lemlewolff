@@ -25,36 +25,10 @@ namespace LW_Data
         {
             // Read the full datatable
             clsDataHelper DH = new clsDataHelper();
-            if (cmd == null) cmd = new SqlCommand();
-            System.Data.DataTable sourcedt = DH.GetDataTableCMD(StoredProcedure, ref cmd);
+            if (cmd != null) DH.cmd = cmd;
+            System.Data.DataTable sourcedt = DH.GetDataTable(StoredProcedure);
 
             return FillExcelRangeFromDT(ref xlWorkbook, ref sourcedt, WorksheetNumber, CellStartRow, CellStartColumn);
-
-                        //int colCount = sourcedt.Columns.Count;
-                        //int rowCount = sourcedt.Rows.Count;
-
-                        //object[,] values = new object[rowCount, colCount];
-                        //int i = 0;
-                        //foreach (DataRow R in sourcedt.Rows)
-                        //{
-                        //    for (int ii = 0; ii < colCount; ii++)
-                        //    {
-                        //        if (!string.IsNullOrEmpty(R[ii].ToString())) values[i, ii] = R[ii];
-                        //    }
-                        //    i++;
-                        //}
-
-                        //Excel._Worksheet xlWorksheet = xlWorkbook.Sheets[WorksheetNumber];
-                        //// Cells[Row, Column]
-                        //Excel.Range xlRange = xlWorksheet.Range[xlWorksheet.Cells[CellStartRow, CellStartColumn], xlWorksheet.Cells[CellStartRow + rowCount - 1, CellStartColumn + colCount - 1]];
-                        //xlRange.Value = values;
-                        //xlWorkbook.Save();
-
-                        ////release com objects to fully kill excel process from running in the background
-                        //Marshal.ReleaseComObject(xlRange);
-                        //Marshal.ReleaseComObject(xlWorksheet);
-
-                        //return true;
         }
 
         public bool FillExcelRangeFromDT(ref Excel.Workbook xlWorkbook, ref System.Data.DataTable dt, int WorksheetNumber, int CellStartRow, int CellStartColumn)
@@ -135,9 +109,6 @@ namespace LW_Data
 
             xlSourceRange.Copy();
             xlDestRange.PasteSpecial();
-
-            xlWorksheet.Range[xlWorksheet.Cells[1, 1], xlWorksheet.Cells[1, 1]].Select();  // Deselect the copied cells and select Cell A1
-            xlWorkbook.Save();
 
             //release com objects to fully kill excel process from running in the background
             Marshal.ReleaseComObject(xlSourceRange);

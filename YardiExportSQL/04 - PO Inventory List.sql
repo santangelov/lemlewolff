@@ -1,7 +1,7 @@
 /*  PO INVENTORY LIST
 */
-DECLARE @Date1 datetime = '08/01/2023'  -- inclusive
-DECLARE @Date2 datetime = '12/01/2023'  -- not inclusive
+DECLARE @Date1 datetime = '1/01/2024'  -- inclusive
+DECLARE @Date2 datetime = '2/19/2024'  -- not inclusive
 
 Select 
       po.scode as PONumber, 	

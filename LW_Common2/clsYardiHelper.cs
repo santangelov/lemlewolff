@@ -139,7 +139,7 @@ namespace LW_Common
                     RowsProcessed++;
                     if (!isSuccess)
                     {
-                        clsUtilities.WriteToCounter("YardiWO", "Error: " + dh.data_err_msg + " (" + RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###") + ")");
+                        clsUtilities.WriteToCounter("YardiPO", "Error: " + dh.data_err_msg + " (" + RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###") + ")");
                         Error_Log += DateTime.Now.ToString() + ": Item Code " + r["ItemCode"].ToString() + "; PO Number: " + r["PONumber"].ToString() + "; ERROR: " + dh.data_err_msg + "\r\n";
                     }
                     else
@@ -202,6 +202,7 @@ namespace LW_Common
                     dh.cmd.Parameters.AddWithValue("@UnitPrice", r["UnitPrice"]);
                     dh.cmd.Parameters.AddWithValue("@PayAmt", r["PayAmt"]);
                     dh.cmd.Parameters.AddWithValue("@TransBatchDate", r["woBatchOccuredDate"]);
+                    dh.cmd.Parameters.AddWithValue("@PostedMonth", r["PostedMonth"]);
 
                     dh.cmd.Parameters.AddWithValue("@CreatedBy", "User1");
                     dh.cmd.Parameters.AddWithValue("@CreateDate", CreateDate);
@@ -351,12 +352,12 @@ namespace LW_Common
                     RowsProcessed++;
                     if (!isSuccess)
                     {
-                        clsUtilities.WriteToCounter("YardiWO", "Error: " + dh.data_err_msg + " (" + RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###") + ")");
+                        clsUtilities.WriteToCounter("YardiPO", "Error: " + dh.data_err_msg + " (" + RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###") + ")");
                         Error_Log += DateTime.Now.ToString() + ": WO Number: " + r["WONumber"].ToString() + "; ERROR: " + dh.data_err_msg + "\r\n";
                     }
                     else
                     {
-                        if (RowsProcessed % 15 == 0) clsUtilities.WriteToCounter("YardiWO", RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###"));  // only update every 15 records
+                        if (RowsProcessed % 15 == 0) clsUtilities.WriteToCounter("YardiPO", RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###"));  // only update every 15 records
                     }
                 }
 

@@ -7,9 +7,11 @@ namespace LW_Data
 {
     public class clsDataHelper
     {
+        public static string ENCRYPTION_KEY = "lmllm-ygsta7&%^?Hposga";
+
         public string data_err_msg = "";
         public SqlCommand cmd = new SqlCommand();
-
+        
         public static SqlConnection sqlconn(bool OpenReadWrite)
         {
             if (OpenReadWrite)
@@ -29,28 +31,29 @@ namespace LW_Data
         /// <param name="sqlStoredProcedure"></param>
         /// <param name="ConnectionStr"></param>
         /// <returns></returns>
-        public bool ExecuteSPCMD(string sqlStoredProcedure, bool CloseOnCompletion = true)
+        public bool ExecuteSPCMD(string sqlStoredProcedure, bool CloseOnCompletion = true, bool OpenReadWrite = true)
         {
-            SqlConnection cn = sqlconn(true);
-
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.CommandText = sqlStoredProcedure;
-            cmd.Connection = cn;
+            if (cmd.Connection is null || cmd.Connection?.ConnectionString == "") cmd.Connection = clsDataHelper.sqlconn(OpenReadWrite);
 
             try
             {
-                using (cn)
+                using (cmd.Connection)
                 {
-                    cn.Open();
+                    cmd.Connection.Open();
                     cmd.ExecuteNonQuery();
-                    if (CloseOnCompletion) cn.Dispose();
+                    if (CloseOnCompletion)
+                    {
+                        cmd.Connection.Close();
+                        cmd.Connection.Dispose();
+                    }
                 }
             }
             catch (Exception ex)
             {
-                
                 data_err_msg = ex.Message;
-                cn.Dispose();
+                cmd.Connection.Dispose();
                 return false;
             }
 
@@ -58,18 +61,15 @@ namespace LW_Data
         }
 
         /// <summary>
-        /// This returns one table from the returned dataset
+        /// This returns one table from the returned dataset. use the DataHelper.CMD for the cmd parameters.
         /// </summary>
         /// <param name="sqlStoredProcedure"></param>
-        /// <param name="cmd"></param>
         /// <returns></returns>
-        public DataTable GetDataTableCMD(string sqlStoredProcedure, ref SqlCommand cmd)
+        public DataTable GetDataTable(string sqlStoredProcedure)
         {
-            string connStr = ConfigurationManager.ConnectionStrings["LWSQLConnStrRO"].ConnectionString;
-            SqlConnection cn = new SqlConnection(connStr);
             data_err_msg = "";
 
-            cmd.Connection = cn;
+            cmd.Connection = clsDataHelper.sqlconn(false);
             cmd.CommandText = sqlStoredProcedure;
             cmd.CommandType = CommandType.StoredProcedure;
 
@@ -87,7 +87,7 @@ namespace LW_Data
             finally
             {
                 DA.Dispose();
-                cn.Close();
+                cmd.Connection.Close();
             }
 
             if (ds.Tables.Count == 0)
@@ -110,11 +110,9 @@ namespace LW_Data
         /// <returns></returns>
         public DataSet GetDataSetCMD(string sqlStoredProcedure, ref SqlCommand cmd)
         {
-            string connStr = ConfigurationManager.ConnectionStrings["LWSQLConnStrRO"].ConnectionString;
-            SqlConnection cn = new SqlConnection(connStr);
             data_err_msg = "";
 
-            cmd.Connection = cn;
+            cmd.Connection = clsDataHelper.sqlconn(false);
             cmd.CommandText = sqlStoredProcedure;
             cmd.CommandType = CommandType.StoredProcedure;
 
@@ -132,12 +130,27 @@ namespace LW_Data
             finally
             {
                 DA.Dispose();
-                cn.Close();
+                cmd.Connection.Close();
             }
 
             return ds;
         }
 
+        /// <summary>
+        /// This returns one row from the returned dataset. use the DataHelper.CMD for the cmd parameters.
+        /// </summary>
+        /// <param name="sqlStoredProcedure"></param>
+        /// <returns></returns>
+        public DataRow GetDataRow(string sqlStoredProcedure)
+        {
+            data_err_msg = "";
+
+            DataTable dt = GetDataTable(sqlStoredProcedure);
+            if (dt == null) { return  null; }
+            if (dt.Rows.Count == 0) { return null; }
+
+            return dt.Rows[0];
+        }
 
     }
 }                                               

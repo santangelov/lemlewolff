@@ -19,6 +19,7 @@
                     </ol>
                 </div>
                 <h4 class="page-title" style="color:chocolate;">INVENTORY REPORT</h4>
+                <p>@Html.Raw(Model.LoadedRangeText)</p>
             </div>
         </div>
     </div>
@@ -103,6 +104,8 @@
                 </div> <!-- end card-body -->
             </div>  <!-- end card -->
 
+
+
             <div class="card">
                 <div class="card-body">
                     <h4 class="header-title">Inventory Reports</h4>
@@ -111,7 +114,20 @@
                     {
                         <div class="row mb">
                             <div class="col-10">
-                                <button type="submit" id="btnWOAnalysisReport" class="btn btn-primary w-100">Download Analysis Report</button>
+                                @Html.LabelFor(m => m.StartDate)
+                                @Html.TextBox("StartDate", Model.StartDate, new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="row mb">
+                            <div class="col-10">
+                                @Html.LabelFor(m => m.EndDate)
+                                @Html.TextBox("EndDate", Model.EndDate, new { @class = "form-control" })
+                            </div>
+                        </div>
+
+                        <div class="row mb" style="margin-top:20px;">
+                            <div class="col-10">
+                                <button type="submit" id="btnWOAnalysisReport" class="btn btn-primary w-100">Download Daily Inventory Report</button>
                             </div>
                         </div>
 

@@ -1,8 +1,8 @@
 /*  WO - Work Order Inventory
 	-- These are the SALES (minus)
 */
-DECLARE @Date1 datetime = '8/1/2023'  -- inclusive
-DECLARE @Date2 datetime = '12/1/2023'  -- not inclusive
+DECLARE @Date1 datetime = '1/1/2024'  -- inclusive
+DECLARE @Date2 datetime = '2/19/2024'  -- not inclusive
 
 Select 
     rtrim(wo.sCode) as WONumber,

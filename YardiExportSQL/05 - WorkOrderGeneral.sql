@@ -16,7 +16,7 @@ Select
     wo.dtUpdatedt as yardiUpdatedDate    
 From MM2WO wo
 where wo.hVendor in (select hMyPerson from vendor where rtrim(ucode) in ('all2'))
-	-- and wo.dtUpdatedt > '1/1/2023'
+	and wo.dtUpdatedt > '1/1/2023'
     -- and wo.sStatus not in ('Canceled')
 order by wo.sCode
 

@@ -44,23 +44,23 @@ namespace LW_Web.Controllers
                 DeleteTable(mdl.SelectedFile);
             }
 
+            if (mdl.UploadedFile.ContentLength > 0)
+            {
+                string _FileName = Path.GetFileName(mdl.UploadedFile.FileName);
+                _path = Path.Combine(Server.MapPath("~/_FileUploads"), _FileName);
+                mdl.UploadedFile.SaveAs(_path);
+            }
+
+            // Delete data first if checked
+            if (mdl.DeleteDataFirst)
+            {
+                clsDataHelper dh = new clsDataHelper();
+                dh.cmd.Parameters.AddWithValue("@FileType", mdl.SelectedFile);
+                dh.ExecuteSPCMD("spImport_Delete", true, true);
+            }
+
             try
             {
-                if (mdl.UploadedFile.ContentLength > 0)
-                {
-                    string _FileName = Path.GetFileName(mdl.UploadedFile.FileName);
-                    _path = Path.Combine(Server.MapPath("~/_FileUploads"), _FileName);
-                    mdl.UploadedFile.SaveAs(_path);
-                }
-
-                // Delete data first if checked
-                if (mdl.DeleteDataFirst)
-                {
-                    clsDataHelper dh = new clsDataHelper();
-                    dh.cmd.Parameters.AddWithValue("@FileType", mdl.SelectedFile);
-                    dh.ExecuteSPCMD("spImport_Delete", true);
-                }
-
                 // Import the files
                 if (mdl.SelectedFile == "Sortly")
                 {
@@ -130,7 +130,7 @@ namespace LW_Web.Controllers
                     }
                 }
 
-            }
+        }
             catch (Exception e)
             {
                 ViewBag.Message = clsWebFormHelper.ErrorBoxMsgHTML("File upload failed!! " + e.Message);
@@ -168,17 +168,11 @@ namespace LW_Web.Controllers
 
         private bool DeleteTable(string TableFlag)
         {
-            //IF @FileType = 'Sortly'         DELETE FROM tblImport_Sortly
-            //ELSE IF @FileType = 'ADP'       DELETE FROM tblImport_ADP
-            //ELSE IF @FileType = 'YardiWO'   DELETE FROM tblImport_Yardi_WOList
-            //ELSE IF @FileType = 'YardiPO'   DELETE FROM tblImport_Yardi_POs
-            //ELSE IF @FileType = 'master'    DELETE FROM tblMasterWOReview
-
             if (TableFlag.IsEmpty()) return false;
 
             clsDataHelper dh = new clsDataHelper();
             dh.cmd.Parameters.AddWithValue("@FileType", TableFlag);
-            return dh.ExecuteSPCMD("spImport_Delete");
+            return dh.ExecuteSPCMD("spImport_Delete", true, true);
         }
 
     }

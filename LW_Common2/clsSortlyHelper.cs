@@ -79,15 +79,6 @@ namespace LW_Common
                      * So no WO Number will be imported now. Later we can set the WO Mumber during the import if we want. 
                      * It is in the Folder columns */
 
-                    // Get the WO NUmber from Folders - look in different folder levels
-                    //string WONumber = String.Empty;
-                    //if (r["Subfolder-level2"].ToString().StartsWith("WO")) { WONumber = r["Subfolder-level2"].ToString(); }
-                    //if (WONumber == "" && r["Subfolder-level3"].ToString().StartsWith("WO")) { WONumber = r["Subfolder-level3"].ToString(); }
-                    //if (WONumber == "" && r["Subfolder-level4"].ToString().StartsWith("WO")) { WONumber = r["Subfolder-level4"].ToString(); }
-                    //if (WONumber == "" && r["Subfolder-level1"].ToString().StartsWith("WO")) { WONumber = r["Subfolder-level1"].ToString(); }
-                    //if (WONumber == "" && r["Primary Folder"].ToString().StartsWith("WO")) { WONumber = r["Primary Folder"].ToString(); }
-                    //if (WONumber != "") { WONumber = Regex.Match(WONumber, @"\d{6}").Value; }
-
                     // Importing the Excel Sortly file. Not all columns are imported
                     // Just make sure the names of the r[] entries match the column headers
 

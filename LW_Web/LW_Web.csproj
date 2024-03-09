@@ -32,6 +32,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -41,6 +42,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform, Version=3.6.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -302,8 +304,7 @@
     <Content Include="assets\jquery\jquery-3.6.0.slim.min.js" />
     <Content Include="Web.config" />
     <Content Include="_Templates\_Template - WOAnalysis_01 - MMM-MMM.xlsx" />
-    <Content Include="_Templates\_Template - Inventory.xlsx" />
-    <Content Include="_Templates\_Template - Inventory Daily Pivot.xlsx" />
+    <Content Include="_Templates\_Template - Inventory Daily Pivot_WithDollars.xlsx" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\RouteConfig.cs" />

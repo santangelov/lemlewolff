@@ -34,7 +34,11 @@ namespace LW_Web.Controllers
             clsReportHelper R = new clsReportHelper();
             string StartDate = model.StartDate;  // Inclusive
             string EndDate = model.EndDate;   // Not-Inclusive
-            string NewFileName = "WOAnalysis_" + DateTime.Now.ToString("yy-MM-dd") + ".xlsx";
+
+            DateTime StartDate_dt = clsFunc.CastToDateTime(StartDate, new DateTime(1900, 1, 1));
+            DateTime EndDate_dt = clsFunc.CastToDateTime(EndDate, new DateTime(2099, 1, 1));
+
+            string NewFileName = "WOAnalysis_" + StartDate_dt.ToString("yyyy-MM-dd") + "-" + EndDate_dt.ToString("yyyy-MM-dd") + ".xlsx";
 
             if (R.FillExcel_WOAnalysisReport(NewFileName, StartDate, EndDate))
             {

@@ -2,7 +2,7 @@
 	built from rs_5_Maint_PO_Dir.txt
 */
 
-DECLARE @Date1 datetime = '2/1/2024'  -- inclusive
+DECLARE @Date1 datetime = '1/1/2024'  -- inclusive
 DECLARE @Date2 datetime = '3/1/2024'  -- not inclusive
 
 select distinct 

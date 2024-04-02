@@ -1,9 +1,10 @@
 /*  PO INVENTORY LIST
 */
 DECLARE @Date1 datetime = '1/01/2024'  -- inclusive
-DECLARE @Date2 datetime = '2/19/2024'  -- not inclusive
+DECLARE @Date2 datetime = '4/1/2024'  -- not inclusive
 
 Select 
+      pod.hmy as YardiMM2PODetID,
       po.scode as PONumber, 	
       wo.scode as WONumber,
       v.uLastName as Vendor, 
@@ -23,10 +24,8 @@ from mm2podet pod
      left join vendor v   on (po.hVendor = v.hMyPerson)
      left join property p on (wo.hProperty = p.hMy)
 where  
-     s.scode like ('__-%')
-     and ltrim(rtrim(po.SEXPTYPE)) in ('Plumbing-Inventory','CoOp-Inventory','Boiler-Inventory','Maintenance-Inventory')
-     and po.dtordereddate >= @Date1 and po.dtordereddate < @Date2
-     --and dtOrderedDate > '1/1/2023'
-     --and po.scode in (48543) -- PONumber
+     (s.scode like ('material%') or s.scode like ('__-%'))   -- ItemCode = "Materials" end up in the Exception Table
+     and ltrim(rtrim(po.SEXPTYPE)) in ('Plumbing-Inventory','CoOp-Inventory','Maintenance-Inventory')
+     and pod.dtReceivedDate >= @Date1 and pod.dtReceivedDate < @Date2
 order by po.scode
 

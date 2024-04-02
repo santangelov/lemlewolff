@@ -4,7 +4,7 @@
 	-- 7/30: added Batch Dates (SDATEOCCURRED) - the other date that could be used but left off is trans.uPOSTDATE
 */
 DECLARE @Date1 datetime = '1/1/2024'  -- inclusive
-DECLARE @Date2 datetime = '3/1/2024'  -- not inclusive
+DECLARE @Date2 datetime = '4/1/2024'  -- not inclusive
 
 Select 
 	rtrim(wo.sCode) WONumber,
@@ -51,4 +51,4 @@ WHERE
 		  OR (t.sDateCreated >= @Date1 and t.sDateCreated < @Date2)   -- Batch Date
           OR (wo.dtWCompl >= @Date1 and wo.dtWCompl < @Date2)
      	)
-	-- AND rtrim(wo.sCode) in (428151)
+	-- AND rtrim(wo.sCode) in (475380)

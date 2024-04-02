@@ -3,7 +3,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Data.OleDb;
 using System.Configuration;
-using LW_Data;
+using LW_Data;  
 using System.Threading;
 using System;
 
@@ -122,6 +122,7 @@ namespace LW_Common
                 foreach (DataRow r in sourceTable.Rows)
                 {
                     clsDataHelper dh = new clsDataHelper();
+                    dh.cmd.Parameters.AddWithValue("@YardiMM2PODetID", r["YardiMM2PODetID"]);
                     dh.cmd.Parameters.AddWithValue("@PONumber", r["PONumber"].ToString());
                     dh.cmd.Parameters.AddWithValue("@WONumber", r["WONumber"].ToString());
                     dh.cmd.Parameters.AddWithValue("@vendor", r["vendor"]);
@@ -135,8 +136,22 @@ namespace LW_Common
                     dh.cmd.Parameters.AddWithValue("@ItemDesc", r["ItemDesc"]);
                     dh.cmd.Parameters.AddWithValue("@Client", r["Client"]);
 
-                    bool isSuccess = dh.ExecuteSPCMD("spYardiPOsInvItemsUpdate", false);   // Importing to tblImport_Inv_Yardi_POItems
+                    bool isSuccess = false; 
+                    
+                    // Capture Exceptions for the PO Exception Table
+                    //  1. Item Code = "material%"
+
+                    if (r["ItemCode"].ToString().ToLower().Contains("material"))
+                    {
+                        isSuccess = dh.ExecuteSPCMD("spPurchaseOrderItems_ExceptionsUpdate", false);   // Importing to tblImport_Inv_Yardi_POItems_Exception table
+                    }
+                    else
+                    {
+                        isSuccess = dh.ExecuteSPCMD("spYardiPOsInvItemsUpdate", false);   // Importing to tblImport_Inv_Yardi_POItems
+                    }
+
                     RowsProcessed++;
+
                     if (!isSuccess)
                     {
                         clsUtilities.WriteToCounter("YardiPO", "Error: " + dh.data_err_msg + " (" + RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###") + ")");
@@ -151,6 +166,11 @@ namespace LW_Common
             return true;
         }
 
+        /// <summary>
+        /// Import Yardi Work Orders for INVENTORY reporting
+        /// </summary>
+        /// <param name="FilePathAndName"></param>
+        /// <returns></returns>
         public bool Import_YardiWO_File(string FilePathAndName)
         {
             Error_Log = "";

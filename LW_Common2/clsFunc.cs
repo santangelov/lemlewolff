@@ -46,6 +46,23 @@ namespace LW_Common
             }
         }
 
+        public static DateTime CastToDateTime(object value, DateTime defaultValue)
+        {
+            try
+            {
+                DateTime d;
+                if (value == null || value == DBNull.Value || !DateTime.TryParse(value.ToString(), out d))
+                {
+                    return defaultValue;
+                }
+                else { return DateTime.Parse(value.ToString()); }
+            }
+            catch (Exception ex)
+            {
+                return defaultValue;
+            }
+        }
+
 
         public static decimal CastToDec(object value, decimal defaultValue)
         {

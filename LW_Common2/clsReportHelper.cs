@@ -151,6 +151,10 @@ namespace LW_Common
             dt = ds.Tables[4];
             E.FillExcelRangeFromDT(ref xlWorkbook, ref dt, 5, 2, 1);
 
+            // Sheet: Exceptions
+            dt = ds.Tables[5];
+            E.FillExcelRangeFromDT(ref xlWorkbook, ref dt, 6, 2, 1);
+
             // Close Excel Session
             E.CleanUpExcelSession(ref xlApp, ref xlWorkbook, TargetPathAndFileName);
 

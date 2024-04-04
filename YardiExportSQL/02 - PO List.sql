@@ -3,7 +3,7 @@
 */
 
 DECLARE @Date1 datetime = '1/1/2024'  -- inclusive
-DECLARE @Date2 datetime = '3/1/2024'  -- not inclusive
+DECLARE @Date2 datetime = '4/1/2024'  -- not inclusive
 
 select distinct 
 	wo.scode as WONumber,

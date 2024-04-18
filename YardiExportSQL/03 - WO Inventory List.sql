@@ -2,7 +2,7 @@
 	-- These are the SALES (minus)
 */
 DECLARE @Date1 datetime = '1/1/2024'  -- inclusive
-DECLARE @Date2 datetime = '4/1/2024'  -- not inclusive
+DECLARE @Date2 datetime = '4/8/2024'  -- not inclusive
 
 Select 
     rtrim(wo.sCode) as WONumber,

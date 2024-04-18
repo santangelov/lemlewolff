@@ -42,7 +42,7 @@ namespace LW_Web.Models
         public string Error_log2 { get; set; }   // Maintenance
         public string Error_log3 { get; set; }   // Reports
 
-        [DisplayName("Delete data before loading.")]
-        public bool DeleteDataFirst { get; set; }
+        //[DisplayName("Delete data before loading.")]
+        //public bool DeleteDataFirst { get; set; }
     }
 }

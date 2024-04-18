@@ -15,6 +15,11 @@ namespace LW_Common
         public int RowsProcessed { get; set; }
         public string Error_Log { get; set; }
 
+        /// <summary>
+        /// Import WOs for the Inventory Report
+        /// </summary>
+        /// <param name="FilePathAndName"></param>
+        /// <returns></returns>
         public bool Import_YardiWO_InventoryFile(string FilePathAndName)
         {
             Error_Log = "";

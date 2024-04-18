@@ -4,7 +4,7 @@
 	-- 7/30: added Batch Dates (SDATEOCCURRED) - the other date that could be used but left off is trans.uPOSTDATE
 */
 DECLARE @Date1 datetime = '1/1/2024'  -- inclusive
-DECLARE @Date2 datetime = '4/1/2024'  -- not inclusive
+DECLARE @Date2 datetime = '4/15/2024'  -- not inclusive
 
 Select 
 	rtrim(wo.sCode) WONumber,

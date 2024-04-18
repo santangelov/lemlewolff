@@ -38,7 +38,7 @@ namespace LW_Web.Controllers
             DateTime StartDate_dt = clsFunc.CastToDateTime(StartDate, new DateTime(1900, 1, 1));
             DateTime EndDate_dt = clsFunc.CastToDateTime(EndDate, new DateTime(2099, 1, 1));
 
-            string NewFileName = "WOAnalysis_" + StartDate_dt.ToString("yyyy-MM-dd") + "-" + EndDate_dt.ToString("yyyy-MM-dd") + ".xlsx";
+            string NewFileName = "PortalReport_WOAnalysis_" + StartDate_dt.ToString("yyyyMMdd") + "-" + EndDate_dt.ToString("yyyyMMdd") + ".xlsx";
 
             if (R.FillExcel_WOAnalysisReport(NewFileName, StartDate, EndDate))
             {
@@ -62,7 +62,7 @@ namespace LW_Web.Controllers
             clsReportHelper R = new clsReportHelper();
             string StartDate = model.StartDate;  // Inclusive
             string EndDate = model.EndDate;   // Not-Inclusive
-            string NewFileName = "Inventory_ByDay_" + DateTime.Parse(StartDate).ToString("yy-MM-dd") + " to " + DateTime.Parse(EndDate).ToString("yy-MM-dd") + ".xlsx";
+            string NewFileName = "PortalReport_InventoryByDay_" + DateTime.Parse(StartDate).ToString("yyyyMMdd") + " to " + DateTime.Parse(EndDate).ToString("yyyyMMdd") + ".xlsx";
 
             if (R.FillExcel_InventoryDailyPivotReport(NewFileName, StartDate, EndDate))
             {

@@ -100,25 +100,25 @@ namespace LW_Web.Controllers
             return View(mdl);
         }
 
-        [HttpPost]
-        public ActionResult RunAllSQL()
-        {
-            Server.ScriptTimeout = 1200;
-            ImportInventoryModel model = new ImportInventoryModel();
+        //[HttpPost]
+        //public ActionResult RunAllSQL()
+        //{
+        //    Server.ScriptTimeout = 1200;
+        //    ImportInventoryModel model = new ImportInventoryModel();
 
-            if (clsReportHelper.ProcessInventorySQL())
-            {
-                ViewBag.Message2 = "<div class=\"alert alert-success\"><strong>Success!</strong> All Scripts Run.</div>";
-                model.Error_log = "";
-            }
-            else 
-            {
-                ViewBag.Message2 = "";
-                model.Error_log = "<div class=\"alert alert-danger\"><strong>Error!</strong> Error running scripts. Not all script might have run.</div>";
-            }
+        //    if (clsReportHelper.ProcessInventorySQL())
+        //    {
+        //        ViewBag.Message2 = "<div class=\"alert alert-success\"><strong>Success!</strong> All Scripts Run.</div>";
+        //        model.Error_log = "";
+        //    }
+        //    else 
+        //    {
+        //        ViewBag.Message2 = "";
+        //        model.Error_log = "<div class=\"alert alert-danger\"><strong>Error!</strong> Error running scripts. Not all script might have run.</div>";
+        //    }
 
-            return View("ImportInventoryFiles", model);
-        }
+        //    return View("ImportInventoryFiles", model);
+        //}
 
         [HttpPost]
         public ActionResult Counter(string fileType)

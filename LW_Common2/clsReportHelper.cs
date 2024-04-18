@@ -36,6 +36,9 @@ namespace LW_Common
 
         public bool FillExcel_WOAnalysisReport(string NewFileName, string StartDate, string EndDate)
         {
+            // Run Pre-Processing of data
+            if (!RunAllReportSQL()) { return false; }
+
             string TargetPathAndFileName = WOAnalysisReportDownloadPath + "\\" + NewFileName;
 
             // Delete any existing file of the same name
@@ -86,6 +89,9 @@ namespace LW_Common
 
         public bool FillExcel_InventoryDailyPivotReport(string NewFileName, string StartDate, string EndDate)
         {
+            // Run the pre-processing of data
+            if (!ProcessInventorySQL()) { return false; }
+
             string TargetPathAndFileName = WOAnalysisReportDownloadPath + "\\" + NewFileName;
 
             // Delete any existing file of the same name
@@ -137,11 +143,19 @@ namespace LW_Common
             xlApp.Goto(xlWorkbook.Sheets[2].Range("A1"));
 
             // Sheet: Full Inventory  (seperate stored procedure)
-            //SqlCommand cmd2 = new SqlCommand();
             clsDataHelper DH2 = new clsDataHelper();
+            DataSet DS2 = new DataSet();
             DH2.cmd.Parameters.AddWithValue("@EndDate", EndDate);
-            System.Data.DataTable dt2 = DH2.GetDataTable("spRptBuilder_Inventory_FullInventory");
-            E.FillExcelRangeFromDT(ref xlWorkbook, ref dt2, 3, 2, 1);
+            DS2 = DH2.GetDataSetCMD("spRptBuilder_Inventory_FullInventory", ref DH2.cmd);
+            System.Data.DataTable dt2 = new System.Data.DataTable();
+
+            // --- Inventory - Date Headers
+            dt2 = DS2.Tables[0];
+            E.FillExcelRangeFromDT(ref xlWorkbook, ref dt2, 3, 1, 11);  // Fill in the Headers with the past 6 months
+
+            // --- Full Inventory Data with Turnover
+            dt2 = DS2.Tables[1];
+            E.FillExcelRangeFromDT(ref xlWorkbook, ref dt2, 3, 2, 1);  // Fill in the Full Inventory data with the turnover data
 
             // Sheet: Labor
             dt = ds.Tables[3];
@@ -161,14 +175,14 @@ namespace LW_Common
             return true;
         }
 
-        public static bool RunAllReportSQL()
+        private static bool RunAllReportSQL()
         {
              bool isSuccess = true;
 
             // Clear out the results table first
-            clsDataHelper dh1 = new clsDataHelper();
-            dh1.cmd.Parameters.AddWithValue("@FileType", "master");
-            if (isSuccess) isSuccess = dh1.ExecuteSPCMD("spImport_Delete", true, true);
+            //clsDataHelper dh1 = new clsDataHelper();
+            //dh1.cmd.Parameters.AddWithValue("@FileType", "master");
+            //if (isSuccess) isSuccess = dh1.ExecuteSPCMD("spImport_Delete", true, true);
 
             clsDataHelper dh = new clsDataHelper();
 
@@ -190,12 +204,10 @@ namespace LW_Common
             //clsUtilities.WriteToCounter("MaintenanceMsg", "6: Processing Final Calcs...");
             if (isSuccess) isSuccess = dh.ExecuteSPCMD("spRptBuilder_WOReview_06_Calcs", true, true);
 
-            //clsUtilities.WriteToCounter("MaintenanceMsg", "7: DONE");
-
             return isSuccess;
         }
 
-        public static bool ProcessInventorySQL()
+        private static bool ProcessInventorySQL()
         {
             // Clear out the results table first
             //clsDataHelper dh1 = new clsDataHelper();
@@ -205,7 +217,7 @@ namespace LW_Common
             clsDataHelper dh = new clsDataHelper();
             bool isSuccess = true;
 
-            clsUtilities.WriteToCounter("MaintenanceMsg", "1: Importing...");
+            //clsUtilities.WriteToCounter("MaintenanceMsg", "1: Importing...");
             if (isSuccess) isSuccess = dh.ExecuteSPCMD("spRptBuilder_Inventory_01_Import", true);
 
             return isSuccess;

@@ -39,10 +39,10 @@ namespace LW_Web.Controllers
                 return View(mdl);
             }
 
-            if (mdl.DeleteDataFirst == true)
-            {
-                DeleteTable(mdl.SelectedFile);
-            }
+            //if (mdl.DeleteDataFirst == true)
+            //{
+            //    DeleteTable(mdl.SelectedFile);
+            //}
 
             if (mdl.UploadedFile.ContentLength > 0)
             {
@@ -51,13 +51,13 @@ namespace LW_Web.Controllers
                 mdl.UploadedFile.SaveAs(_path);
             }
 
-            // Delete data first if checked
-            if (mdl.DeleteDataFirst)
-            {
-                clsDataHelper dh = new clsDataHelper();
-                dh.cmd.Parameters.AddWithValue("@FileType", mdl.SelectedFile);
-                dh.ExecuteSPCMD("spImport_Delete", true, true);
-            }
+            //// Delete data first if checked
+            //if (mdl.DeleteDataFirst)
+            //{
+            //    clsDataHelper dh = new clsDataHelper();
+            //    dh.cmd.Parameters.AddWithValue("@FileType", mdl.SelectedFile);
+            //    dh.ExecuteSPCMD("spImport_Delete", true, true);
+            //}
 
             try
             {
@@ -79,7 +79,7 @@ namespace LW_Web.Controllers
 
                         ViewBag.Message = clsWebFormHelper.SuccessBoxMsgHTML(msgStr);
                     }
-                    else { ViewBag.Message = clsWebFormHelper.ErrorBoxMsgHTML("Error! Error after processing " + s.RowsProcessed.ToString() + " row(s).</span>"); }
+                    else { ViewBag.Message = clsWebFormHelper.ErrorBoxMsgHTML("Error! Error after processing " + s.RowsProcessed.ToString() + " row(s). " + s.WarningMsg + "</span>"); }
                 }
                 else if (mdl.SelectedFile == "ADP")
                 {
@@ -139,25 +139,25 @@ namespace LW_Web.Controllers
             return View(mdl);
         }
 
-        [HttpPost]
-        public ActionResult RunAllSQL()
-        {
-            Server.ScriptTimeout = 1200;
-            ImportFilesModel model = new ImportFilesModel();
+        //[HttpPost]
+        //public ActionResult RunAllSQL()
+        //{
+        //    Server.ScriptTimeout = 1200;
+        //    ImportFilesModel model = new ImportFilesModel();
 
-            if (clsReportHelper.RunAllReportSQL())
-            {
-                ViewBag.Message2 = "<div class=\"alert alert-success\"><strong>Success!</strong> All Scripts Run.</div>";
-                model.Error_log = "";
-            }
-            else 
-            {
-                ViewBag.Message2 = "";
-                model.Error_log = "<div class=\"alert alert-danger\"><strong>Error!</strong> Error running scripts. Not all script might have run.</div>";
-            }
+        //    if (clsReportHelper.RunAllReportSQL())
+        //    {
+        //        ViewBag.Message2 = "<div class=\"alert alert-success\"><strong>Success!</strong> All Scripts Run.</div>";
+        //        model.Error_log = "";
+        //    }
+        //    else 
+        //    {
+        //        ViewBag.Message2 = "";
+        //        model.Error_log = "<div class=\"alert alert-danger\"><strong>Error!</strong> Error running scripts. Not all script might have run.</div>";
+        //    }
 
-            return View("ImportFile", model);
-        }
+        //    return View("ImportFile", model);
+        //}
 
         [HttpPost]
         public ActionResult Counter(string fileType)

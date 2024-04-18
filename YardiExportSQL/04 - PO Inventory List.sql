@@ -1,7 +1,7 @@
 /*  PO INVENTORY LIST
 */
-DECLARE @Date1 datetime = '1/01/2024'  -- inclusive
-DECLARE @Date2 datetime = '4/1/2024'  -- not inclusive
+DECLARE @Date1 datetime = '1/1/2024'  -- inclusive
+DECLARE @Date2 datetime = '4/8/2024'  -- not inclusive
 
 Select 
       pod.hmy as YardiMM2PODetID,

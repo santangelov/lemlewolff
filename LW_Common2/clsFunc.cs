@@ -29,6 +29,41 @@ namespace LW_Common
             }
         }
 
+        public static bool CastToBool(object value, bool defaultValue = false)
+        {
+            try
+            {
+                bool d = false;
+                if (value == null || value == DBNull.Value || !bool.TryParse(value.ToString(), out d))
+                {
+                    return defaultValue;
+                }
+                else { return bool.Parse(value.ToString()); }
+            }
+            catch (Exception ex)
+            {
+                return defaultValue;
+            }
+        }
+
+        public static DateTime CastToDateTime(object value, DateTime defaultValue)
+        {
+            try
+            {
+                DateTime d;
+                if (value == null || value == DBNull.Value || !DateTime.TryParse(value.ToString(), out d))
+                {
+                    return defaultValue;
+                }
+                else { return DateTime.Parse(value.ToString()); }
+            }
+            catch (Exception ex)
+            {
+                return defaultValue;
+            }
+        }
+
+
         public static decimal CastToDec(object value, decimal defaultValue)
         {
             try
@@ -38,7 +73,7 @@ namespace LW_Common
                 {
                     return defaultValue;
                 }
-                else { return d; }
+                else { return decimal.Parse(value.ToString()); }
             }
             catch (Exception ex)
             {

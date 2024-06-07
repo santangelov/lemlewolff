@@ -26,16 +26,7 @@ namespace LW_Common
 
             string FolderOnly = Path.GetDirectoryName(FilePathAndName);
             string FileNameOnly = Path.GetFileName(FilePathAndName);
-
-            //CSV:  string connectionString = string.Format(@"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=""{0}"";Extended Properties=""text;HDR=Yes;FMT=Delimited;ImportMixedTypes=Text;MaxScanRows=0;"";", FolderOnly);
-            //using (var conn = new OleDbConnection(connectionString))
-            //{
-            //    conn.Open();
-            //    OleDbDataAdapter adapter = new OleDbDataAdapter("SELECT * FROM [" + FileNameOnly + "]", conn);
-            //    adapter.Fill(ds);
-            //    conn.Close();
-            //    conn.Dispose();
-            //}
+            DateTime FileCreateDate = File.GetCreationTime(FilePathAndName);
 
             DataSet ds = new DataSet("Temp");
 
@@ -66,6 +57,9 @@ namespace LW_Common
                     return false;
                 }
 
+                // Record the Range Imported
+                clsReportHelper.RecordFileDateRanges("Sortly", null, FileCreateDate);
+
                 // Add rows
                 RowsProcessed = 0;
                 clsUtilities.WriteToCounter("Sortly", "0 of " + NumToProcess.ToString("#,###"));
@@ -79,20 +73,10 @@ namespace LW_Common
                      * So no WO Number will be imported now. Later we can set the WO Mumber during the import if we want. 
                      * It is in the Folder columns */
 
-                    // Get the WO NUmber from Folders - look in different folder levels
-                    //string WONumber = String.Empty;
-                    //if (r["Subfolder-level2"].ToString().StartsWith("WO")) { WONumber = r["Subfolder-level2"].ToString(); }
-                    //if (WONumber == "" && r["Subfolder-level3"].ToString().StartsWith("WO")) { WONumber = r["Subfolder-level3"].ToString(); }
-                    //if (WONumber == "" && r["Subfolder-level4"].ToString().StartsWith("WO")) { WONumber = r["Subfolder-level4"].ToString(); }
-                    //if (WONumber == "" && r["Subfolder-level1"].ToString().StartsWith("WO")) { WONumber = r["Subfolder-level1"].ToString(); }
-                    //if (WONumber == "" && r["Primary Folder"].ToString().StartsWith("WO")) { WONumber = r["Primary Folder"].ToString(); }
-                    //if (WONumber != "") { WONumber = Regex.Match(WONumber, @"\d{6}").Value; }
-
                     // Importing the Excel Sortly file. Not all columns are imported
                     // Just make sure the names of the r[] entries match the column headers
 
                     clsDataHelper dh = new clsDataHelper();
-                    //dh.cmd.Parameters.AddWithValue("@WONumber", WONumber.ToString());
                     dh.cmd.Parameters.AddWithValue("@ItemName", r["Entry Name"].ToString());
                     dh.cmd.Parameters.AddWithValue("@SortlyID", r["SID"].ToString());
                     dh.cmd.Parameters.AddWithValue("@Quantity", clsFunc.CastToInt(r["Quantity"],0));

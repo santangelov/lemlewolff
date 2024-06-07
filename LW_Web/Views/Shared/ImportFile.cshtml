@@ -13,16 +13,22 @@
     <div class="row">
         <div class="col-12">
             <div class="page-title-box">
-                <div class="page-title-right">
-                    <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item active">Import</li>
-                    </ol>
-                </div>
                 <h4 class="page-title" style="color:darkcyan">WORK ORDER ANALYSIS REPORT</h4>
             </div>
         </div>
     </div>
     <!-- end page title -->
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="header-title">Most Recent Loads</h4>
+                    <p><strong>Sortly:</strong> @Html.Raw(Model.SortlyDateRangeLoaded) | <strong>Yardi WO:</strong> @Html.Raw(Model.YardiWODateRangeLoaded) | <strong>Yardi PO:</strong> @Html.Raw(Model.YardiPODateRangeLoaded)</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="row">
 
@@ -58,14 +64,14 @@
                             </div>
                         </div>
 
-                        <div class="row mb-3">
+                        @*<div class="row mb-3">
                             <div class="col">
                                 @Html.CheckBox("DeleteDataFirst", true, new {@class= "form-check-input" })
                                 <label class="form-check-label" for="chkDelDataFirst">
                                     Delete data first
                                 </label>
                             </div>
-                        </div>
+                        </div>*@
 
                         <div class="row mb-3">
                             <div class="col-4">
@@ -86,39 +92,27 @@
 
         <!-- MAINTENANCE -->
         <div class="col-6">
-            <div class="card">
-                <div class="card-body">
-                    <h4 class="header-title">Maintenance</h4>
-                    <p class="text-muted font-14">After importing all files use the Process Data button to create the export data. After creating export data use the Export button to download the file.</p>
-                    @using (Html.BeginForm("RunAllSQL", "Import", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal" }))
-                    {
-                        <div class="row mb">
-                            <div class="col-10">
-                                <button type="submit" id="btnProcessAll" class="btn btn-primary w-100">Process Data</button>
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-12">
-                                <span id="MaintenanceMsg"></span>
-                            </div>
-                        </div>
-                    }
-
-                    @Html.Raw(ViewBag.Message2)
-
-                    @Html.Raw(Model.Error_log2)
-
-                </div> <!-- end card-body -->
-            </div>  <!-- end card -->
 
             <div class="card">
                 <div class="card-body">
-                    <h4 class="header-title">Reports</h4>
+                    <h4 class="header-title">WO Analysis Report</h4>
                     <p class="text-muted font-14">Returns the current and last processed report. You should probably run the Maintenance process first if it has not been run.</p>
                     @using (Html.BeginForm("GetWOAnalysisReport", "Reports", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal" }))
                     {
                         <div class="row mb">
+                            <div class="col-10">
+                                @Html.LabelFor(m => m.StartDate)
+                                @Html.TextBox("StartDate", Model.StartDate, new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="row mb">
+                            <div class="col-10">
+                                @Html.LabelFor(m => m.EndDate)
+                                @Html.TextBox("EndDate", Model.EndDate, new { @class = "form-control" })
+                            </div>
+                        </div>
+
+                        <div class="row mb" style="margin-top:20px;">
                             <div class="col-10">
                                 <button type="submit" id="btnWOAnalysisReport" class="btn btn-primary w-100">Download Analysis Report</button>
                             </div>

@@ -3,9 +3,10 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Data.OleDb;
 using System.Configuration;
-using LW_Data;
+using LW_Data;  
 using System.Threading;
 using System;
+using Microsoft.Office.Interop.Excel;
 
 namespace LW_Common
 {
@@ -15,11 +16,16 @@ namespace LW_Common
         public int RowsProcessed { get; set; }
         public string Error_Log { get; set; }
 
+        /// <summary>
+        /// Import WOs for the Inventory Report
+        /// </summary>
+        /// <param name="FilePathAndName"></param>
+        /// <returns></returns>
         public bool Import_YardiWO_InventoryFile(string FilePathAndName)
         {
             Error_Log = "";
 
-            DataTable dtImport = new DataTable();
+            System.Data.DataTable dtImport = new System.Data.DataTable();
 
             clsUtilities.WriteToCounter("Yardi WOs", "Starting...");
 
@@ -42,13 +48,16 @@ namespace LW_Common
                 conn.Dispose();
             }
 
-            DataTable sourceTable = ds.Tables[0];
+            System.Data.DataTable sourceTable = ds.Tables[0];
 
             RowsProcessed = 0;
             DateTime CreateDate = DateTime.Now;
             int NumToProcess = sourceTable.Rows.Count;
             if (NumToProcess > 0)
             {
+                //clsReportHelper.RecordFileDateRanges("YardiWO_Inventory", (DateTime)sourceTable.Rows[0]["Date1"], (DateTime)sourceTable.Rows[0]["Date2"]);
+                clsReportHelper.RecordFileDateRanges("YardiWO_Inventory", clsFunc.CastToDateTime(sourceTable.Rows[0]["Date1"], new DateTime(1900, 1, 1)), clsFunc.CastToDateTime(sourceTable.Rows[0]["Date2"], new DateTime(1900, 1, 1)));
+
                 foreach (DataRow r in sourceTable.Rows)
                 {
                     clsDataHelper dh = new clsDataHelper();
@@ -89,7 +98,7 @@ namespace LW_Common
         {
             Error_Log = "";
 
-            DataTable dtImport = new DataTable();
+            System.Data.DataTable dtImport = new System.Data.DataTable();
 
             clsUtilities.WriteToCounter("Yardi POs", "Starting...");
 
@@ -112,16 +121,20 @@ namespace LW_Common
                 conn.Dispose();
             }
 
-            DataTable sourceTable = ds.Tables[0];
+            System.Data.DataTable sourceTable = ds.Tables[0];
 
             RowsProcessed = 0;
             DateTime CreateDate = DateTime.Now;
             int NumToProcess = sourceTable.Rows.Count;
             if (NumToProcess > 0)
             {
+                //clsReportHelper.RecordFileDateRanges("YardiPO_Inventory", (DateTime)sourceTable.Rows[0]["Date1"], (DateTime)sourceTable.Rows[0]["Date2"]);
+                clsReportHelper.RecordFileDateRanges("YardiPO_Inventory", clsFunc.CastToDateTime(sourceTable.Rows[0]["Date1"], new DateTime(1900, 1, 1)), clsFunc.CastToDateTime(sourceTable.Rows[0]["Date2"], new DateTime(1900, 1, 1)));
+
                 foreach (DataRow r in sourceTable.Rows)
                 {
                     clsDataHelper dh = new clsDataHelper();
+                    dh.cmd.Parameters.AddWithValue("@YardiMM2PODetID", r["YardiMM2PODetID"]);
                     dh.cmd.Parameters.AddWithValue("@PONumber", r["PONumber"].ToString());
                     dh.cmd.Parameters.AddWithValue("@WONumber", r["WONumber"].ToString());
                     dh.cmd.Parameters.AddWithValue("@vendor", r["vendor"]);
@@ -135,11 +148,25 @@ namespace LW_Common
                     dh.cmd.Parameters.AddWithValue("@ItemDesc", r["ItemDesc"]);
                     dh.cmd.Parameters.AddWithValue("@Client", r["Client"]);
 
-                    bool isSuccess = dh.ExecuteSPCMD("spYardiPOsInvItemsUpdate", false);   // Importing to tblImport_Inv_Yardi_POItems
+                    bool isSuccess = false; 
+                    
+                    // Capture Exceptions for the PO Exception Table
+                    //  1. Item Code = "material%"
+
+                    if (r["ItemCode"].ToString().ToLower().Contains("material"))
+                    {
+                        isSuccess = dh.ExecuteSPCMD("spPurchaseOrderItems_ExceptionsUpdate", false);   // Importing to tblImport_Inv_Yardi_POItems_Exception table
+                    }
+                    else
+                    {
+                        isSuccess = dh.ExecuteSPCMD("spYardiPOsInvItemsUpdate", false);   // Importing to tblImport_Inv_Yardi_POItems
+                    }
+
                     RowsProcessed++;
+
                     if (!isSuccess)
                     {
-                        clsUtilities.WriteToCounter("YardiWO", "Error: " + dh.data_err_msg + " (" + RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###") + ")");
+                        clsUtilities.WriteToCounter("YardiPO", "Error: " + dh.data_err_msg + " (" + RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###") + ")");
                         Error_Log += DateTime.Now.ToString() + ": Item Code " + r["ItemCode"].ToString() + "; PO Number: " + r["PONumber"].ToString() + "; ERROR: " + dh.data_err_msg + "\r\n";
                     }
                     else
@@ -151,11 +178,16 @@ namespace LW_Common
             return true;
         }
 
+        /// <summary>
+        /// Import Yardi Work Orders for INVENTORY reporting
+        /// </summary>
+        /// <param name="FilePathAndName"></param>
+        /// <returns></returns>
         public bool Import_YardiWO_File(string FilePathAndName)
         {
             Error_Log = "";
 
-            DataTable dtImport = new DataTable();
+            System.Data.DataTable dtImport = new System.Data.DataTable();
 
             clsUtilities.WriteToCounter("Yardi WOs", "Starting...");
 
@@ -173,13 +205,16 @@ namespace LW_Common
                 conn.Dispose();
             }
 
-            DataTable sourceTable = ds.Tables[0];
+            System.Data.DataTable sourceTable = ds.Tables[0];
 
             RowsProcessed = 0;
             DateTime CreateDate = DateTime.Now;
             int NumToProcess = sourceTable.Rows.Count;
             if (NumToProcess > 0)
             {
+                //clsReportHelper.RecordFileDateRanges("YardiWO_File", clsFunc.CastToDateTime(sourceTable.Rows[0]["Date1"], new DateTime(1900, 1, 1)), clsFunc.CastToDateTime(sourceTable.Rows[0]["Date2"], new DateTime(1900, 1, 1)));
+                clsReportHelper.RecordFileDateRanges("YardiWO_File", clsFunc.CastToDateTime(sourceTable.Rows[0]["Date1"], new DateTime(1900, 1, 1)), clsFunc.CastToDateTime(sourceTable.Rows[0]["Date2"], new DateTime(1900, 1, 1)));
+
                 foreach (DataRow r in sourceTable.Rows)
                 {
                     clsDataHelper dh = new clsDataHelper();
@@ -202,6 +237,7 @@ namespace LW_Common
                     dh.cmd.Parameters.AddWithValue("@UnitPrice", r["UnitPrice"]);
                     dh.cmd.Parameters.AddWithValue("@PayAmt", r["PayAmt"]);
                     dh.cmd.Parameters.AddWithValue("@TransBatchDate", r["woBatchOccuredDate"]);
+                    dh.cmd.Parameters.AddWithValue("@PostedMonth", r["PostedMonth"]);
 
                     dh.cmd.Parameters.AddWithValue("@CreatedBy", "User1");
                     dh.cmd.Parameters.AddWithValue("@CreateDate", CreateDate);
@@ -232,7 +268,7 @@ namespace LW_Common
         {
             Error_Log = "";
 
-            DataTable dtImport = new DataTable();
+            System.Data.DataTable dtImport = new System.Data.DataTable();
 
             clsUtilities.WriteToCounter("YardiPO", "Starting...");
 
@@ -250,13 +286,16 @@ namespace LW_Common
                 conn.Dispose();
             }
 
-            DataTable sourceTable = ds.Tables[0];
+            System.Data.DataTable sourceTable = ds.Tables[0];
 
             RowsProcessed = 0;
             DateTime CreateDate = DateTime.Now;
             int NumToProcess = sourceTable.Rows.Count;
             if (NumToProcess > 0)
             {
+                //clsReportHelper.RecordFileDateRanges("YardiPO_File", (DateTime)sourceTable.Rows[0]["Date1"], (DateTime)sourceTable.Rows[0]["Date2"]);
+                clsReportHelper.RecordFileDateRanges("YardiPO_File", clsFunc.CastToDateTime(sourceTable.Rows[0]["Date1"], new DateTime(1900, 1, 1)), clsFunc.CastToDateTime(sourceTable.Rows[0]["Date2"], new DateTime(1900, 1, 1)));
+
                 foreach (DataRow r in sourceTable.Rows)
                 {
                     clsDataHelper dh = new clsDataHelper();
@@ -307,7 +346,7 @@ namespace LW_Common
         {
             Error_Log = "";
 
-            DataTable dtImport = new DataTable();
+            System.Data.DataTable dtImport = new System.Data.DataTable();
 
             clsUtilities.WriteToCounter("YardiWO", "Starting...");
 
@@ -325,12 +364,14 @@ namespace LW_Common
                 conn.Dispose();
             }
 
-            DataTable sourceTable = ds.Tables[0];
+            System.Data.DataTable sourceTable = ds.Tables[0];
 
             RowsProcessed = 0;
             int NumToProcess = sourceTable.Rows.Count;
             if (NumToProcess > 0)
             {
+                clsReportHelper.RecordFileDateRanges("YardiWO_GeneralFile", null, DateTime.Now);
+
                 // We are loading the tblWorkOrders table directly
                foreach (DataRow r in sourceTable.Rows)
                 {
@@ -351,12 +392,12 @@ namespace LW_Common
                     RowsProcessed++;
                     if (!isSuccess)
                     {
-                        clsUtilities.WriteToCounter("YardiWO", "Error: " + dh.data_err_msg + " (" + RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###") + ")");
+                        clsUtilities.WriteToCounter("YardiPO", "Error: " + dh.data_err_msg + " (" + RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###") + ")");
                         Error_Log += DateTime.Now.ToString() + ": WO Number: " + r["WONumber"].ToString() + "; ERROR: " + dh.data_err_msg + "\r\n";
                     }
                     else
                     {
-                        if (RowsProcessed % 15 == 0) clsUtilities.WriteToCounter("YardiWO", RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###"));  // only update every 15 records
+                        if (RowsProcessed % 15 == 0) clsUtilities.WriteToCounter("YardiPO", RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###"));  // only update every 15 records
                     }
                 }
 

@@ -15,7 +15,7 @@ using System.Web.Mvc;
 
 namespace LW_Web.Controllers
 {
-    public class ReportsController : Controller
+    public class ReportsController : BaseController
     {
         // GET: Reports
         [HttpGet]
@@ -27,15 +27,20 @@ namespace LW_Web.Controllers
         }
 
         [HttpPost]
-        public ActionResult GetWOAnalysisReport(bool pass = true)
+        public ActionResult GetWOAnalysisReport(ImportFilesModel model)
         {
             Server.ScriptTimeout = 1200;
-            ImportFilesModel model = new ImportFilesModel();
 
             clsReportHelper R = new clsReportHelper();
-            string NewFileName = "WOAnalysis_" + DateTime.Now.ToString("yy-MM-dd") + ".xlsx";
+            string StartDate = model.StartDate;  // Inclusive
+            string EndDate = model.EndDate;   // Not-Inclusive
 
-            if (R.FillExcel_WOAnalysisReport(NewFileName))
+            DateTime StartDate_dt = clsFunc.CastToDateTime(StartDate, new DateTime(1900, 1, 1));
+            DateTime EndDate_dt = clsFunc.CastToDateTime(EndDate, new DateTime(2099, 1, 1));
+
+            string NewFileName = "PortalReport_WOAnalysis_" + StartDate_dt.ToString("yyyyMMdd") + "-" + EndDate_dt.ToString("yyyyMMdd") + ".xlsx";
+
+            if (R.FillExcel_WOAnalysisReport(NewFileName, StartDate, EndDate))
             {
                 ViewBag.Message3 = "<div class=\"alert alert-success\"><strong><a href=\"\\_Downloads\\" + NewFileName + "\" target='_blank'>Download " + NewFileName + "</a></strong></div>";
                 model.Error_log3 = "";
@@ -50,15 +55,22 @@ namespace LW_Web.Controllers
         }
 
         [HttpPost]
-        public ActionResult GetInventoryReport(bool pass = true)
+        public ActionResult GetInventoryReport(ImportInventoryModel model)
         {
             Server.ScriptTimeout = 1200;
-            ImportInventoryModel model = new ImportInventoryModel();
 
             clsReportHelper R = new clsReportHelper();
-            string StartDate = "10/01/2023";  // Inclusive
-            string EndDate = "12/01/2023";   // Not-Inclusive
-            string NewFileName = "Inventory_ByDay_" + DateTime.Parse(StartDate).ToString("yy-MM-dd") + " to " + DateTime.Parse(EndDate).ToString("yy-MM-dd") + ".xlsx";
+            string StartDate = model.StartDate;  // Inclusive
+            string EndDate = model.EndDate;   // Not-Inclusive
+
+            if (string.IsNullOrEmpty(StartDate) || string.IsNullOrEmpty(EndDate)) 
+            {
+                ViewBag.Message3 = R.error_message;
+                model.Error_log3 = "<div class=\"alert alert-danger\"><strong>*</strong> Choose a Date Range.</div>";
+                return View("ImportInventoryFiles", model);
+            }
+
+            string NewFileName = "PortalReport_InventoryByDay_" + DateTime.Parse(StartDate).ToString("yyyyMMdd") + " to " + DateTime.Parse(EndDate).ToString("yyyyMMdd") + ".xlsx";
 
             if (R.FillExcel_InventoryDailyPivotReport(NewFileName, StartDate, EndDate))
             {
@@ -74,45 +86,5 @@ namespace LW_Web.Controllers
             return View("ImportInventoryFiles", model);
         }
 
-
-        //[HttpPost]
-        //public ActionResult Reports()
-        //{
-        //    Reportsmodel model = new Reportsmodel();
-
-        //    // Read form Response 
-        //    string StartDate = Request["StartDate"];
-        //    string EndDate = Request["EndDate"];
-        //    ViewBag.Message = "";
-
-        //    SqlCommand cmd = new SqlCommand();
-        //    cmd.Parameters.AddWithValue("@StartDate", StartDate);
-        //    cmd.Parameters.AddWithValue("@EndDate", EndDate);
-
-        //    DataTable dt = new DataTable();
-        //    clsDataHelper H = new clsDataHelper();
-        //    dt = H.GetDataTableCMD("spReport_Master2", ref cmd);
-
-        //    if (H.data_err_msg != "")
-        //    {
-        //        model.Error_log = "<span style=color:red;>" + H.data_err_msg + "</span>";
-        //        ViewBag.Message = clsWebFormHelper.ErrorBoxMsgHTML("Error processing");
-        //    }
-        //    else
-        //    {
-        //        string document = LW_Common.clsUtilities.DataTableToDelimitedFile(ref dt, "\t");
-
-        //        if (document.StartsWith("ERROR:") || document == "")
-        //        {
-        //            model.Error_log = document;
-        //            ViewBag.Message = clsWebFormHelper.ErrorBoxMsgHTML("Error creating export file");
-        //        }
-
-        //        var stream = new MemoryStream(Encoding.UTF8.GetBytes(document ?? ""));
-        //        return File(stream, "text/tab-separated-values", "MASTER-" + DateTime.Now.ToString("yyyyMMdd-hhmmss") + ".xls");
-        //    }
-
-        //    return View(model);
-        //}
     }
 }

@@ -1,9 +1,10 @@
 /*  PO INVENTORY LIST
 */
-DECLARE @Date1 datetime = '08/01/2023'  -- inclusive
-DECLARE @Date2 datetime = '12/01/2023'  -- not inclusive
+DECLARE @Date1 datetime = cast(format(getdate(), '1/1/yyyy') as DateTime)  -- inclusive
+DECLARE @Date2 datetime = cast(format(getdate(), 'M/d/yyyy') as DateTime)  -- not inclusive
 
 Select 
+      pod.hmy as YardiMM2PODetID,
       po.scode as PONumber, 	
       wo.scode as WONumber,
       v.uLastName as Vendor, 
@@ -15,7 +16,9 @@ Select
       pod.dtReceivedDate as ReceivedDate,
       s.scode as ItemCode,
       pod.sDesc as ItemDesc,
-      rtrim(ltrim(isnull(p.sAddr1,''))) + ', ' + rtrim(ltrim(isnull(p.sAddr2,''))) as Client
+      rtrim(ltrim(isnull(p.sAddr1,''))) + ', ' + rtrim(ltrim(isnull(p.sAddr2,''))) as Client,
+	  @Date1 as Date1,
+	  @Date2 as Date2
 from mm2podet pod 
      left join mm2stock s on (pod.hStock = s.hMy)
      left join mm2po po   on (pod.hpo = po.hmy)     
@@ -23,10 +26,8 @@ from mm2podet pod
      left join vendor v   on (po.hVendor = v.hMyPerson)
      left join property p on (wo.hProperty = p.hMy)
 where  
-     s.scode like ('__-%')
-     and ltrim(rtrim(po.SEXPTYPE)) in ('Plumbing-Inventory','CoOp-Inventory','Boiler-Inventory','Maintenance-Inventory')
-     and po.dtordereddate >= @Date1 and po.dtordereddate < @Date2
-     --and dtOrderedDate > '1/1/2023'
-     --and po.scode in (48543) -- PONumber
+     (s.scode like ('material%') or s.scode like ('__-%'))   -- ItemCode = "Materials" end up in the Exception Table
+     and ltrim(rtrim(po.SEXPTYPE)) in ('Plumbing-Inventory','CoOp-Inventory','Maintenance-Inventory')
+     and pod.dtReceivedDate >= @Date1 and pod.dtReceivedDate < @Date2
 order by po.scode
 

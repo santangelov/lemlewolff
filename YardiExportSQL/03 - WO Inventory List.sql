@@ -1,8 +1,8 @@
 /*  WO - Work Order Inventory
 	-- These are the SALES (minus)
 */
-DECLARE @Date1 datetime = '8/1/2023'  -- inclusive
-DECLARE @Date2 datetime = '12/1/2023'  -- not inclusive
+DECLARE @Date1 datetime = cast(format(getdate(), '1/1/yyyy') as DateTime)  -- inclusive
+DECLARE @Date2 datetime = cast(format(getdate(), 'M/d/yyyy') as DateTime)  -- not inclusive
 
 Select 
     rtrim(wo.sCode) as WONumber,
@@ -16,7 +16,9 @@ Select
 	wo.dtWCompl as CompleteDate,
     wo.sExpenseType as ExpenseType,
 	rtrim(ltrim(p.sAddr1)) + ', ' + rtrim(ltrim(p.sAddr2)) as Client, 
-    v.uLastName as Vendor
+    v.uLastName as Vendor,
+	@Date1 as Date1,
+	@Date2 as Date2	
 From
     MM2WO wo 
     left join mm2wodet wod on (wo.hmy=wod.hWo)

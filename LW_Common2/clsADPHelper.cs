@@ -28,8 +28,10 @@ namespace LW_Common
             DataSet ds = new DataSet("Temp");
             using (var conn = new OleDbConnection(clsExcelHelper.GetExcelConnectionString(FilePathAndName)))
             {
+                int HeaderRow = 1;
+
                 conn.Open();
-                OleDbDataAdapter adapter = new OleDbDataAdapter(@"SELECT * FROM [" + WorksheetName + "$A5:Z] WHERE [Payroll Name] > ''", conn); // Filtering so we don't pick up the TOTAL rows
+                OleDbDataAdapter adapter = new OleDbDataAdapter(@"SELECT * FROM [" + WorksheetName + "$A" + HeaderRow.ToString() + ":Z] WHERE [Payroll Name] > ''", conn);     // Filtering so we don't pick up the TOTAL rows
                 adapter.Fill(ds);
                 conn.Close();
                 conn.Dispose();

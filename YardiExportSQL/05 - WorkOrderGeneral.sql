@@ -13,10 +13,12 @@ Select
     wo.sBriefDesc as BriefDesc,
     wo.sExpenseType as ExpenseType,
     wo.dtDateIn as yardiCreateDate,
-    wo.dtUpdatedt as yardiUpdatedDate    
+    wo.dtUpdatedt as yardiUpdatedDate,
+	NULL as Date1,
+	getdate() as Date2
 From MM2WO wo
 where wo.hVendor in (select hMyPerson from vendor where rtrim(ucode) in ('all2'))
-	-- and wo.dtUpdatedt > '1/1/2023'
+	and wo.dtUpdatedt > '6/1/2023'
     -- and wo.sStatus not in ('Canceled')
 order by wo.sCode
 

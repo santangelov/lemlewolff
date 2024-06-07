@@ -8,20 +8,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="The Lemle & Wolff Companies" name="author" />
 
-    <!-- App favicon -->
     <link rel="shortcut icon" href="~/assets/images/favicon.ico">
-
-    <!-- Daterangepicker css -->
     <link rel="stylesheet" href="~/assets/vendor/daterangepicker/daterangepicker.css">
-
-    <!-- Vector Map css -->
     <link rel="stylesheet" href="~/assets/vendor/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.css">
-
-    <!-- Icons css -->
-    <link href="~/assets/css/icons.min.css" rel="stylesheet" type="text/css" />
-
-    <!-- App css -->
-    <link href="~/assets/css/app-modern.min.css" rel="stylesheet" type="text/css" id="app-style" />
+    <link rel="stylesheet" href="~/assets/css/icons.min.css" type="text/css" />
+    <link rel="stylesheet" href="~/assets/css/app-modern.min.css" type="text/css" id="app-style" />
 
     <script type="text/javascript" src="~/assets/jquery/jquery-3.6.0.min.js"></script>
 
@@ -103,15 +94,11 @@
                                 <img src="~/assets/images/users/avatar-1.jpg" alt="user-image" class="rounded-circle">
                             </span>
                             <span>
-                                <span class="account-user-name">First and Last Name</span>
-                                <span class="account-position">User</span>
+                                <span class="account-user-name">@ViewBag.UserFirstName</span>
+                                <span class="account-position">@ViewBag.UserLevel</span>
                             </span>
                         </a>
                         <div class="dropdown-menu dropdown-menu-end dropdown-menu-animated topbar-dropdown-menu profile-dropdown">
-                            <!-- item-->
-                            <div class=" dropdown-header noti-title">
-                                <h6 class="text-overflow m-0">Welcome !</h6>
-                            </div>
 
                             <!-- item-->
                             <a href="javascript:void(0);" class="dropdown-item notify-item">
@@ -120,13 +107,7 @@
                             </a>
 
                             <!-- item-->
-                            <a href="javascript:void(0);" class="dropdown-item notify-item">
-                                <i class="mdi mdi-account-edit me-1"></i>
-                                <span>Settings</span>
-                            </a>
-
-                            <!-- item-->
-                            <a href="javascript:void(0);" class="dropdown-item notify-item">
+                            <a href="~/Login/LogOutUser" class="dropdown-item notify-item">
                                 <i class="mdi mdi-logout me-1"></i>
                                 <span>Logout</span>
                             </a>
@@ -246,6 +227,14 @@
                             </ul>
                         </div>
                     </li>
+
+                    <li class="side-nav-item">
+                        <a href="~/Login/LogOutUser" class="side-nav-link">
+                            <i class="uil-sign-out-alt"></i>
+                            <span> Log Out </span>
+                        </a>
+                    </li>
+
                 </ul>
                 <!--- End Sidemenu -->
 

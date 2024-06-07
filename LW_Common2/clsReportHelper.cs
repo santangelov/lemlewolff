@@ -20,6 +20,7 @@ namespace LW_Common
     using System.Data;
     using System.Data.SqlClient;
     using System.Web.Hosting;
+    using System.Web.UI.WebControls;
     using DataTable = DataTable;
     using Excel = Microsoft.Office.Interop.Excel;
 
@@ -33,6 +34,51 @@ namespace LW_Common
         public static string WOAnalysisReportTemplateFileName = "_Template - WOAnalysis_01 - MMM-MMM.xlsx";
         public static string InventoryReportTemplateFileName = "_Template - Inventory.xlsx";
         public static string InventoryReportTemplateFileName_Pivot = "_Template - Inventory Daily Pivot_WithDollars.xlsx";
+
+        public static bool RecordFileDateRanges(string DateKey, DateTime? Date1, DateTime Date2)
+        {
+            // Grab the Date Range columns for the record
+            clsDataHelper H = new clsDataHelper();
+            H.cmd.Parameters.AddWithValue("@DateKey", DateKey);
+            if (Date1 != null) { H.cmd.Parameters.AddWithValue("@LatestImportDateRange_Date1", Date1); }
+            H.cmd.Parameters.AddWithValue("@LatestImportDateRange_Date2", Date2);
+            return H.ExecuteSPCMD("spImportDatesUpdate", true, true);
+        }
+
+        public class clsImportDateRange
+        {
+            public string DateKey { get; set; } = "";
+            public string Date1 { get; set; } = "";
+            public string Date2 { get; set; } = "";
+            public string DateRangeAsString { get; set; } = "";
+        }
+
+        public static clsImportDateRange GetFileDateRangeValues(string DateKey)
+        {
+            // Grab the Date Range columns for the record
+            clsDataHelper H = new clsDataHelper();
+            H.cmd.Parameters.AddWithValue("@DateKey", DateKey);
+            DataRow r = H.GetDataRow("spImportDates");
+            
+            clsImportDateRange retObj = new clsImportDateRange();
+            retObj.DateKey = DateKey;
+            if (r is null) { retObj.DateRangeAsString = "No record."; return retObj; }
+
+            if (r["LatestImportDateRange_Date1"] != null) { retObj.Date1 = clsFunc.CastToStr(r["LatestImportDateRange_Date1"]); }
+            retObj.Date2 = clsFunc.CastToStr(r["LatestImportDateRange_Date2"]);
+
+            retObj.DateRangeAsString = clsFunc.CastToDateTime(r["LatestImportDateRange_Date1"], new DateTime(1900, 1, 1)).ToString("M/d/yy");
+            if (retObj.DateRangeAsString != "1/1/00")
+            {
+                retObj.DateRangeAsString += " - " + clsFunc.CastToDateTime(r["LatestImportDateRange_Date2"], new DateTime(1900, 1, 1)).ToString("M/d/yy");
+            }else
+            {
+                retObj.DateRangeAsString = "Up to " + clsFunc.CastToDateTime(r["LatestImportDateRange_Date2"], new DateTime(1900, 1, 1)).ToString("M/d/yy");
+            }
+
+            return retObj;
+        }
+         
 
         public bool FillExcel_WOAnalysisReport(string NewFileName, string StartDate, string EndDate)
         {
@@ -79,7 +125,7 @@ namespace LW_Common
             DataTable dt = ds.Tables[0];
             E.FillExcelRangeFromDT(ref xlWorkbook, ref dt, 5, 2, 1);
             dt = ds.Tables[1];
-            E.FillExcelRangeFromDT(ref xlWorkbook, ref dt, 5, 2, 8);
+            E.FillExcelRangeFromDT(ref xlWorkbook, ref dt, 5, 2, 10);
 
             // Close Excel Session
             E.CleanUpExcelSession(ref xlApp, ref xlWorkbook, TargetPathAndFileName);

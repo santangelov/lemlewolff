@@ -22,22 +22,12 @@ namespace LW_Web.Models
             ImportFileList.Add(new SelectListItem { Text = "Yardi POs (CSV)", Value = "YardiPO", Selected = (SelectedFile == "YardiPO" ? true : false) });
             ImportFileList.Add(new SelectListItem { Text = "Yardi Work Orders for Historical Data (CSV)", Value = "YardiWOH", Selected = (SelectedFile == "YardiWOH" ? true : false) });
 
-            // Get the Range of dates from the loaded data
-            //clsDataHelper dh = new clsDataHelper();
-            //DataTable t = dh.GetDataTable("spInventoryReportStats");
 
-            //if (string.IsNullOrEmpty(t.Rows[0]["EarliestDate"].ToString()) || string.IsNullOrEmpty(t.Rows[0]["LatestDate"].ToString()) )
-            //{
-            //    this.LoadedRangeText = "No Data Loaded (or error in the DateOfSale column)";
-            //} 
-            //else
-            //{
-            //    string _StartDateLoaded = DateTime.Parse(clsFunc.CastToStr(t.Rows[0]["EarliestDate"])).ToString("MM/dd/yyyy");
-            //    string _EndDateLoaded   = DateTime.Parse(clsFunc.CastToStr(t.Rows[0]["LatestDate"])).ToString("MM/dd/yyyy");
-            //    if (String.IsNullOrEmpty(this.StartDate)) this.StartDate = _StartDateLoaded;
-            //    if (String.IsNullOrEmpty(this.EndDate)) this.EndDate = _EndDateLoaded;
-            //    this.LoadedRangeText = "Date Range Loaded: " + StartDate + " to " + EndDate;
-            //} 
+            // Look up the Import Dates
+            clsReportHelper RH = new clsReportHelper();
+            YardiWODateRangeLoaded = clsReportHelper.GetFileDateRangeValues("YardiWO_Inventory").DateRangeAsString;
+            YardiPODateRangeLoaded = clsReportHelper.GetFileDateRangeValues("YardiPO_Inventory").DateRangeAsString;
+            YardiWOGeneralDateRangeLoaded = clsReportHelper.GetFileDateRangeValues("YardiWO_GeneralFile").DateRangeAsString;
         }
 
         [DisplayName("Import File List")]
@@ -60,6 +50,15 @@ namespace LW_Web.Models
 
         [DisplayName("Range Loaded: ")]
         public string LoadedRangeText { get; set; }
+
+        [DisplayName("Yardi WO Date Range Loaded")]
+        public string YardiWODateRangeLoaded { get; set; }
+
+        [DisplayName("Yardi WO Date Range Loaded")]
+        public string YardiPODateRangeLoaded { get; set; }
+
+        [DisplayName("Yardi WO General Date Range Loaded")]
+        public string YardiWOGeneralDateRangeLoaded { get; set; }
 
         public string Error_log { get; set; }    // Imports
         public string Error_log2 { get; set; }   // Maintenance

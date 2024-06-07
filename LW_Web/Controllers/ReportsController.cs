@@ -15,7 +15,7 @@ using System.Web.Mvc;
 
 namespace LW_Web.Controllers
 {
-    public class ReportsController : Controller
+    public class ReportsController : BaseController
     {
         // GET: Reports
         [HttpGet]
@@ -62,6 +62,14 @@ namespace LW_Web.Controllers
             clsReportHelper R = new clsReportHelper();
             string StartDate = model.StartDate;  // Inclusive
             string EndDate = model.EndDate;   // Not-Inclusive
+
+            if (string.IsNullOrEmpty(StartDate) || string.IsNullOrEmpty(EndDate)) 
+            {
+                ViewBag.Message3 = R.error_message;
+                model.Error_log3 = "<div class=\"alert alert-danger\"><strong>*</strong> Choose a Date Range.</div>";
+                return View("ImportInventoryFiles", model);
+            }
+
             string NewFileName = "PortalReport_InventoryByDay_" + DateTime.Parse(StartDate).ToString("yyyyMMdd") + " to " + DateTime.Parse(EndDate).ToString("yyyyMMdd") + ".xlsx";
 
             if (R.FillExcel_InventoryDailyPivotReport(NewFileName, StartDate, EndDate))

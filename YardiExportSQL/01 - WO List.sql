@@ -3,8 +3,8 @@
 	-- 7/16: added that Completion date is in 2023 (can add months later if needed) - this gets all jobs started in last year and ended this year
 	-- 7/30: added Batch Dates (SDATEOCCURRED) - the other date that could be used but left off is trans.uPOSTDATE
 */
-DECLARE @Date1 datetime = '1/1/2024'  -- inclusive
-DECLARE @Date2 datetime = '4/15/2024'  -- not inclusive
+DECLARE @Date1 datetime = cast(format(getdate(), '1/1/yyyy') as DateTime)  -- inclusive
+DECLARE @Date2 datetime = cast(format(getdate(), 'M/d/yyyy') as DateTime)  -- not inclusive
 
 Select 
 	rtrim(wo.sCode) WONumber,
@@ -26,7 +26,9 @@ Select
 	isnull(wod.dUnitPrice,0) UnitPrice,
 	isnull(wod.dPayAmt,0) PayAmt,
     b.bDate as woBatchOccuredDate,  -- tblWorkOrders.TransBatchDate
-	format(b.PostedMonth, 'yyyy-MM') as PostedMonth
+	format(b.PostedMonth, 'yyyy-MM') as PostedMonth,
+	@Date1 as Date1,
+	@Date2 as Date2
 From
 	MM2WO wo 
     left join mm2wodet wod on (wo.hmy=wod.hWo)

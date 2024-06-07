@@ -2,8 +2,8 @@
 	built from rs_5_Maint_PO_Dir.txt
 */
 
-DECLARE @Date1 datetime = '1/1/2024'  -- inclusive
-DECLARE @Date2 datetime = '4/15/2024'  -- not inclusive
+DECLARE @Date1 datetime = cast(format(getdate(), '1/1/yyyy') as DateTime)  -- inclusive
+DECLARE @Date2 datetime = cast(format(getdate(), 'M/d/yyyy') as DateTime)  -- not inclusive
 
 select distinct 
 	wo.scode as WONumber,
@@ -23,8 +23,9 @@ select distinct
  	po.SEXPTYPE expensetype,
 	po.SREQUESTEDBY Requested,
     format(po.DTORDEREDDATE,'MM/dd/yyyy') as PODate,
-    t.sDateCreated as Batch_Date
-
+    t.sDateCreated as Batch_Date,
+	@Date1 as Date1,
+	@Date2 as Date2
 from mm2wo wo
 	inner join mm2po po on wo.hmy=po.hWo
     left join mm2podet podet on podet.hPo = po.hmy 

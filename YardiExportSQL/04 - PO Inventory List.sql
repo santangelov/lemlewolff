@@ -1,7 +1,7 @@
 /*  PO INVENTORY LIST
 */
-DECLARE @Date1 datetime = '1/1/2024'  -- inclusive
-DECLARE @Date2 datetime = '4/8/2024'  -- not inclusive
+DECLARE @Date1 datetime = cast(format(getdate(), '1/1/yyyy') as DateTime)  -- inclusive
+DECLARE @Date2 datetime = cast(format(getdate(), 'M/d/yyyy') as DateTime)  -- not inclusive
 
 Select 
       pod.hmy as YardiMM2PODetID,
@@ -16,7 +16,9 @@ Select
       pod.dtReceivedDate as ReceivedDate,
       s.scode as ItemCode,
       pod.sDesc as ItemDesc,
-      rtrim(ltrim(isnull(p.sAddr1,''))) + ', ' + rtrim(ltrim(isnull(p.sAddr2,''))) as Client
+      rtrim(ltrim(isnull(p.sAddr1,''))) + ', ' + rtrim(ltrim(isnull(p.sAddr2,''))) as Client,
+	  @Date1 as Date1,
+	  @Date2 as Date2
 from mm2podet pod 
      left join mm2stock s on (pod.hStock = s.hMy)
      left join mm2po po   on (pod.hpo = po.hmy)     

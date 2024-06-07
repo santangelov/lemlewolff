@@ -308,6 +308,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ImportInventoryController.cs" />
     <Compile Include="Controllers\ImportController.cs" />
@@ -329,7 +330,6 @@
     <Content Include="assets\jquery\jquery-3.6.0.slim.min.map" />
     <Content Include="assets\jquery\jquery-3.6.0.min.map" />
     <Content Include="Views\Shared\_LayoutPage.cshtml" />
-    <Content Include="Views\Reports\Reports.cshtml" />
     <Content Include="Views\Shared\Login.cshtml" />
     <Content Include="Views\Shared\ImportInventoryFiles.cshtml" />
     <None Include="Web.Debug.config">
@@ -341,6 +341,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Views\Base\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LW_Common2\LW_Common.csproj">
@@ -350,6 +351,10 @@
     <ProjectReference Include="..\LW_Data2\LW_Data.csproj">
       <Project>{a1382675-953d-42ca-ad30-8431f89368c4}</Project>
       <Name>LW_Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LW_Security\LW_Security.csproj">
+      <Project>{C118A0F0-2685-46FE-8CB7-DDDB8768BC0E}</Project>
+      <Name>LW_Security</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

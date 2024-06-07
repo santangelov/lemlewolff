@@ -13,16 +13,22 @@
     <div class="row">
         <div class="col-12">
             <div class="page-title-box">
-                <div class="page-title-right">
-                    <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item active">Import</li>
-                    </ol>
-                </div>
                 <h4 class="page-title" style="color:darkcyan">WORK ORDER ANALYSIS REPORT</h4>
             </div>
         </div>
     </div>
     <!-- end page title -->
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="header-title">Most Recent Loads</h4>
+                    <p><strong>Sortly:</strong> @Html.Raw(Model.SortlyDateRangeLoaded) | <strong>Yardi WO:</strong> @Html.Raw(Model.YardiWODateRangeLoaded) | <strong>Yardi PO:</strong> @Html.Raw(Model.YardiPODateRangeLoaded)</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="row">
 

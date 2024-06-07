@@ -6,6 +6,7 @@ using System.Configuration;
 using LW_Data;  
 using System.Threading;
 using System;
+using Microsoft.Office.Interop.Excel;
 
 namespace LW_Common
 {
@@ -24,7 +25,7 @@ namespace LW_Common
         {
             Error_Log = "";
 
-            DataTable dtImport = new DataTable();
+            System.Data.DataTable dtImport = new System.Data.DataTable();
 
             clsUtilities.WriteToCounter("Yardi WOs", "Starting...");
 
@@ -47,13 +48,16 @@ namespace LW_Common
                 conn.Dispose();
             }
 
-            DataTable sourceTable = ds.Tables[0];
+            System.Data.DataTable sourceTable = ds.Tables[0];
 
             RowsProcessed = 0;
             DateTime CreateDate = DateTime.Now;
             int NumToProcess = sourceTable.Rows.Count;
             if (NumToProcess > 0)
             {
+                //clsReportHelper.RecordFileDateRanges("YardiWO_Inventory", (DateTime)sourceTable.Rows[0]["Date1"], (DateTime)sourceTable.Rows[0]["Date2"]);
+                clsReportHelper.RecordFileDateRanges("YardiWO_Inventory", clsFunc.CastToDateTime(sourceTable.Rows[0]["Date1"], new DateTime(1900, 1, 1)), clsFunc.CastToDateTime(sourceTable.Rows[0]["Date2"], new DateTime(1900, 1, 1)));
+
                 foreach (DataRow r in sourceTable.Rows)
                 {
                     clsDataHelper dh = new clsDataHelper();
@@ -94,7 +98,7 @@ namespace LW_Common
         {
             Error_Log = "";
 
-            DataTable dtImport = new DataTable();
+            System.Data.DataTable dtImport = new System.Data.DataTable();
 
             clsUtilities.WriteToCounter("Yardi POs", "Starting...");
 
@@ -117,13 +121,16 @@ namespace LW_Common
                 conn.Dispose();
             }
 
-            DataTable sourceTable = ds.Tables[0];
+            System.Data.DataTable sourceTable = ds.Tables[0];
 
             RowsProcessed = 0;
             DateTime CreateDate = DateTime.Now;
             int NumToProcess = sourceTable.Rows.Count;
             if (NumToProcess > 0)
             {
+                //clsReportHelper.RecordFileDateRanges("YardiPO_Inventory", (DateTime)sourceTable.Rows[0]["Date1"], (DateTime)sourceTable.Rows[0]["Date2"]);
+                clsReportHelper.RecordFileDateRanges("YardiPO_Inventory", clsFunc.CastToDateTime(sourceTable.Rows[0]["Date1"], new DateTime(1900, 1, 1)), clsFunc.CastToDateTime(sourceTable.Rows[0]["Date2"], new DateTime(1900, 1, 1)));
+
                 foreach (DataRow r in sourceTable.Rows)
                 {
                     clsDataHelper dh = new clsDataHelper();
@@ -180,7 +187,7 @@ namespace LW_Common
         {
             Error_Log = "";
 
-            DataTable dtImport = new DataTable();
+            System.Data.DataTable dtImport = new System.Data.DataTable();
 
             clsUtilities.WriteToCounter("Yardi WOs", "Starting...");
 
@@ -198,13 +205,16 @@ namespace LW_Common
                 conn.Dispose();
             }
 
-            DataTable sourceTable = ds.Tables[0];
+            System.Data.DataTable sourceTable = ds.Tables[0];
 
             RowsProcessed = 0;
             DateTime CreateDate = DateTime.Now;
             int NumToProcess = sourceTable.Rows.Count;
             if (NumToProcess > 0)
             {
+                //clsReportHelper.RecordFileDateRanges("YardiWO_File", clsFunc.CastToDateTime(sourceTable.Rows[0]["Date1"], new DateTime(1900, 1, 1)), clsFunc.CastToDateTime(sourceTable.Rows[0]["Date2"], new DateTime(1900, 1, 1)));
+                clsReportHelper.RecordFileDateRanges("YardiWO_File", clsFunc.CastToDateTime(sourceTable.Rows[0]["Date1"], new DateTime(1900, 1, 1)), clsFunc.CastToDateTime(sourceTable.Rows[0]["Date2"], new DateTime(1900, 1, 1)));
+
                 foreach (DataRow r in sourceTable.Rows)
                 {
                     clsDataHelper dh = new clsDataHelper();
@@ -258,7 +268,7 @@ namespace LW_Common
         {
             Error_Log = "";
 
-            DataTable dtImport = new DataTable();
+            System.Data.DataTable dtImport = new System.Data.DataTable();
 
             clsUtilities.WriteToCounter("YardiPO", "Starting...");
 
@@ -276,13 +286,16 @@ namespace LW_Common
                 conn.Dispose();
             }
 
-            DataTable sourceTable = ds.Tables[0];
+            System.Data.DataTable sourceTable = ds.Tables[0];
 
             RowsProcessed = 0;
             DateTime CreateDate = DateTime.Now;
             int NumToProcess = sourceTable.Rows.Count;
             if (NumToProcess > 0)
             {
+                //clsReportHelper.RecordFileDateRanges("YardiPO_File", (DateTime)sourceTable.Rows[0]["Date1"], (DateTime)sourceTable.Rows[0]["Date2"]);
+                clsReportHelper.RecordFileDateRanges("YardiPO_File", clsFunc.CastToDateTime(sourceTable.Rows[0]["Date1"], new DateTime(1900, 1, 1)), clsFunc.CastToDateTime(sourceTable.Rows[0]["Date2"], new DateTime(1900, 1, 1)));
+
                 foreach (DataRow r in sourceTable.Rows)
                 {
                     clsDataHelper dh = new clsDataHelper();
@@ -333,7 +346,7 @@ namespace LW_Common
         {
             Error_Log = "";
 
-            DataTable dtImport = new DataTable();
+            System.Data.DataTable dtImport = new System.Data.DataTable();
 
             clsUtilities.WriteToCounter("YardiWO", "Starting...");
 
@@ -351,12 +364,14 @@ namespace LW_Common
                 conn.Dispose();
             }
 
-            DataTable sourceTable = ds.Tables[0];
+            System.Data.DataTable sourceTable = ds.Tables[0];
 
             RowsProcessed = 0;
             int NumToProcess = sourceTable.Rows.Count;
             if (NumToProcess > 0)
             {
+                clsReportHelper.RecordFileDateRanges("YardiWO_GeneralFile", null, DateTime.Now);
+
                 // We are loading the tblWorkOrders table directly
                foreach (DataRow r in sourceTable.Rows)
                 {

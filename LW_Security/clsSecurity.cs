@@ -15,11 +15,16 @@ namespace LW_Security
 {
     public class clsSecurity
     {
+        private static readonly byte[] Key = Encoding.UTF8.GetBytes("jmialjur&^%5676453524243"); // 16, 24, or 32 bytes
+        private static readonly byte[] IV = Encoding.UTF8.GetBytes("IVIVforLEMLEwlo9"); // 16 bytes
+
         public clsSecurity() { }
 
         public string ErrorMsg { get; set; }
 
         public string FullName { get; set; }
+        public string FirstName { get; set; }
+        public string UserLevel { get; set; }
         public string EmailAddress { get; set; }
         public string Password { get; set; }
         public string Password_Enc { get; set; }
@@ -32,9 +37,17 @@ namespace LW_Security
         {
             return clsFunc.CastToBool(HttpContext.Current.Session["IsAdminLoggedIn"], false);
         }
+        public static string LoggedInUserFirstName()
+        {
+            return clsFunc.CastToStr(HttpContext.Current.Session["FirstName"]);
+        }
         public static string LoggedInUserFullName()
         {
             return clsFunc.CastToStr(HttpContext.Current.Session["FullName"]);
+        }
+        public static string LoggedInUserLevel()
+        {
+            return clsFunc.CastToStr(HttpContext.Current.Session["UserLevel"]);
         }
         public static string LoggedInUserEmail()
         {
@@ -50,6 +63,8 @@ namespace LW_Security
             HttpContext.Current.Session["IsAdminLoggedIn"] = null;
             HttpContext.Current.Session["IsLoggedIn"] = false;
             HttpContext.Current.Session["FullName"] = null;
+            HttpContext.Current.Session["FirstName"] = null;
+            HttpContext.Current.Session["UserLevel"] = null;
             HttpContext.Current.Session["EmailAddress"] = null;
             HttpContext.Current.Session["UserID"] = null;
 
@@ -64,7 +79,6 @@ namespace LW_Security
             clsDataHelper dh = new clsDataHelper();
             dh.cmd.Parameters.AddWithValue("@emailAddress", emailAddress);
             dh.cmd.Parameters.AddWithValue("@password_enc", pw_enc);
-            dh.cmd.Parameters.AddWithValue("@password_enc", pw_enc);
             DataRow r = dh.GetDataRow("spUsers");
 
             if (r is null) 
@@ -73,6 +87,8 @@ namespace LW_Security
                 {
                     // If not found then we log out the user essentially
                     FullName = "";
+                    FirstName = "";
+                    UserLevel = "";
                     EmailAddress = "";
                     Password = "";
                     Password_Enc = "";
@@ -86,6 +102,8 @@ namespace LW_Security
                 if (LogInTheUser)
                 {
                     FullName = r["FullName"].ToString();
+                    FirstName = r["FirstName"].ToString();
+                    UserLevel = r["UserLevel"].ToString();
                     EmailAddress = r["EmailAddress"].ToString();
                     Password_Enc = r["Password_Enc"].ToString();
                     Password = clsSecurity.DecryptString(r["Password_Enc"].ToString());
@@ -93,6 +111,8 @@ namespace LW_Security
                     HttpContext.Current.Session["IsAdminLoggedIn"] = r["isAdmin"];
                     HttpContext.Current.Session["IsLoggedIn"] = true;
                     HttpContext.Current.Session["FullName"] = FullName;
+                    HttpContext.Current.Session["FirstName"] = FirstName;
+                    HttpContext.Current.Session["UserLevel"] = UserLevel;
                     HttpContext.Current.Session["EmailAddress"] = EmailAddress;
                     HttpContext.Current.Session["UserID"] = clsFunc.CastToInt(r["UserID"], -1);
                 }
@@ -100,61 +120,103 @@ namespace LW_Security
             }
         }
 
+
         public static string EncryptString(string plainText)
         {
-            byte[] iv = new byte[16];
-            byte[] array;
-            string key = clsDataHelper.ENCRYPTION_KEY;
-
-            using (Aes aes = Aes.Create())
+            using (var aesAlg = Aes.Create())
             {
-                aes.Key = Encoding.UTF8.GetBytes(key);
-                aes.IV = iv;
+                aesAlg.Key = Key;
+                aesAlg.IV = IV;
 
-                ICryptoTransform encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
+                var encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
 
-                using (MemoryStream memoryStream = new MemoryStream())
+                using (var msEncrypt = new MemoryStream())
                 {
-                    using (CryptoStream cryptoStream = new CryptoStream((Stream)memoryStream, encryptor, CryptoStreamMode.Write))
+                    using (var csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
                     {
-                        using (StreamWriter streamWriter = new StreamWriter((Stream)cryptoStream))
+                        using (var swEncrypt = new StreamWriter(csEncrypt))
                         {
-                            streamWriter.Write(plainText);
+                            swEncrypt.Write(plainText);
                         }
-
-                        array = memoryStream.ToArray();
                     }
+
+                    return Convert.ToBase64String(msEncrypt.ToArray());
                 }
             }
-
-            return Convert.ToBase64String(array);
         }
 
-        public static string DecryptString(string string_enc)
+        public static string DecryptString(string cipherText)
         {
-            byte[] iv = new byte[16];
-            byte[] buffer = Convert.FromBase64String(string_enc);
-            string key = clsDataHelper.ENCRYPTION_KEY;
+            var cipherBytes = Convert.FromBase64String(cipherText);
 
-            using (Aes aes = Aes.Create())
+            using (var aesAlg = Aes.Create())
             {
-                aes.Key = Encoding.UTF8.GetBytes(key);
-                aes.IV = iv;
-                ICryptoTransform decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
+                aesAlg.Key = Key;
+                aesAlg.IV = IV;
 
-                using (MemoryStream memoryStream = new MemoryStream(buffer))
+                var decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
+
+                using (var msDecrypt = new MemoryStream(cipherBytes))
                 {
-                    using (CryptoStream cryptoStream = new CryptoStream((Stream)memoryStream, decryptor, CryptoStreamMode.Read))
+                    using (var csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
                     {
-                        using (StreamReader streamReader = new StreamReader((Stream)cryptoStream))
+                        using (var srDecrypt = new StreamReader(csDecrypt))
                         {
-                            return streamReader.ReadToEnd();
+                            return srDecrypt.ReadToEnd();
                         }
                     }
                 }
             }
         }
 
+        //public static string EncryptString(string plaintext)
+        //{
+        //    string key = clsDataHelper.ENCRYPTION_KEY;
+
+        //    // Convert the plaintext string to a byte array
+        //    byte[] plaintextBytes = System.Text.Encoding.UTF8.GetBytes(plaintext);
+
+        //    // Derive a new password using the PBKDF2 algorithm and a random salt
+        //    Rfc2898DeriveBytes passwordBytes = new Rfc2898DeriveBytes(key, 20);
+
+        //    // Use the password to encrypt the plaintext
+        //    Aes encryptor = Aes.Create();
+        //    encryptor.Key = passwordBytes.GetBytes(32);
+        //    encryptor.IV = passwordBytes.GetBytes(16);
+        //    using (MemoryStream ms = new MemoryStream())
+        //    {
+        //        using (CryptoStream cs = new CryptoStream(ms, encryptor.CreateEncryptor(), CryptoStreamMode.Write))
+        //        {
+        //            cs.Write(plaintextBytes, 0, plaintextBytes.Length);
+        //        }
+        //        return Convert.ToBase64String(ms.ToArray());
+        //    }
+        //}
+
+
+        //static string DecryptString(string encrypted)
+        //{
+        //    string key = clsDataHelper.ENCRYPTION_KEY;
+
+        //    // Convert the encrypted string to a byte array
+        //    byte[] encryptedBytes = Convert.FromBase64String(encrypted);
+
+        //    // Derive the password using the PBKDF2 algorithm
+        //    Rfc2898DeriveBytes passwordBytes = new Rfc2898DeriveBytes(key, 20);
+
+        //    // Use the password to decrypt the encrypted string
+        //    Aes encryptor = Aes.Create();
+        //    encryptor.Key = passwordBytes.GetBytes(32);
+        //    encryptor.IV = passwordBytes.GetBytes(16);
+        //    using (MemoryStream ms = new MemoryStream())
+        //    {
+        //        using (CryptoStream cs = new CryptoStream(ms, encryptor.CreateDecryptor(), CryptoStreamMode.Write))
+        //        {
+        //            cs.Write(encryptedBytes, 0, encryptedBytes.Length);
+        //        }
+        //        return System.Text.Encoding.UTF8.GetString(ms.ToArray());
+        //    }
+        //}
 
     }
 

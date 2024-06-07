@@ -13,11 +13,6 @@
     <div class="row">
         <div class="col-12">
             <div class="page-title-box">
-                <div class="page-title-right">
-                    <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item active">INVENTORY</li>
-                    </ol>
-                </div>
                 <h4 class="page-title" style="color:chocolate;">INVENTORY REPORT</h4>
                 <p>@Html.Raw(Model.LoadedRangeText)</p>
             </div>
@@ -26,6 +21,17 @@
     <!-- end page title -->
 
     <div class="row">
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="header-title">Most Recent Loads (WO Analysis Files)</h4>
+                        <p><strong>Yardi WO:</strong> @Html.Raw(Model.YardiWODateRangeLoaded) | <strong>Yardi PO:</strong> @Html.Raw(Model.YardiPODateRangeLoaded) | <strong>Yardi WO General:</strong> @Html.Raw(Model.YardiWOGeneralDateRangeLoaded)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- IMPORTS -->
         <div class="col-6">
@@ -42,7 +48,7 @@
                     {
                         <div class="row mb-3">
                             <div class="col">
-                                @Html.DropDownList("SelectedFile", Model.ImportFileList, "Choose File Type" )
+                                @Html.DropDownList("SelectedFile", Model.ImportFileList, "Choose File Type")
                             </div>
                         </div>
 
@@ -75,7 +81,6 @@
             </div>  <!-- end card -->
         </div>
         <!-- end col -->
-
         <!-- MAINTENANCE -->
         <div class="col-6">
 

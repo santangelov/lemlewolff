@@ -15,7 +15,7 @@ using LW_Web.Models;
 
 namespace LW_Web.Controllers
 {
-    public class ImportInventoryController : Controller
+    public class ImportInventoryController : BaseController
     {
         // GET: Import
         [HttpGet]

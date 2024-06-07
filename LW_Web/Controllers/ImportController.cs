@@ -15,7 +15,7 @@ using LW_Web.Models;
 
 namespace LW_Web.Controllers
 {
-    public class ImportController : Controller
+    public class ImportController : BaseController
     {
         // GET: Import
         [HttpGet]
@@ -39,11 +39,6 @@ namespace LW_Web.Controllers
                 return View(mdl);
             }
 
-            //if (mdl.DeleteDataFirst == true)
-            //{
-            //    DeleteTable(mdl.SelectedFile);
-            //}
-
             if (mdl.UploadedFile.ContentLength > 0)
             {
                 string _FileName = Path.GetFileName(mdl.UploadedFile.FileName);
@@ -51,13 +46,10 @@ namespace LW_Web.Controllers
                 mdl.UploadedFile.SaveAs(_path);
             }
 
-            //// Delete data first if checked
-            //if (mdl.DeleteDataFirst)
-            //{
-            //    clsDataHelper dh = new clsDataHelper();
-            //    dh.cmd.Parameters.AddWithValue("@FileType", mdl.SelectedFile);
-            //    dh.ExecuteSPCMD("spImport_Delete", true, true);
-            //}
+            // Delete data first
+            clsDataHelper dh = new clsDataHelper();
+            dh.cmd.Parameters.AddWithValue("@FileType", mdl.SelectedFile);
+            dh.ExecuteSPCMD("spImport_Delete", true, true);
 
             try
             {

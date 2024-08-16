@@ -83,6 +83,8 @@ namespace LW_Common
 
         public static string CastToStr(object value, string defaultValue = "")
         {
+            if (value == null) { return defaultValue; }
+
             try
             {
                 if (string.IsNullOrEmpty(value.ToString()))

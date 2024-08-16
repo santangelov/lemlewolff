@@ -18,9 +18,9 @@ namespace LW_Web.Models
         public ImportInventoryModel()
         {
             ImportFileList = new List<SelectListItem>();
-            ImportFileList.Add(new SelectListItem { Text = "Yardi Work Orders for Inventory (CSV)", Value = "YardiWO", Selected = (SelectedFile == "YardiWO" ? true : false) });
-            ImportFileList.Add(new SelectListItem { Text = "Yardi POs (CSV)", Value = "YardiPO", Selected = (SelectedFile == "YardiPO" ? true : false) });
-            ImportFileList.Add(new SelectListItem { Text = "Yardi Work Orders for Historical Data (CSV)", Value = "YardiWOH", Selected = (SelectedFile == "YardiWOH" ? true : false) });
+            ImportFileList.Add(new SelectListItem { Text = "3 - Yardi Work Orders for Inventory (CSV)", Value = "YardiWO", Selected = (SelectedFile == "YardiWO" ? true : false) });
+            ImportFileList.Add(new SelectListItem { Text = "4 - Yardi POs (CSV)", Value = "YardiPO", Selected = (SelectedFile == "YardiPO" ? true : false) });
+            ImportFileList.Add(new SelectListItem { Text = "5 - Yardi Work Orders for Historical Data (CSV)", Value = "YardiWOH", Selected = (SelectedFile == "YardiWOH" ? true : false) });
 
 
             // Look up the Import Dates

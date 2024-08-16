@@ -26,6 +26,7 @@ namespace LW_Data
             // Read the full datatable
             clsDataHelper DH = new clsDataHelper();
             if (cmd != null) DH.cmd = cmd;
+            DH.cmd.CommandTimeout = 180;   // Seconds
             System.Data.DataTable sourcedt = DH.GetDataTable(StoredProcedure);
 
             return FillExcelRangeFromDT(ref xlWorkbook, ref sourcedt, WorksheetNumber, CellStartRow, CellStartColumn);

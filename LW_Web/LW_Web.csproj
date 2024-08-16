@@ -303,8 +303,8 @@
     <Content Include="assets\jquery\jquery-3.6.0.slim.js" />
     <Content Include="assets\jquery\jquery-3.6.0.slim.min.js" />
     <Content Include="Web.config" />
-    <Content Include="_Templates\_Template - WOAnalysis_01 - MMM-MMM.xlsx" />
     <Content Include="_Templates\_Template - Inventory Daily Pivot_WithDollars.xlsx" />
+    <Content Include="_Templates\_Template - WOAnalysis_01 - MMM-MMM.xlsm" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\RouteConfig.cs" />

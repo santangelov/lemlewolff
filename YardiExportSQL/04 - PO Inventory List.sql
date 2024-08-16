@@ -1,6 +1,6 @@
-/*  PO INVENTORY LIST
+/*  (4) - PO INVENTORY LIST
 */
-DECLARE @Date1 datetime = cast(format(getdate(), '1/1/yyyy') as DateTime)  -- inclusive
+DECLARE @Date1 datetime = cast(format(dateadd(month, -8, getdate()), 'M/d/yyyy') as DateTime)  -- inclusive
 DECLARE @Date2 datetime = cast(format(getdate(), 'M/d/yyyy') as DateTime)  -- not inclusive
 
 Select 

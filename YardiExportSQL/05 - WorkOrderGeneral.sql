@@ -1,6 +1,7 @@
-/*  5 - Work Order Export to fill the General Work Order lookup table
+/*  (5) - Work Order Export to fill the General Work Order lookup table
 		We always grab ALL Work orders in this select
 */
+DECLARE @Date1 datetime = cast(format(dateadd(month, -12, getdate()), 'M/d/yyyy') as DateTime)  -- inclusive
 
 Select 
 	rtrim(wo.sCode) as WONumber,
@@ -18,7 +19,7 @@ Select
 	getdate() as Date2
 From MM2WO wo
 where wo.hVendor in (select hMyPerson from vendor where rtrim(ucode) in ('all2'))
-	and wo.dtUpdatedt > '6/1/2023'
+	and wo.dtUpdatedt > @Date1
     -- and wo.sStatus not in ('Canceled')
 order by wo.sCode
 

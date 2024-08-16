@@ -1,7 +1,7 @@
-/*  WO - Work Order Inventory
+/*  (3) - WO - Work Order Inventory
 	-- These are the SALES (minus)
 */
-DECLARE @Date1 datetime = cast(format(getdate(), '1/1/yyyy') as DateTime)  -- inclusive
+DECLARE @Date1 datetime = cast(format(dateadd(month, -8, getdate()), 'M/d/yyyy') as DateTime)  -- inclusive
 DECLARE @Date2 datetime = cast(format(getdate(), 'M/d/yyyy') as DateTime)  -- not inclusive
 
 Select 

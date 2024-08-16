@@ -31,7 +31,7 @@ namespace LW_Common
 
         public static string TemplatePath = HostingEnvironment.ApplicationPhysicalPath + "_Templates";   // C:\\Users\\Vincent\\Source\\Repos\\lemlewolff\\LW_Web
         public static string WOAnalysisReportDownloadPath = HostingEnvironment.ApplicationPhysicalPath + "_Downloads";
-        public static string WOAnalysisReportTemplateFileName = "_Template - WOAnalysis_01 - MMM-MMM.xlsx";
+        public static string WOAnalysisReportTemplateFileName = "_Template - WOAnalysis_01 - MMM-MMM.xlsm";
         public static string InventoryReportTemplateFileName = "_Template - Inventory.xlsx";
         public static string InventoryReportTemplateFileName_Pivot = "_Template - Inventory Daily Pivot_WithDollars.xlsx";
 
@@ -109,23 +109,29 @@ namespace LW_Common
 
             //  PAGE 1. Fill in the full report
             E.FillExcelRangeFromSP(ref xlWorkbook, "spWOAnalysisReport", 1, 2, 1, cmd);
+             
+            //  PAGE 2. Fill in the Laborers Tab
+            E.FillExcelRangeFromSP(ref xlWorkbook, "spWOAnalysisReport_Labor", 2, 2, 1, cmd);
 
-            //  PAGE 2. Fill in the Laborers
-            E.FillExcelRangeFromSP(ref xlWorkbook, "spLaborers", 2, 3, 1);
+            //  PAGE 3. Fill in the Summary Reports Tab
+            E.FillExcelRangeFromSP(ref xlWorkbook, "spWOAnalysisReport_LaborerTeamSubtotals", 3, 2, 1, cmd);
 
-            //  PAGE 3. Fill in the Lookup Values
-            E.FillExcelRangeFromSP(ref xlWorkbook, "spLookupValues", 2, 3, 9);
+            //  PAGE 2. Fill in the Lookup Table: Laborers
+            E.FillExcelRangeFromSP(ref xlWorkbook, "spLaborers", 4, 3, 1);
+
+            //  PAGE 3. Fill in the Lookup Table: Lookup Values
+            E.FillExcelRangeFromSP(ref xlWorkbook, "spLookupValues", 4, 3, 10);
 
             //  PAGE 4. Fill in WO Numbers in the ADP import, but 
-            E.FillExcelRangeFromSP(ref xlWorkbook, "spADP_MissingFromAnalysisReport", 4, 2, 1, cmd);
+            E.FillExcelRangeFromSP(ref xlWorkbook, "spADP_MissingFromAnalysisReport", 6, 2, 1, cmd);
 
             //  PAGE 5. Bonus Stats
             clsDataHelper dh = new clsDataHelper();
             DataSet ds = dh.GetDataSetCMD("spBonusReport", ref cmd);
             DataTable dt = ds.Tables[0];
-            E.FillExcelRangeFromDT(ref xlWorkbook, ref dt, 5, 2, 1);
+            E.FillExcelRangeFromDT(ref xlWorkbook, ref dt, 7, 2, 1);
             dt = ds.Tables[1];
-            E.FillExcelRangeFromDT(ref xlWorkbook, ref dt, 5, 2, 10);
+            E.FillExcelRangeFromDT(ref xlWorkbook, ref dt, 7, 2, 10);
 
             // Close Excel Session
             E.CleanUpExcelSession(ref xlApp, ref xlWorkbook, TargetPathAndFileName);

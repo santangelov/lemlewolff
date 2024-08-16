@@ -210,9 +210,14 @@ namespace LW_Common
             RowsProcessed = 0;
             DateTime CreateDate = DateTime.Now;
             int NumToProcess = sourceTable.Rows.Count;
+
+            // Clear out the table first
+            clsDataHelper dh1 = new clsDataHelper();
+            dh1.cmd.Parameters.AddWithValue("@FileType", "YardiWO");   // tblImport_Yardi_WOList
+            dh1.ExecuteSPCMD("spImport_Delete", true, true);
+
             if (NumToProcess > 0)
             {
-                //clsReportHelper.RecordFileDateRanges("YardiWO_File", clsFunc.CastToDateTime(sourceTable.Rows[0]["Date1"], new DateTime(1900, 1, 1)), clsFunc.CastToDateTime(sourceTable.Rows[0]["Date2"], new DateTime(1900, 1, 1)));
                 clsReportHelper.RecordFileDateRanges("YardiWO_File", clsFunc.CastToDateTime(sourceTable.Rows[0]["Date1"], new DateTime(1900, 1, 1)), clsFunc.CastToDateTime(sourceTable.Rows[0]["Date2"], new DateTime(1900, 1, 1)));
 
                 foreach (DataRow r in sourceTable.Rows)

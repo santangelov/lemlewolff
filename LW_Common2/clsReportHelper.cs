@@ -32,7 +32,7 @@ namespace LW_Common
         public static string TemplatePath = HostingEnvironment.ApplicationPhysicalPath + "_Templates";   // C:\\Users\\Vincent\\Source\\Repos\\lemlewolff\\LW_Web
         public static string WOAnalysisReportDownloadPath = HostingEnvironment.ApplicationPhysicalPath + "_Downloads";
         public static string WOAnalysisReportTemplateFileName = "_Template - WOAnalysis_01 - MMM-MMM.xlsm";
-        public static string InventoryReportTemplateFileName = "_Template - Inventory.xlsx";
+        //public static string InventoryReportTemplateFileName = "_Template - Inventory.xlsx";
         public static string InventoryReportTemplateFileName_Pivot = "_Template - Inventory Daily Pivot_WithDollars.xlsx";
 
         public static bool RecordFileDateRanges(string DateKey, DateTime? Date1, DateTime Date2)

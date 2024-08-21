@@ -66,7 +66,7 @@ namespace LW_Web.Controllers
 
                     if (s.Import_Sortly_File(_path, openSheetName))
                     {
-                        string msgStr = "Success! " + s.RowsProcessed.ToString() + " row(s) successfully processed. ";
+                        string msgStr = "Success! " + s.RowsProcessed.ToString() + " row(s) successfully processed. (Sortly)";
                         if (!s.WarningMsg.IsEmpty()) msgStr += s.WarningMsg;
 
                         ViewBag.Message = clsWebFormHelper.SuccessBoxMsgHTML(msgStr);
@@ -85,27 +85,7 @@ namespace LW_Web.Controllers
 
                     if (s.Import_ADP_File(_path, openSheetName))
                     {
-                        ViewBag.Message = clsWebFormHelper.SuccessBoxMsgHTML("Success! " + s.RowsProcessed.ToString() + " row(s) successfully processed. [ADP TimeSheet File]");
-                        if (s.error_message != "")
-                        {
-                            ViewBag.Message += clsWebFormHelper.ErrorBoxMsgHTML("With Errors:\n" + s.error_message);
-                        }
-                    }
-                    else { ViewBag.Message = clsWebFormHelper.ErrorBoxMsgHTML("Error! Error after processing " + s.RowsProcessed.ToString() + " row(s). " + s.error_message); }
-                }
-                else if (mdl.SelectedFile == "ADPLOC")
-                {
-                    clsADPHelper s = new clsADPHelper();
-
-                    // Get the list of WorkSheets
-                    List<string> sheetNames = clsExcelHelper.GetWorksheetNames(_path);
-                    string openSheetName = "";
-
-                    if (sheetNames.Count == 1) openSheetName = sheetNames[0].ToString(); else openSheetName = mdl.WorkSheetName;
-
-                    if (s.Import_ADP_TimecardWorkedLocations_File(_path, openSheetName))
-                    {
-                        ViewBag.Message = clsWebFormHelper.SuccessBoxMsgHTML("Success! " + s.RowsProcessed.ToString() + " row(s) successfully processed. [ADP Location File]");
+                        ViewBag.Message = clsWebFormHelper.SuccessBoxMsgHTML("Success! " + s.RowsProcessed.ToString() + " row(s) successfully processed. ");
                         if (s.error_message != "")
                         {
                             ViewBag.Message += clsWebFormHelper.ErrorBoxMsgHTML("With Errors:\n" + s.error_message);
@@ -118,7 +98,7 @@ namespace LW_Web.Controllers
                     clsYardiHelper y = new clsYardiHelper();
                     if (y.Import_YardiWO_File(_path))
                     {
-                        ViewBag.Message = clsWebFormHelper.SuccessBoxMsgHTML("Success! " + y.RowsProcessed.ToString() + " row(s) successfully processed. [Yardi Work Orders - 1]");
+                        ViewBag.Message = clsWebFormHelper.SuccessBoxMsgHTML("Success! " + y.RowsProcessed.ToString() + " row(s) successfully processed.");
                     }
                     else { ViewBag.Message = clsWebFormHelper.ErrorBoxMsgHTML("Error! Error after processing " + y.RowsProcessed.ToString() + " row(s).</span>"); }
 
@@ -132,7 +112,7 @@ namespace LW_Web.Controllers
                     clsYardiHelper y = new clsYardiHelper();
                     if (y.Import_YardiPO_File(_path))
                     {
-                        ViewBag.Message = clsWebFormHelper.SuccessBoxMsgHTML("Success! " + y.RowsProcessed.ToString() + " row(s) successfully processed. [Yardi POs - 2]");
+                        ViewBag.Message = clsWebFormHelper.SuccessBoxMsgHTML("Success! " + y.RowsProcessed.ToString() + " row(s) successfully processed.");
                     }
                     else { ViewBag.Message = clsWebFormHelper.ErrorBoxMsgHTML("Error! Error after processing " + y.RowsProcessed.ToString() + " row(s).</span>"); }
 

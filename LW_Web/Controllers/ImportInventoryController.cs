@@ -53,7 +53,7 @@ namespace LW_Web.Controllers
                     clsYardiHelper y = new clsYardiHelper();
                     if (y.Import_YardiWO_InventoryFile(_path))
                     {
-                        ViewBag.Message = clsWebFormHelper.SuccessBoxMsgHTML("Success! " + y.RowsProcessed.ToString() + " row(s) successfully processed.");
+                        ViewBag.Message = clsWebFormHelper.SuccessBoxMsgHTML("Success! " + y.RowsProcessed.ToString() + " row(s) successfully processed. (3 - Yardi WO Inventory)");
                     }
                     else { ViewBag.Message = clsWebFormHelper.ErrorBoxMsgHTML("Error! Error after processing " + y.RowsProcessed.ToString() + " row(s).</span>"); }
 
@@ -67,7 +67,7 @@ namespace LW_Web.Controllers
                     clsYardiHelper y = new clsYardiHelper();
                     if (y.Import_YardiWO_GeneralFile(_path))
                     {
-                        ViewBag.Message = clsWebFormHelper.SuccessBoxMsgHTML("Success! " + y.RowsProcessed.ToString() + " row(s) successfully processed.");
+                        ViewBag.Message = clsWebFormHelper.SuccessBoxMsgHTML("Success! " + y.RowsProcessed.ToString() + " row(s) successfully processed. (5 - Yardi WO General)");
                     }
                     else { ViewBag.Message = clsWebFormHelper.ErrorBoxMsgHTML("Error! Error after processing " + y.RowsProcessed.ToString() + " row(s).</span>"); }
 
@@ -81,7 +81,7 @@ namespace LW_Web.Controllers
                     clsYardiHelper y = new clsYardiHelper();
                     if (y.Import_YardiPO_InventoryFile(_path))
                     {
-                        ViewBag.Message = clsWebFormHelper.SuccessBoxMsgHTML("Success! " + y.RowsProcessed.ToString() + " row(s) successfully processed.");
+                        ViewBag.Message = clsWebFormHelper.SuccessBoxMsgHTML("Success! " + y.RowsProcessed.ToString() + " row(s) successfully processed. (4 - Yardi PO Inventory)");
                     }
                     else { ViewBag.Message = clsWebFormHelper.ErrorBoxMsgHTML("Error! Error after processing " + y.RowsProcessed.ToString() + " row(s).</span>"); }
 

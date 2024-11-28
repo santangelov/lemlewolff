@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="~/assets/vendor/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.css">
     <link rel="stylesheet" href="~/assets/css/icons.min.css" type="text/css" />
     <link rel="stylesheet" href="~/assets/css/app-modern.min.css" type="text/css" id="app-style" />
+    <link rel="stylesheet" href="~/assets/css/lw-custom.css" type="text/css" id="app-style" />
 
     <script type="text/javascript" src="~/assets/jquery/jquery-3.6.0.min.js"></script>
 
@@ -201,14 +202,14 @@
                     <li class="side-nav-item">
                         <a href="~/Import" class="side-nav-link">
                             <i class="uil-upload"></i>
-                            <span> WO Analytics </span>
+                            <span> Import Data </span>
                         </a>
                     </li>
 
                     <li class="side-nav-item">
-                        <a href="~/ImportInventory" class="side-nav-link">
-                            <i class="uil-upload"></i>
-                            <span> Inventory </span>
+                        <a href="~/ReportPage" class="side-nav-link">
+                            <i class="uil-file-download"></i>
+                            <span> Reports </span>
                         </a>
                     </li>
 
@@ -219,6 +220,13 @@
                             <span> Administration </span>
                             <span class="menu-arrow"></span>
                         </a>
+                        <div class="collapse" id="sidebarAdmin">
+                            <ul class="side-nav-second-level">
+                                <li>
+                                    <a href="~/Admin/ADPSearch">Edit ADP Data</a>
+                                </li>
+                            </ul>
+                        </div>
                         <div class="collapse" id="sidebarAdmin">
                             <ul class="side-nav-second-level">
                                 <li>

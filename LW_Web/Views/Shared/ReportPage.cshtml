@@ -1,0 +1,178 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_LayoutPage.cshtml";
+}
+
+@model LW_Web.Models.ReportPageModel
+
+
+<!-- Start Content-->
+<div class="container-fluid">
+
+    <!-- start page title -->
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box">
+                <h4 class="page-title" style="color:chocolate;">REPORTS</h4>
+                <p>@Html.Raw(Model.LoadedRangeText)</p>
+            </div>
+        </div>
+    </div>
+    <!-- end page title -->
+
+    <div class="row">
+
+        <!--<div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">-->
+        @*<h4 class="header-title">Most Recent Loads (WO Analysis Files)</h4>*@
+        @*<p><strong>Yardi WO:</strong> @Html.Raw(Model.YardiWODateRangeLoaded) | <strong>Yardi PO:</strong> @Html.Raw(Model.YardiPODateRangeLoaded) | <strong>Yardi WO General:</strong> @Html.Raw(Model.YardiWOGeneralDateRangeLoaded)</p>*@
+        <!--<p>Content</p>
+                </div>
+            </div>
+        </div>
+    </div>-->
+        <!-- WO ANALYSIS REPORT -->
+        <div class="col-6">
+
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="header-title">WO Analysis Report</h4>
+                    <p class="text-muted font-14">Insure that on the Import File page all of the report dates cover the date range you are reporting on.</p>
+                    @using (Html.BeginForm("GetWOAnalysisReport", "Reports", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal" }))
+                    {
+                        <div class="row mb">
+                            <div class="col-10">
+                                @Html.LabelFor(m => m.StartDateA)
+                                @Html.TextBox("StartDateA", Model.StartDateA, new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="row mb">
+                            <div class="col-10">
+                                @Html.LabelFor(m => m.EndDateA)
+                                @Html.TextBox("EndDateA", Model.EndDateA, new { @class = "form-control" })
+                            </div>
+                        </div>
+
+                        <div class="row mb" style="margin-top:20px;">
+                            <div class="col-10">
+                                <button type="submit" id="btnWOAnalysisReport" class="btn btn-primary w-100">Download Analysis Report</button>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <span id="DownloadReportMsgA"></span>
+                            </div>
+                        </div>
+                    }
+
+                    @Html.Raw(ViewBag.Message)
+
+                    @Html.Raw(Model.Error_log)
+
+                </div> <!-- end card-body -->
+            </div>  <!-- end card -->
+
+        </div>
+        <!-- end col -->
+        <!-- INVENTORY REPORT -->
+        <div class="col-6">
+
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="header-title">Daily Inventory Report</h4>
+                    <p class="text-muted font-14">Insure that on the Import File page all of the report dates cover the date range you are reporting on.</p>
+                    @using (Html.BeginForm("GetInventoryReport", "Reports", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal" }))
+                    {
+                        <div class="row mb">
+                            <div class="col-10">
+                                @Html.LabelFor(m => m.StartDateI)
+                                @Html.TextBox("StartDateI", Model.StartDateI, new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="row mb">
+                            <div class="col-10">
+                                @Html.LabelFor(m => m.EndDateI)
+                                @Html.TextBox("EndDateI", Model.EndDateI, new { @class = "form-control" })
+                            </div>
+                        </div>
+
+                        <div class="row mb" style="margin-top:20px;">
+                            <div class="col-10">
+                                <button type="submit" id="btnWOAnalysisReport" class="btn btn-primary w-100">Download Daily Inventory Report</button>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <span id="DownloadReportMsg"></span>
+                            </div>
+                        </div>
+                    }
+
+                    @Html.Raw(ViewBag.Message3)
+
+                    @Html.Raw(Model.Error_log3)
+
+                </div> <!-- end card-body -->
+            </div>  <!-- end card -->
+
+        </div>
+        <!-- end col -->
+
+        <!-- INVENTORY ITEM REVIEW REPORT -->
+        <div class="col-6">
+
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="header-title">PO Inventory Item Review Report</h4>
+                    <p class="text-muted font-14">Insure that Yardi Export #4 is loaded and covers the date range you are reporting on.</p>
+                    @using (Html.BeginForm("GetPOInvItemReviewReport", "Reports", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal" }))
+                    {
+                        <div class="row mb">
+                            <div class="col-10">
+                                @Html.LabelFor(m => m.StartDatePOI)
+                                @Html.TextBox("StartDatePOI", Model.StartDatePOI, new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="row mb">
+                            <div class="col-10">
+                                @Html.LabelFor(m => m.EndDatePOI)
+                                @Html.TextBox("EndDatePOI", Model.EndDatePOI, new { @class = "form-control" })
+                            </div>
+                        </div>
+
+                        <div class="row mb" style="margin-top:20px;">
+                            <div class="col-10">
+                                <button type="submit" id="btnPOIReport" class="btn btn-primary w-100">Download PO Inventory Item Review Report</button>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <span id="DownloadReportMsgPOI"></span>
+                            </div>
+                        </div>
+                    }
+
+                    @Html.Raw(ViewBag.MessagePOI)
+
+                    @Html.Raw(Model.Error_logPOI)
+
+                </div> <!-- end card-body -->
+            </div>  <!-- end card -->
+
+        </div>
+        <!-- end col -->
+
+    </div>
+
+<script type="text/javascript" src="~/assets/js-custom/importFilePage.js"></script>
+
+
+
+
+
+

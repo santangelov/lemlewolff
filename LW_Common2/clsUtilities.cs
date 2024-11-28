@@ -52,7 +52,7 @@ namespace LW_Common
             {
                 if (!cache.Contains("Counter_" + CounterName)) 
                 {
-                    return new clsCounter { Message = "No import in progress." };
+                    return new clsCounter { Message = "...", Count = "..." };
                 }
                 else
                 {

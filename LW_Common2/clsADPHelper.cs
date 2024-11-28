@@ -24,7 +24,7 @@ namespace LW_Common
         /// <param name="FilePathAndName"></param>
         /// <param name="WorksheetName"></param>
         /// <returns></returns>
-        public bool Import_ADP_File(string FilePathAndName, string WorksheetName)
+        public bool Import_ADP_File(string FilePathAndName, string WorksheetName, bool LockRowsForUpdate, bool AllowUpdatesOfLockedRows)
         {
             DataTable dtImport = new DataTable();
             error_message = "";
@@ -52,7 +52,7 @@ namespace LW_Common
             {
                 // Validate the import file first - All columns are required
                 string NotFoundStr = "";
-                foreach (string s in new List<string> { "Company Code", "Payroll Name", "File Number", "Time In", "Time Out", "Timecard Work Location", "Timecard Work W#O#", "Worked Department", "Payroll Pay Date", "Pay Code (Timecard)", "Hours", "Dollars", "Timecard Worked Work Id Description", "Timecard Worked W#O# Desc Description" })
+                foreach (string s in new List<string> { "Company Code", "Payroll Name", "File Number", "Time In", "Time Out", "Timecard Work Location", "Timecard Work W#O#", "Worked Department", "Payroll Pay Date", "Pay Code (Timecard)", "Hours", "Dollars", "Timecard Worked Work Project Id Description", "Timecard Worked W#O# Desc Description" })
                 {
                     if (!sourceTable.Columns.Contains(s)) if (NotFoundStr == "") NotFoundStr += s; else NotFoundStr += ", " + s;
                 }
@@ -82,16 +82,18 @@ namespace LW_Common
                         dh.cmd.Parameters.AddWithValue("@PayCode", r["Pay Code (Timecard)"].ToString());  // in the file it's "[Timecard]"
                         dh.cmd.Parameters.AddWithValue("@Hours", r["Hours"]);
                         dh.cmd.Parameters.AddWithValue("@Dollars", r["Dollars"]);
-                        dh.cmd.Parameters.AddWithValue("@TimeDescription", r["Timecard Worked Work Id Description"]);
+                        dh.cmd.Parameters.AddWithValue("@TimeDescription", r["Timecard Worked Work Project Id Description"]);
                         dh.cmd.Parameters.AddWithValue("@WODescription", r["Timecard Worked W#O# Desc Description"]);
                         dh.cmd.Parameters.AddWithValue("@CreateDate", createDate);
                         dh.cmd.Parameters.AddWithValue("@CreatedBy", "User1");
+                        dh.cmd.Parameters.AddWithValue("@isLockedForUpdates", LockRowsForUpdate);
 
+                        dh.cmd.Parameters.AddWithValue("@allowUpdateOfLockedRows", AllowUpdatesOfLockedRows);
                         dh.cmd.Parameters.AddWithValue("@NoReturn", true);  // Force it to not return data for speed
+                        RowsProcessed++;
                         bool isSuccess = dh.ExecuteSPCMD("spADPUpdate", false);
                         if (isSuccess)
                         {
-                            RowsProcessed++;
                             if (RowsProcessed % 34 == 0) clsUtilities.WriteToCounter("ADP", RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###"));
                         }
                         else
@@ -117,7 +119,7 @@ namespace LW_Common
         /// <param name="FilePathAndName"></param>
         /// <param name="WorksheetName"></param>
         /// <returns></returns>
-        public bool Import_ADP_TimecardWorkedLocations_File(string FilePathAndName, string WorksheetName)
+        public bool Import_ADP_TimecardWorkedLocations_File(string FilePathAndName, string WorksheetName, bool LockRowsForUpdate, bool AllowUpdatesOfLockedRows)
         {
             DataTable dtImport = new DataTable();
             error_message = "";
@@ -141,17 +143,6 @@ namespace LW_Common
             DateTime createDate = DateTime.Now;
             if (NumToProcess > 0)
             {
-                // Validate the import file first - All columns are required
-                //string NotFoundStr = "";
-                //foreach (string s in new List<string> { "Company Code", "Payroll Name", "File Number", "Time In", "Time Out", "Timecard Work Location", "Timecard Work W#O#", "Worked Department", "Payroll Pay Date", "Pay Code (Timecard)", "Hours", "Dollars", "Timecard Worked Work Id Description", "Timecard Worked W#O# Desc Description" })
-                //{
-                //    if (!sourceTable.Columns.Contains(s)) if (NotFoundStr == "") NotFoundStr += s; else NotFoundStr += ", " + s;
-                //}
-                //if (NotFoundStr != "")
-                //{
-                //    error_message = "ADP Import file NOT loaded. ** Check that headings are in row 1. **  Columns not found: " + NotFoundStr;
-                //    return false;
-                //}
 
                 foreach (DataRow r in sourceTable.Rows)
                 {
@@ -172,12 +163,14 @@ namespace LW_Common
                         dh.cmd.Parameters.AddWithValue("@PayCode", r["Pay Code (Timecard)"].ToString());  // in the file it's "[Timecard]"
                         dh.cmd.Parameters.AddWithValue("@Hours", r["Hours"]);
                         dh.cmd.Parameters.AddWithValue("@Dollars", r["Dollars"]);
-                        dh.cmd.Parameters.AddWithValue("@TimeDescription", r["Timecard Worked Work Id Description"]);
+                        dh.cmd.Parameters.AddWithValue("@TimeDescription", r["Timecard Worked Work Project Id Description"]);
                         dh.cmd.Parameters.AddWithValue("@WODescription", r["Timecard Worked W#O# Desc Description"]);
                         dh.cmd.Parameters.AddWithValue("@CreateDate", createDate);
                         dh.cmd.Parameters.AddWithValue("@CreatedBy", "User1");
+                        dh.cmd.Parameters.AddWithValue("@isLockedForUpdates", LockRowsForUpdate);
 
                         dh.cmd.Parameters.AddWithValue("@NoReturn", true);  // Force it to not return data for speed
+                        dh.cmd.Parameters.AddWithValue("@allowUpdateOfLockedRows", AllowUpdatesOfLockedRows);  
                         bool isSuccess = dh.ExecuteSPCMD("spADPUpdate", false);
                         if (isSuccess)
                         {

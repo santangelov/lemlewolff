@@ -86,6 +86,12 @@ namespace LW_Common
                     }
                 }
             }
+
+            if (RowsProcessed == 5000)
+            {
+                Error_Log += DateTime.Now.ToString() + ": <span style='color:Orange;'>WARNING: Exactly 5000 rows were imported. This could indicate that you had filtering on to limit the export to the first 5000 rows. This import was completed, however , please check your export to insure filtering in Yardi allows unlimited rows.</span>\r\n";
+            }
+
             return true;
         }
 
@@ -128,7 +134,6 @@ namespace LW_Common
             int NumToProcess = sourceTable.Rows.Count;
             if (NumToProcess > 0)
             {
-                //clsReportHelper.RecordFileDateRanges("YardiPO_Inventory", (DateTime)sourceTable.Rows[0]["Date1"], (DateTime)sourceTable.Rows[0]["Date2"]);
                 clsReportHelper.RecordFileDateRanges("YardiPO_Inventory", clsFunc.CastToDateTime(sourceTable.Rows[0]["Date1"], new DateTime(1900, 1, 1)), clsFunc.CastToDateTime(sourceTable.Rows[0]["Date2"], new DateTime(1900, 1, 1)));
 
                 foreach (DataRow r in sourceTable.Rows)
@@ -147,9 +152,16 @@ namespace LW_Common
                     dh.cmd.Parameters.AddWithValue("@ItemCode", r["ItemCode"]);
                     dh.cmd.Parameters.AddWithValue("@ItemDesc", r["ItemDesc"]);
                     dh.cmd.Parameters.AddWithValue("@Client", r["Client"]);
+                    dh.cmd.Parameters.AddWithValue("@VendorCode", r["VendorCode"]);
+                    dh.cmd.Parameters.AddWithValue("@POAmount", r["POAmount"]);
+                    dh.cmd.Parameters.AddWithValue("@WOAndInvoiceAmt", r["WOAndInvoiceAmt"]);
 
-                    bool isSuccess = false; 
-                    
+
+                    bool isSuccess = true;
+
+                    // Import into the PO Items Table (tblPurchaseOrderItems which holds ALL items, good or bad, from the PO)
+                    // Later we can get rid of the exceptions table and only report on the ALL ITEMS table
+
                     // Capture Exceptions for the PO Exception Table
                     //  1. Item Code = "material%"
 
@@ -157,10 +169,10 @@ namespace LW_Common
                     {
                         isSuccess = dh.ExecuteSPCMD("spPurchaseOrderItems_ExceptionsUpdate", false);   // Importing to tblImport_Inv_Yardi_POItems_Exception table
                     }
-                    else
-                    {
-                        isSuccess = dh.ExecuteSPCMD("spYardiPOsInvItemsUpdate", false);   // Importing to tblImport_Inv_Yardi_POItems
-                    }
+
+                    /* Start importing all into tblImport_Inv_Yardi_POItems even with Materials even though we are filling up the Exceptions table */
+                    if (isSuccess) isSuccess = dh.ExecuteSPCMD("spYardiPOsInvItemsUpdate", false);   // Importing to tblImport_Inv_Yardi_POItems 
+                    if (isSuccess) isSuccess = dh.ExecuteSPCMD("spYardiPODetailsUpdate", false);     // Importing PO data into tblPurchaseOrders_Details
 
                     RowsProcessed++;
 
@@ -174,12 +186,20 @@ namespace LW_Common
                         if (RowsProcessed % 15 == 0) clsUtilities.WriteToCounter("YardiPO", RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###"));  // only update every 15 records
                     }
                 }
+
+                if (!clsReportHelper.RunAllReportSQL_Public()) { return false; }  // Run the SQL because it uses the temp tables just loaded
             }
+
+            if (RowsProcessed == 5000)
+            {
+                Error_Log += DateTime.Now.ToString() + ": <span style='color:Orange;'>WARNING: Exactly 5000 rows were imported. This could indicate that you had filtering on to limit the export to the first 5000 rows. This import was completed, however , please check your export to insure filtering in Yardi allows unlimited rows.</span>\r\n";
+            }
+
             return true;
         }
 
         /// <summary>
-        /// Import Yardi Work Orders for INVENTORY reporting
+        /// Import Yardi Work Orders for WO Analysis reporting (File #1)
         /// </summary>
         /// <param name="FilePathAndName"></param>
         /// <returns></returns>
@@ -243,6 +263,7 @@ namespace LW_Common
                     dh.cmd.Parameters.AddWithValue("@PayAmt", r["PayAmt"]);
                     dh.cmd.Parameters.AddWithValue("@TransBatchDate", r["woBatchOccuredDate"]);
                     dh.cmd.Parameters.AddWithValue("@PostedMonth", r["PostedMonth"]);
+                    dh.cmd.Parameters.AddWithValue("@YardiWODetailRowID", r["WODetailRowID"]);  // unique in the WO detail table in Yardi
 
                     dh.cmd.Parameters.AddWithValue("@CreatedBy", "User1");
                     dh.cmd.Parameters.AddWithValue("@CreateDate", CreateDate);
@@ -261,6 +282,12 @@ namespace LW_Common
                     }
                 }
             }
+
+            if (RowsProcessed == 5000)
+            {
+                Error_Log += DateTime.Now.ToString() + ": <span style='color:Orange;'>WARNING: Exactly 5000 rows were imported. This could indicate that you had filtering on to limit the export to the first 5000 rows. This import was completed, however , please check your export to insure filtering in Yardi allows unlimited rows.</span>\r\n";
+            }
+
             return true;
         }
 
@@ -298,7 +325,6 @@ namespace LW_Common
             int NumToProcess = sourceTable.Rows.Count;
             if (NumToProcess > 0)
             {
-                //clsReportHelper.RecordFileDateRanges("YardiPO_File", (DateTime)sourceTable.Rows[0]["Date1"], (DateTime)sourceTable.Rows[0]["Date2"]);
                 clsReportHelper.RecordFileDateRanges("YardiPO_File", clsFunc.CastToDateTime(sourceTable.Rows[0]["Date1"], new DateTime(1900, 1, 1)), clsFunc.CastToDateTime(sourceTable.Rows[0]["Date2"], new DateTime(1900, 1, 1)));
 
                 foreach (DataRow r in sourceTable.Rows)
@@ -343,6 +369,11 @@ namespace LW_Common
                 */
                 clsDataHelper dh2 = new clsDataHelper();
                 bool isSuccess2 = dh2.ExecuteSPCMD("spPurchaseOrders_Import", true);
+
+                if (RowsProcessed == 5000)
+                {
+                    Error_Log += DateTime.Now.ToString() + ": <span style='color:Orange;'>WARNING: Exactly 5000 rows were imported. This could indicate that you had filtering on to limit the export to the first 5000 rows. This import was completed, however , please check your export to insure filtering in Yardi allows unlimited rows.</span>\r\n";
+                }
             }
             return true;
         }
@@ -406,7 +437,13 @@ namespace LW_Common
                     }
                 }
 
-            }
+                if (!clsReportHelper.RunAllReportSQL_Public()) { return false; }  // Run the SQL because it uses the temp tables just loaded
+ 
+                if (RowsProcessed == 5000)
+                {
+                    Error_Log += DateTime.Now.ToString() + ": <span style='color:Orange;'>WARNING: Exactly 5,000 rows were imported. This could indicate that you had filtering on to limit the export to the first 5000 rows. This import was completed, however , please check your export to insure filtering in Yardi allows unlimited rows.</span>\r\n";
+                }
+           }
             return true;
         }
 

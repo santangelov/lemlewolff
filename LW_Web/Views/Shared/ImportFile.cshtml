@@ -13,7 +13,7 @@
     <div class="row">
         <div class="col-12">
             <div class="page-title-box">
-                <h4 class="page-title" style="color:darkcyan">WORK ORDER ANALYSIS REPORT</h4>
+                <h4 class="page-title" style="color:darkcyan">IMPORT FILES</h4>
             </div>
         </div>
     </div>
@@ -24,7 +24,11 @@
             <div class="card">
                 <div class="card-body">
                     <h4 class="header-title">Most Recent Loads</h4>
-                    <p><strong>Sortly:</strong> @Html.Raw(Model.SortlyDateRangeLoaded) | <strong>Yardi WO:</strong> @Html.Raw(Model.YardiWODateRangeLoaded) | <strong>Yardi PO:</strong> @Html.Raw(Model.YardiPODateRangeLoaded)</p>
+                    <table class="dateLoadTable">
+                        <tr><td><strong>ADP: </strong></td><td>@Html.Raw(Model.ADPDateRangeLoaded)</td><td><strong>Sortly: </strong></td><td>@Html.Raw(Model.SortlyDateRangeLoaded)</td><td><strong>(1) Yardi WO: </strong></td><td>@Html.Raw(Model.YardiWODateRangeLoaded)</td></tr>
+                        <tr><td><strong>(2) Yardi PO: </strong></td><td>@Html.Raw(Model.YardiPODateRangeLoaded)</td><td><strong>(3) Yardi WO Inv: </strong></td><td>@Html.Raw(Model.YardiWO2DateRangeLoaded)</td><td><strong>(4) Yardi PO Inv: </strong></td><td>@Html.Raw(Model.YardiPO2DateRangeLoaded)</td></tr>
+                        <tr><td><strong>(5) Yardi WO General: </strong></td><td>@Html.Raw(Model.YardiWOGeneralDateRangeLoaded)</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+                    </table>
                 </div>
             </div>
         </div>
@@ -32,7 +36,7 @@
 
     <div class="row">
 
-        <!-- IMPORTS -->
+        <!-- IMPORT FILES -->
         <div class="col-6">
             <div class="card">
                 <div class="card-body">
@@ -47,31 +51,22 @@
                     {
                         <div class="row mb-3">
                             <div class="col">
-                                @Html.DropDownList("SelectedFile", Model.ImportFileList, "Choose File Type" )
+                                @Html.DropDownList("SelectedFile", Model.ImportFileList, "Choose File Type")
                             </div>
                         </div>
 
-                        <div class="row mb-3">
+                        @*<div class="row mb-3">
                             <div class="col">
                                 @Html.LabelFor(m => m.WorkSheetName)
                                 @Html.TextBox("WorkSheetName", Model.WorkSheetName, new { @class = "form-control" })
                             </div>
-                        </div>
+                        </div>*@
 
                         <div class="row mb-3">
                             <div class="col">
                                 @Html.TextBoxFor(m => m.UploadedFile, new { type = "file", name = "UploadedFile", @class = "form-control" })   <!--("file", Model.UploadedFile, new { type = "file" and comma form-control }) -->
                             </div>
                         </div>
-
-                        @*<div class="row mb-3">
-                            <div class="col">
-                                @Html.CheckBox("DeleteDataFirst", true, new {@class= "form-check-input" })
-                                <label class="form-check-label" for="chkDelDataFirst">
-                                    Delete data first
-                                </label>
-                            </div>
-                        </div>*@
 
                         <div class="row mb-3">
                             <div class="col-4">
@@ -89,46 +84,22 @@
             </div>  <!-- end card -->
         </div>
         <!-- end col -->
-
         <!-- MAINTENANCE -->
         <div class="col-6">
 
             <div class="card">
                 <div class="card-body">
-                    <h4 class="header-title">WO Analysis Report</h4>
-                    <p class="text-muted font-14">Returns the current and last processed report. You should probably run the Maintenance process first if it has not been run.</p>
-                    @using (Html.BeginForm("GetWOAnalysisReport", "Reports", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal" }))
-                    {
-                        <div class="row mb">
-                            <div class="col-10">
-                                @Html.LabelFor(m => m.StartDate)
-                                @Html.TextBox("StartDate", Model.StartDate, new { @class = "form-control" })
-                            </div>
-                        </div>
-                        <div class="row mb">
-                            <div class="col-10">
-                                @Html.LabelFor(m => m.EndDate)
-                                @Html.TextBox("EndDate", Model.EndDate, new { @class = "form-control" })
-                            </div>
-                        </div>
-
-                        <div class="row mb" style="margin-top:20px;">
-                            <div class="col-10">
-                                <button type="submit" id="btnWOAnalysisReport" class="btn btn-primary w-100">Download Analysis Report</button>
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-12">
-                                <span id="DownloadReportMsg"></span>
-                            </div>
-                        </div>
-                    }
-
-                    @Html.Raw(ViewBag.Message3)
-
-                    @Html.Raw(Model.Error_log3)
-
+                    <h4 class="header-title">INSTRUCTIONS</h4>
+                    <p>Quick Access to SQL Queries to run in Yardi. To insure your uploads will work and stay up to date pull the SQL Queries from here.</p>
+                    <p><a href="~/Documents/LW Portal User Manual - vsn240903.pdf" target="_blank">User Manual</a> (Updated 9/3/2024)</p>
+                    <ul>
+                        <li><a href="~/_YardiExportSQL/01 - WO List.txt" target="_blank">01 - WO List</a></li>
+                        <li><a href="~/_YardiExportSQL/02 - PO List.txt" target="_blank">02 - PO List</a></li>
+                        <li><a href="~/_YardiExportSQL/03 - WO Inventory List.txt" target="_blank">03 - WO Inventory List</a></li>
+                        <li><a href="~/_YardiExportSQL/04 - PO Inventory List.txt" target="_blank">04 - PO Inventory List</a></li>
+                        <li><a href="~/_YardiExportSQL/05 - WorkOrderGeneral.txt" target="_blank">05 - WorkOrderGeneral</a></li>
+                        <li><a href="https://app.sortly.com/reports/inventory-summary" target="_blank">Sortly Inventory</a></li>
+                    </ul>
                 </div> <!-- end card-body -->
             </div>  <!-- end card -->
 

@@ -131,6 +131,7 @@
   <ItemGroup>
     <Content Include="assets\css\app-modern.min.css" />
     <Content Include="assets\css\icons.min.css" />
+    <Content Include="assets\css\lw-custom.css" />
     <Content Include="assets\fonts\Nunito-Bold.svg" />
     <Content Include="assets\fonts\Nunito-Light.svg" />
     <Content Include="assets\fonts\Nunito-Medium.svg" />
@@ -297,6 +298,12 @@
     <Content Include="assets\fonts\unicons.woff2" />
     <Content Include="_Downloads\placeholder.txt" />
     <Content Include="_FileUploads\placeholder.txt" />
+    <Content Include="_YardiExportSQL\01 - WO List.txt" />
+    <Content Include="_YardiExportSQL\02 - PO List.txt" />
+    <Content Include="_YardiExportSQL\Scratch\03 - WO Inventory List - Copy.txt" />
+    <Content Include="_YardiExportSQL\03 - WO Inventory List.txt" />
+    <Content Include="_YardiExportSQL\04 - PO Inventory List.txt" />
+    <Content Include="_YardiExportSQL\05 - WorkOrderGeneral.txt" />
     <None Include="assets\jquery\jquery-3.6.0.intellisense.js" />
     <Content Include="assets\jquery\jquery-3.6.0.js" />
     <Content Include="assets\jquery\jquery-3.6.0.min.js" />
@@ -305,19 +312,20 @@
     <Content Include="Web.config" />
     <Content Include="_Templates\_Template - Inventory Daily Pivot_WithDollars.xlsx" />
     <Content Include="_Templates\_Template - WOAnalysis_01 - MMM-MMM.xlsm" />
+    <Content Include="_Templates\_Template - InvItemReview.xlsx" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="Controllers\ImportInventoryController.cs" />
+    <Compile Include="Controllers\ReportPageController.cs" />
     <Compile Include="Controllers\ImportController.cs" />
     <Compile Include="Controllers\LoginController.cs" />
     <Compile Include="Controllers\ReportsController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Models\ImportInventoryModel.cs" />
+    <Compile Include="Models\ReportPageModel.cs" />
     <Compile Include="Models\LoginModel.cs" />
     <Compile Include="Models\ReportsModel.cs" />
     <Compile Include="Models\ImportFilesModel.cs" />
@@ -325,13 +333,15 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\web.config" />
+    <Content Include="Documents\LW Portal User Manual.docx" />
+    <Content Include="Documents\LW Portal User Manual - vsn241031.pdf" />
     <None Include="packages.config" />
     <Content Include="Views\Shared\ImportFile.cshtml" />
     <Content Include="assets\jquery\jquery-3.6.0.slim.min.map" />
     <Content Include="assets\jquery\jquery-3.6.0.min.map" />
     <Content Include="Views\Shared\_LayoutPage.cshtml" />
     <Content Include="Views\Shared\Login.cshtml" />
-    <Content Include="Views\Shared\ImportInventoryFiles.cshtml" />
+    <Content Include="Views\Shared\ReportPage.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

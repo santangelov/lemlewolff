@@ -19,13 +19,19 @@ namespace LW_Web.Models
             ImportFileList.Add(new SelectListItem { Text = "Sortly (xlsx)", Value = "Sortly", Selected = (SelectedFile == "Sortly" ? true : false) });
             ImportFileList.Add(new SelectListItem { Text = "1 - Yardi Work Orders (CSV)", Value = "YardiWO", Selected = (SelectedFile == "YardiWO" ? true : false) });
             ImportFileList.Add(new SelectListItem { Text = "2 - Yardi POs (CSV)", Value = "YardiPO", Selected = (SelectedFile == "YardiPO" ? true : false) });
-            //ImportFileList.Add(new SelectListItem { Text = "ADP - TimeSheet with Locations", Value = "ADPLOC", Selected = (SelectedFile == "ADPLOC" ? true : false) });
+            ImportFileList.Add(new SelectListItem { Text = "3 - Yardi Work Orders for Inventory (CSV)", Value = "YardiWO2", Selected = (SelectedFile == "YardiWO2" ? true : false) });
+            ImportFileList.Add(new SelectListItem { Text = "4 - Yardi Inventory POs (CSV)", Value = "YardiPO2", Selected = (SelectedFile == "YardiPO2" ? true : false) });
+            ImportFileList.Add(new SelectListItem { Text = "5 - Yardi Work Orders for Historical Data (CSV)", Value = "YardiWOH", Selected = (SelectedFile == "YardiWOH" ? true : false) });
 
             // Look up the Import Dates
             clsReportHelper RH = new clsReportHelper();
             SortlyDateRangeLoaded = clsReportHelper.GetFileDateRangeValues("Sortly").DateRangeAsString;
             YardiWODateRangeLoaded = clsReportHelper.GetFileDateRangeValues("YardiWO_File").DateRangeAsString;
             YardiPODateRangeLoaded = clsReportHelper.GetFileDateRangeValues("YardiPO_File").DateRangeAsString;
+            YardiWO2DateRangeLoaded = clsReportHelper.GetFileDateRangeValues("YardiWO_Inventory").DateRangeAsString;
+            YardiPO2DateRangeLoaded = clsReportHelper.GetFileDateRangeValues("YardiPO_Inventory").DateRangeAsString;
+            YardiWOGeneralDateRangeLoaded = clsReportHelper.GetFileDateRangeValues("YardiWO_GeneralFile").DateRangeAsString;
+            ADPDateRangeLoaded = clsReportHelper.GetFileDateRangeValues("ADP").DateRangeAsString;
         }
 
         [DisplayName("Import File List")]
@@ -36,9 +42,6 @@ namespace LW_Web.Models
 
         [DisplayName("The File")]
         public HttpPostedFileBase UploadedFile { get; set; }
-
-        [DisplayName("Name of Worksheet (if more than 1)")]
-        public string WorkSheetName { get; set; }
 
         [DisplayName("Start Date (inclusive)")]
         public string StartDate { get; set; }
@@ -54,6 +57,18 @@ namespace LW_Web.Models
 
         [DisplayName("Yardi WO Date Range Loaded")]
         public string YardiPODateRangeLoaded { get; set; }
+
+        [DisplayName("Yardi WO Date Range Loaded")]
+        public string YardiWO2DateRangeLoaded { get; set; }
+
+        [DisplayName("Yardi WO Date Range Loaded")]
+        public string YardiPO2DateRangeLoaded { get; set; }
+
+        [DisplayName("Yardi WO General Date Range Loaded")]
+        public string YardiWOGeneralDateRangeLoaded { get; set; }
+
+        [DisplayName("ADP Date Range Loaded")]
+        public string ADPDateRangeLoaded { get; set; }
 
         public string Error_log { get; set; }    // Imports
         public string Error_log2 { get; set; }   // Maintenance

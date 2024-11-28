@@ -32,7 +32,7 @@ namespace LW_Common
         public static string TemplatePath = HostingEnvironment.ApplicationPhysicalPath + "_Templates";   // C:\\Users\\Vincent\\Source\\Repos\\lemlewolff\\LW_Web
         public static string WOAnalysisReportDownloadPath = HostingEnvironment.ApplicationPhysicalPath + "_Downloads";
         public static string WOAnalysisReportTemplateFileName = "_Template - WOAnalysis_01 - MMM-MMM.xlsm";
-        //public static string InventoryReportTemplateFileName = "_Template - Inventory.xlsx";
+        public static string POInventoryItemReviewReportTemplateFileName = "_Template - InvItemReview.xlsx";
         public static string InventoryReportTemplateFileName_Pivot = "_Template - Inventory Daily Pivot_WithDollars.xlsx";
 
         public static bool RecordFileDateRanges(string DateKey, DateTime? Date1, DateTime Date2)
@@ -67,18 +67,56 @@ namespace LW_Common
             if (r["LatestImportDateRange_Date1"] != null) { retObj.Date1 = clsFunc.CastToStr(r["LatestImportDateRange_Date1"]); }
             retObj.Date2 = clsFunc.CastToStr(r["LatestImportDateRange_Date2"]);
 
-            retObj.DateRangeAsString = clsFunc.CastToDateTime(r["LatestImportDateRange_Date1"], new DateTime(1900, 1, 1)).ToString("M/d/yy");
-            if (retObj.DateRangeAsString != "1/1/00")
-            {
-                retObj.DateRangeAsString += " - " + clsFunc.CastToDateTime(r["LatestImportDateRange_Date2"], new DateTime(1900, 1, 1)).ToString("M/d/yy");
-            }else
-            {
-                retObj.DateRangeAsString = "Up to " + clsFunc.CastToDateTime(r["LatestImportDateRange_Date2"], new DateTime(1900, 1, 1)).ToString("M/d/yy");
-            }
+            //retObj.DateRangeAsString = clsFunc.CastToDateTime(r["LatestImportDateRange_Date1"], new DateTime(1900, 1, 1)).ToString("M/d/yy");
+            //if (retObj.DateRangeAsString != "1/1/00")
+            //{
+            //    retObj.DateRangeAsString += " - " + clsFunc.CastToDateTime(r["LatestImportDateRange_Date2"], new DateTime(1900, 1, 1)).ToString("M/d/yy");
+            //}else
+            //{
+            //    retObj.DateRangeAsString = "Up to " + clsFunc.CastToDateTime(r["LatestImportDateRange_Date2"], new DateTime(1900, 1, 1)).ToString("M/d/yy");
+            //}
+
+            retObj.DateRangeAsString = clsFunc.CastToDateTime(r["LatestImportDateRange_Date2"], new DateTime(1900, 1, 1)).ToString("M/d/yy");
 
             return retObj;
         }
-         
+
+
+        public bool FillExcel_POInventoryItemReviewReport(string NewFileName, string StartDate, string EndDate)
+        {
+            // Run Pre-Processing of data
+            if (!RunAllReportSQL()) { return false; }
+
+            string TargetPathAndFileName = WOAnalysisReportDownloadPath + "\\" + NewFileName;
+
+            // Delete any existing file of the same name
+            try
+            {
+                System.IO.File.Delete(TargetPathAndFileName);
+            }
+            catch (Exception) { }
+
+            // Copy the Template file first to the new file name
+            System.IO.File.Copy(TemplatePath + "\\" + POInventoryItemReviewReportTemplateFileName, TargetPathAndFileName, true);   // Default to overwrite = true
+
+            Excel.Application xlApp = new Excel.Application();
+            xlApp.Visible = false;
+            xlApp.UserControl = false;
+            Excel.Workbook xlWorkbook = xlApp.Workbooks.Open(TargetPathAndFileName);
+
+            clsExcelHelper E = new clsExcelHelper();
+            SqlCommand cmd = new SqlCommand();
+            cmd.Parameters.AddWithValue("@date1", StartDate);
+            cmd.Parameters.AddWithValue("@date2", EndDate);
+
+            //  PAGE 1. Fill in the full report
+            E.FillExcelRangeFromSP(ref xlWorkbook, "spPOInventoryItemReport", 1, 2, 1, cmd);
+
+            // Close Excel Session
+            E.CleanUpExcelSession(ref xlApp, ref xlWorkbook, TargetPathAndFileName);
+
+            return true;
+        }
 
         public bool FillExcel_WOAnalysisReport(string NewFileName, string StartDate, string EndDate)
         {
@@ -139,10 +177,12 @@ namespace LW_Common
             return true;
         }
 
+
+
         public bool FillExcel_InventoryDailyPivotReport(string NewFileName, string StartDate, string EndDate)
         {
             // Run the pre-processing of data
-            if (!ProcessInventorySQL()) { return false; }
+            if (!RunAllReportSQL()) { return false; }
 
             string TargetPathAndFileName = WOAnalysisReportDownloadPath + "\\" + NewFileName;
 
@@ -156,88 +196,103 @@ namespace LW_Common
             // Copy the Template file first to the new file name
             System.IO.File.Copy(TemplatePath + "\\" + InventoryReportTemplateFileName_Pivot, TargetPathAndFileName, true);   // Default to overwrite = true
 
+            clsExcelHelper E = new clsExcelHelper();
             Excel.Application xlApp = new Excel.Application();
             xlApp.Visible = false;
             xlApp.UserControl = false;
             Excel.Workbook xlWorkbook = xlApp.Workbooks.Open(TargetPathAndFileName);
 
-            clsExcelHelper E = new clsExcelHelper();
+            bool retVal = true;
 
-            // Set the parameters for the stored procedure
-            SqlCommand cmd = new SqlCommand();
-            cmd.Parameters.AddWithValue("@StartDate", StartDate);
-            cmd.Parameters.AddWithValue("@EndDate", EndDate);
+            try
+            {
 
-            // Run the one Stored Procedure, and it returns a number of tables
-            DataSet ds = new DataSet();
-            clsDataHelper DH = new clsDataHelper();
-            ds = DH.GetDataSetCMD("spRptBuilder_Inventory_PivotByDay", ref cmd);
+                // Set the parameters for the stored procedure
+                SqlCommand cmd = new SqlCommand();
+                cmd.Parameters.AddWithValue("@StartDate", StartDate);
+                cmd.Parameters.AddWithValue("@EndDate", EndDate);
 
-            // Pass in each table to fill in the worksheets
-            System.Data.DataTable dt = new System.Data.DataTable();
-            
-            // Sheet: Summary,  Dates
-            dt = ds.Tables[0];
-            E.FillExcelRangeFromDT(ref xlWorkbook, ref dt, 1, 2, 1);
+                // Run the one Stored Procedure, and it returns a number of tables
+                DataSet ds = new DataSet();
+                clsDataHelper DH = new clsDataHelper();
+                ds = DH.GetDataSetCMD("spRptBuilder_Inventory_PivotByDay", ref cmd);
 
-            // Sheet: Summary,  Totals
-            dt = ds.Tables[1];
-            E.FillExcelRangeFromDT(ref xlWorkbook, ref dt, 1, 5, 1);
+                // Pass in each table to fill in the worksheets
+                System.Data.DataTable dt = new System.Data.DataTable();
 
-            // Sheet: Detail Data
-            dt = ds.Tables[2];
-            E.FillExcelRangeFromDT(ref xlWorkbook, ref dt, 2, 3, 1);   // Details
-            int numTotalColumns = E.FillExcelHeadersFromDT(ref xlWorkbook, ref dt, 2, 1, 1);   // Header
-            int columnCopyFrom = 8;   // Column number that has the formula to copy across - nothing else needs to be set below
-            E.CopyExcelRange(ref xlWorkbook, 2, 2, columnCopyFrom, 2, columnCopyFrom+1, 2, numTotalColumns);  // Names Formula: copy the cell with the formula (H8) across all further columns
+                // Sheet: Summary,  Dates
+                dt = ds.Tables[0];
+                E.FillExcelRangeFromDT(ref xlWorkbook, ref dt, 1, 2, 1);
 
-            // Return to Cell A1
-            xlApp.Goto(xlWorkbook.Sheets[2].Range("A1"));
+                // Sheet: Summary,  Totals
+                dt = ds.Tables[1];
+                E.FillExcelRangeFromDT(ref xlWorkbook, ref dt, 1, 5, 1);
 
-            // Sheet: Full Inventory  (seperate stored procedure)
-            clsDataHelper DH2 = new clsDataHelper();
-            DataSet DS2 = new DataSet();
-            DH2.cmd.Parameters.AddWithValue("@EndDate", EndDate);
-            DS2 = DH2.GetDataSetCMD("spRptBuilder_Inventory_FullInventory", ref DH2.cmd);
-            System.Data.DataTable dt2 = new System.Data.DataTable();
+                // Sheet: Detail Data
+                dt = ds.Tables[2];
+                E.FillExcelRangeFromDT(ref xlWorkbook, ref dt, 2, 3, 1);   // Details
+                int numTotalColumns = E.FillExcelHeadersFromDT(ref xlWorkbook, ref dt, 2, 1, 1);   // Header
+                int columnCopyFrom = 8;   // Column number that has the formula to copy across - nothing else needs to be set below
+                E.CopyExcelRange(ref xlWorkbook, 2, 2, columnCopyFrom, 2, columnCopyFrom + 1, 2, numTotalColumns);  // Names Formula: copy the cell with the formula (H8) across all further columns
 
-            // --- Inventory - Date Headers
-            dt2 = DS2.Tables[0];
-            E.FillExcelRangeFromDT(ref xlWorkbook, ref dt2, 3, 1, 11);  // Fill in the Headers with the past 6 months
+                // Return to Cell A1
+                xlApp.Goto(xlWorkbook.Sheets[2].Range("A1"));
 
-            // --- Full Inventory Data with Turnover
-            dt2 = DS2.Tables[1];
-            E.FillExcelRangeFromDT(ref xlWorkbook, ref dt2, 3, 2, 1);  // Fill in the Full Inventory data with the turnover data
+                // Sheet: Full Inventory  (seperate stored procedure)
+                clsDataHelper DH2 = new clsDataHelper();
+                DataSet DS2 = new DataSet();
+                DH2.cmd.Parameters.AddWithValue("@EndDate", EndDate);
+                DS2 = DH2.GetDataSetCMD("spRptBuilder_Inventory_FullInventory", ref DH2.cmd);
+                System.Data.DataTable dt2 = new System.Data.DataTable();
 
-            // Sheet: Labor
-            dt = ds.Tables[3];
-            E.FillExcelRangeFromDT(ref xlWorkbook, ref dt, 4, 2, 1);
+                // --- Inventory - Date Headers
+                dt2 = DS2.Tables[0];
+                E.FillExcelRangeFromDT(ref xlWorkbook, ref dt2, 3, 1, 11);  // Fill in the Headers with the past 6 months
 
-            // Sheet: Vendors
-            dt = ds.Tables[4];
-            E.FillExcelRangeFromDT(ref xlWorkbook, ref dt, 5, 2, 1);
+                // --- Full Inventory Data with Turnover
+                dt2 = DS2.Tables[1];
+                E.FillExcelRangeFromDT(ref xlWorkbook, ref dt2, 3, 2, 1);  // Fill in the Full Inventory data with the turnover data
 
-            // Sheet: Exceptions
-            dt = ds.Tables[5];
-            E.FillExcelRangeFromDT(ref xlWorkbook, ref dt, 6, 2, 1);
+                // Sheet: Labor
+                dt = ds.Tables[3];
+                E.FillExcelRangeFromDT(ref xlWorkbook, ref dt, 4, 2, 1);
 
-            // Close Excel Session
-            E.CleanUpExcelSession(ref xlApp, ref xlWorkbook, TargetPathAndFileName);
+                // Sheet: Vendors
+                dt = ds.Tables[4];
+                E.FillExcelRangeFromDT(ref xlWorkbook, ref dt, 5, 2, 1);
 
-            return true;
+                // Sheet: Exceptions
+                dt = ds.Tables[5];
+                E.FillExcelRangeFromDT(ref xlWorkbook, ref dt, 6, 2, 1);
+            } 
+            catch (Exception) 
+            {
+                retVal = false;
+            }
+            finally { 
+                // Close Excel Session if there is an exception or just con completion
+                E.CleanUpExcelSession(ref xlApp, ref xlWorkbook, TargetPathAndFileName);
+            }
+
+            return retVal;
         }
 
+        public static bool RunAllReportSQL_Public()
+        {
+            return RunAllReportSQL();
+        }
+        
         private static bool RunAllReportSQL()
         {
              bool isSuccess = true;
 
-            // Clear out the results table first
-            //clsDataHelper dh1 = new clsDataHelper();
-            //dh1.cmd.Parameters.AddWithValue("@FileType", "master");
-            //if (isSuccess) isSuccess = dh1.ExecuteSPCMD("spImport_Delete", true, true);
-
             clsDataHelper dh = new clsDataHelper();
 
+            // INVENTORY REPORT FOCUSED
+            //clsUtilities.WriteToCounter("MaintenanceMsg", "1: Importing Any Inventory Data...");
+            if (isSuccess) isSuccess = dh.ExecuteSPCMD("spRptBuilder_Inventory_01_Import", true);
+
+            // WO ANALYTICS REPORT FOCUSED
             //clsUtilities.WriteToCounter("MaintenanceMsg", "1: Processing WOs...");
             if (isSuccess) isSuccess = dh.ExecuteSPCMD("spRptBuilder_WOReview_01_WOs", true, true);
 
@@ -258,23 +313,6 @@ namespace LW_Common
 
             return isSuccess;
         }
-
-        private static bool ProcessInventorySQL()
-        {
-            // Clear out the results table first
-            //clsDataHelper dh1 = new clsDataHelper();
-            //dh1.cmd.Parameters.AddWithValue("@FileType", "master");
-            //dh1.ExecuteSPCMD("spImport_Delete");
-
-            clsDataHelper dh = new clsDataHelper();
-            bool isSuccess = true;
-
-            //clsUtilities.WriteToCounter("MaintenanceMsg", "1: Importing...");
-            if (isSuccess) isSuccess = dh.ExecuteSPCMD("spRptBuilder_Inventory_01_Import", true);
-
-            return isSuccess;
-        }
-
 
     }
 }

@@ -17,7 +17,7 @@ namespace LW_Common
         public string Error_Log { get; set; }
 
         /// <summary>
-        /// Import WOs for the Inventory Report
+        /// Import WOs for the Inventory Report. Used for Importing ySQL Yardi File #3
         /// </summary>
         /// <param name="FilePathAndName"></param>
         /// <returns></returns>
@@ -100,7 +100,7 @@ namespace LW_Common
         /// </summary>
         /// <param name="FilePathAndName"></param>
         /// <returns></returns>
-        public bool Import_YardiPO_InventoryFile(string FilePathAndName)
+        public bool Import_YardiPO_InventoryFile(string FilePathAndName)  // Import ySQL File #4 
         {
             Error_Log = "";
 

@@ -1,0 +1,187 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_LayoutPage.cshtml";
+}
+
+@model List<LW_Data.clsADPRecord>
+
+
+<!-- Start Content-->
+<div class="container-fluid">
+
+    <div class="row">
+
+        <!-- WO ANALYSIS REPORT -->
+        <div class="col-12">
+
+            <div class="card">
+                <form method="post" action="@Url.Action("FilterRows", "ADP")">
+                    <div class="form-group d-inline-block m-3">
+                        <h3>Filter</h3>
+                        <label for="LaborerFilter">By Laborer</label>
+                        <select id="LaborerFilter" name="FilterLaborerID" class="form-control">
+                            <option value="">-- Select Laborer --</option>
+                            @foreach (var laborer in ViewBag.Laborers as List<SelectListItem>)
+                            {
+                                <option value="@laborer.Value" @(laborer.Value == ViewBag.SelectedFilteredLaborer?.ToString() ? "selected" : "")>@laborer.Text</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="form-group d-inline-block m-3">
+                        <label for="FilterPayDate">By Pay Date</label>
+                        <input type="date" name="FilterPayDate" value="@ViewBag.FilterDate?.ToString('MM/dd/yyyy')" class="form-control" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Filter</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="header-title">ADP RECORDS</h4>
+
+                    <a href="@Url.Action("AddRecord", "ADP")" class="btn btn-success mb-3">+ Add New Record</a>
+
+                    <table border="0">
+                        <thead>
+                            <tr>
+                                <th>Pay Date</th>
+                                <th>Laborer</th>
+                                <th>Name in ADP</th>
+                                <th>Time In</th>
+                                <th>Time Out</th>
+                                <th>Hours</th>
+                                <th>Dollars</th>
+                                <th>Locked</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var record in Model)
+                            {
+                                <tr data-id="@record.ADPRowID">
+                                    <td><input type="date" value="@record.PayDate.ToString("yyyy-MM-dd")" class="form-control fieldPayDate" /></td>
+                                    <td>
+                                        <select class="form-control fieldLaborerID" name="LaborerID">
+                                            <option value=""> -none- </option>
+                                            @foreach (var laborer in ViewBag.Laborers as List<SelectListItem>)
+                                            {
+                                                <option value="@laborer.Value" @(laborer.Value == record.LaborerID.ToString() ? "selected" : "")>@laborer.Text</option>
+                                            }
+                                        </select>
+                                    </td>
+                                    <td nowrap>@record.PayrollName</td>
+                                    <td>
+                                        <input type="time"
+                                               value="@(record.TimeIn.HasValue ? record.TimeIn.Value.ToString("HH:mm") : "")"
+                                               class="form-control fieldTimeIn" />
+                                    </td>
+                                    <td>
+                                        <input type="time"
+                                               value="@(record.TimeOut.HasValue ? record.TimeOut.Value.ToString("HH:mm") : "")"
+                                               class="form-control fieldTimeOut" />
+                                    </td>
+                                    <td><input type="text" value="@record.Hours" class="form-control fieldHours" /></td>
+                                    <td><input type="text" value="@record.Dollars" class="form-control fieldDollars" /></td>
+                                    <td><input type="checkbox" disabled @(record.isLockedForUpdates ? "checked" : "") value="@record.isLockedForUpdates" class="form-check-input fieldIsLocked m-2" /></td>
+
+                                    <td><button class="btn btn-sm btnSave">Save</button></td>
+                                    <td><button @(record.isLockedForUpdates ? "" : "disabled") class="btn btn-link link-secondary btnUnlock link-info">Unlock</button></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                </div> <!-- end card-body -->
+            </div>  <!-- end card -->
+
+        </div>
+        <!-- end col -->
+
+
+    </div>
+</div>
+
+    <script>
+        $(document).ready(function () {
+            $(document).on('click', '.btnSave', function () {
+                var row = $(this).closest('tr');
+                var recordId = row.data('id');
+
+                var payDate = row.find('.fieldPayDate').val();
+                var laborerId = row.find('.fieldLaborerID').val();
+                var timeIn = row.find('.fieldTimeIn').val();
+                var timeOut = row.find('.fieldTimeOut').val();
+                var hours = row.find('.fieldHours').val();
+                var dollars = row.find('.fieldDollars').val();
+                //var isLocked = row.find('.fieldIsLocked').is(':checked');
+
+                $.ajax({
+                    url: '/ADP/Update',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        ADPRowID: recordId,
+                        PayDate: payDate,
+                        LaborerID: laborerId,
+                        TimeIn: timeIn,
+                        TimeOut: timeOut,
+                        Hours: hours,
+                        Dollars: dollars
+                        //isLockedForUpdates: isLocked
+                    }),
+                    success: function (data) {
+                        var checkbox = row.find('.fieldIsLocked');
+                        checkbox.prop('checked', true);
+
+                        alert('Update successful!');
+                    },
+                    error: function () {
+                        alert('Update failed!');
+                    }
+                });
+
+                return false;  // Prevent default form submission
+            });
+
+            $(document).on('click', '.btnUnlock', function () {
+                var row = $(this).closest('tr');
+                var recordId = row.data('id');
+
+                var isLocked = row.find('.fieldIsLocked').is(':checked');
+
+                if (isLocked) {
+
+                    $.ajax({
+                        url: '/ADP/Unlock',
+                        method: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            ADPRowID: recordId
+                        }),
+                        success: function (data) {
+                            var checkbox = row.find('.fieldIsLocked'); 
+                            checkbox.prop('checked', false);
+                            var bUnlock = row.find('.btnUnlock');
+                            bUnlock.prop('disabled', true);
+
+                            alert('Record Unlocked!');
+                        },
+                        error: function () {
+                            alert('Failed to unlock');
+                        }
+                    });
+                }
+                else {
+                    alert('This record is not locked.');
+                }
+
+                return false;  // Prevent default form submission
+            });
+
+        });
+    </script>
+
+
+
+
+
+

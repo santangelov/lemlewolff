@@ -2,7 +2,7 @@
 	built from rs_5_Maint_PO_Dir.txt
 */
 
-DECLARE @Date1 datetime = cast(format(dateadd(month, -8, getdate()), 'M/d/yyyy') as DateTime)  -- inclusive
+DECLARE @Date1 datetime = cast(format(dateadd(month, -14, getdate()), 'M/d/yyyy') as DateTime)  -- inclusive
 DECLARE @Date2 datetime = cast(format(getdate(), 'M/d/yyyy') as DateTime)  -- not inclusive
 
 select --distinct 

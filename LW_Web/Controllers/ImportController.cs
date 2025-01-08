@@ -115,7 +115,7 @@ namespace LW_Web.Controllers
                     }
                     else { ViewBag.Message = clsWebFormHelper.ErrorBoxMsgHTML("Error! Error after processing " + s.RowsProcessed.ToString() + " row(s). " + s.error_message); }
                 }
-                else if (mdl.SelectedFile == "YardiWO")
+                else if (mdl.SelectedFile == "YardiWO")  // ySQL File #1
                 {
                     clsYardiHelper y = new clsYardiHelper();
                     if (y.Import_YardiWO_File(_path))
@@ -129,7 +129,7 @@ namespace LW_Web.Controllers
                         mdl.Error_log = "<div style='color=Red'>" + y.Error_Log.Replace("\r\n", "<br>") + "</div>";
                     }
                 }
-                else if (mdl.SelectedFile == "YardiPO")
+                else if (mdl.SelectedFile == "YardiPO")  // ySQL File #2
                 {
                     clsYardiHelper y = new clsYardiHelper();
                     if (y.Import_YardiPO_File(_path))
@@ -143,7 +143,7 @@ namespace LW_Web.Controllers
                         mdl.Error_log = "<div style='color=Red'>" + y.Error_Log.Replace("\r\n", "<br>") + "</div>";
                     }
                 }
-                else if (mdl.SelectedFile == "YardiWO2")  // 3
+                else if (mdl.SelectedFile == "YardiWO2")  // ySQL File #3
                 {
                     clsYardiHelper y = new clsYardiHelper();
                     if (y.Import_YardiWO_InventoryFile(_path))
@@ -157,7 +157,7 @@ namespace LW_Web.Controllers
                         mdl.Error_log = "<div style='color=Red'>" + y.Error_Log.Replace("\r\n", "<br>") + "</div>";
                     }
                 }
-                else if (mdl.SelectedFile == "YardiPO2") // 4
+                else if (mdl.SelectedFile == "YardiPO2") // ySQL File #4
                 {
                     clsYardiHelper y = new clsYardiHelper();
                     if (y.Import_YardiPO_InventoryFile(_path))

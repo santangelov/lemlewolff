@@ -155,10 +155,10 @@ namespace LW_Common
             E.FillExcelRangeFromSP(ref xlWorkbook, "spWOAnalysisReport_LaborerTeamSubtotals", 3, 2, 1, cmd);
 
             //  PAGE 2. Fill in the Lookup Table: Laborers
-            E.FillExcelRangeFromSP(ref xlWorkbook, "spLaborers", 4, 3, 1);
+            E.FillExcelRangeFromSP(ref xlWorkbook, "spWOAnalysisReport_Lookup_Laborers", 4, 3, 1);
 
             //  PAGE 3. Fill in the Lookup Table: Lookup Values
-            E.FillExcelRangeFromSP(ref xlWorkbook, "spLookupValues", 4, 3, 10);
+            E.FillExcelRangeFromSP(ref xlWorkbook, "spWOAnalysisReport_LookupValues", 4, 3, 9);
 
             //  PAGE 4. Fill in WO Numbers in the ADP import, but 
             E.FillExcelRangeFromSP(ref xlWorkbook, "spADP_MissingFromAnalysisReport", 6, 2, 1, cmd);

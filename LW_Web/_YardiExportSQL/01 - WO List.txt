@@ -3,7 +3,7 @@
 	-- 7/16: added that Completion date is in 2023 (can add months later if needed) - this gets all jobs started in last year and ended this year
 	-- 7/30: added Batch Dates (SDATEOCCURRED) - the other date that could be used but left off is trans.uPOSTDATE
 */
-DECLARE @Date1 datetime = cast(format(dateadd(month, -8, getdate()), 'M/d/yyyy') as DateTime)  -- inclusive
+DECLARE @Date1 datetime = cast(format(dateadd(month, -14, getdate()), 'M/d/yyyy') as DateTime)  -- inclusive
 DECLARE @Date2 datetime = cast(format(getdate(), 'M/d/yyyy') as DateTime)  -- not inclusive
 
 

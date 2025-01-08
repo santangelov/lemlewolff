@@ -1,7 +1,7 @@
 /*  (5) - Work Order Export to fill the General Work Order lookup table
 		We always grab ALL Work orders in this select
 */
-DECLARE @Date1 datetime = cast(format(dateadd(month, -12, getdate()), 'M/d/yyyy') as DateTime)  -- inclusive
+DECLARE @Date1 datetime = cast(format(dateadd(month, -14, getdate()), 'M/d/yyyy') as DateTime)  -- inclusive
 
 Select 
 	rtrim(wo.sCode) as WONumber,

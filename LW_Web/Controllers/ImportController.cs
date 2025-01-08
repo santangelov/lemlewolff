@@ -19,6 +19,13 @@ namespace LW_Web.Controllers
     {
         // GET: Import
         [HttpGet]
+        public ActionResult ImportInventoryFiles(String filetype)
+        {
+            return View(new ReportPageModel());
+        }
+
+        // GET: Import
+        [HttpGet]
         public ActionResult ImportFile(String filetype)
         {
             return View(new ImportFilesModel());
@@ -60,9 +67,8 @@ namespace LW_Web.Controllers
 
                     // Get the list of WorkSheets
                     List<string> sheetNames = clsExcelHelper.GetWorksheetNames(_path);
-                    string openSheetName = "";
-
-                    if (sheetNames.Count == 1) openSheetName = sheetNames[0].ToString(); else openSheetName = mdl.WorkSheetName;
+                    string openSheetName = sheetNames[0].ToString();
+                    //if (sheetNames.Count == 1) openSheetName = sheetNames[0].ToString(); else openSheetName = mdl.WorkSheetName;
 
                     if (s.Import_Sortly_File(_path, openSheetName))
                     {
@@ -79,11 +85,9 @@ namespace LW_Web.Controllers
 
                     // Get the list of WorkSheets
                     List<string> sheetNames = clsExcelHelper.GetWorksheetNames(_path);
-                    string openSheetName = "";
+                    string openSheetName = sheetNames[0].ToString();
 
-                    if (sheetNames.Count == 1) openSheetName = sheetNames[0].ToString(); else openSheetName = mdl.WorkSheetName;
-
-                    if (s.Import_ADP_File(_path, openSheetName))
+                    if (s.Import_ADP_File(_path, openSheetName, false, false))
                     {
                         ViewBag.Message = clsWebFormHelper.SuccessBoxMsgHTML("Success! " + s.RowsProcessed.ToString() + " row(s) successfully processed. [ADP TimeSheet File]");
                         if (s.error_message != "")
@@ -99,11 +103,9 @@ namespace LW_Web.Controllers
 
                     // Get the list of WorkSheets
                     List<string> sheetNames = clsExcelHelper.GetWorksheetNames(_path);
-                    string openSheetName = "";
+                    string openSheetName = sheetNames[0].ToString();
 
-                    if (sheetNames.Count == 1) openSheetName = sheetNames[0].ToString(); else openSheetName = mdl.WorkSheetName;
-
-                    if (s.Import_ADP_TimecardWorkedLocations_File(_path, openSheetName))
+                    if (s.Import_ADP_TimecardWorkedLocations_File(_path, openSheetName, false, false))
                     {
                         ViewBag.Message = clsWebFormHelper.SuccessBoxMsgHTML("Success! " + s.RowsProcessed.ToString() + " row(s) successfully processed. [ADP Location File]");
                         if (s.error_message != "")
@@ -113,7 +115,7 @@ namespace LW_Web.Controllers
                     }
                     else { ViewBag.Message = clsWebFormHelper.ErrorBoxMsgHTML("Error! Error after processing " + s.RowsProcessed.ToString() + " row(s). " + s.error_message); }
                 }
-                else if (mdl.SelectedFile == "YardiWO")
+                else if (mdl.SelectedFile == "YardiWO")  // ySQL File #1
                 {
                     clsYardiHelper y = new clsYardiHelper();
                     if (y.Import_YardiWO_File(_path))
@@ -127,7 +129,7 @@ namespace LW_Web.Controllers
                         mdl.Error_log = "<div style='color=Red'>" + y.Error_Log.Replace("\r\n", "<br>") + "</div>";
                     }
                 }
-                else if (mdl.SelectedFile == "YardiPO")
+                else if (mdl.SelectedFile == "YardiPO")  // ySQL File #2
                 {
                     clsYardiHelper y = new clsYardiHelper();
                     if (y.Import_YardiPO_File(_path))
@@ -141,8 +143,50 @@ namespace LW_Web.Controllers
                         mdl.Error_log = "<div style='color=Red'>" + y.Error_Log.Replace("\r\n", "<br>") + "</div>";
                     }
                 }
+                else if (mdl.SelectedFile == "YardiWO2")  // ySQL File #3
+                {
+                    clsYardiHelper y = new clsYardiHelper();
+                    if (y.Import_YardiWO_InventoryFile(_path))
+                    {
+                        ViewBag.Message = clsWebFormHelper.SuccessBoxMsgHTML("Success! " + y.RowsProcessed.ToString() + " row(s) successfully processed. (3 - Yardi WO Inventory)");
+                    }
+                    else { ViewBag.Message = clsWebFormHelper.ErrorBoxMsgHTML("Error! Error after processing " + y.RowsProcessed.ToString() + " row(s).</span>"); }
 
-        }
+                    if (y.Error_Log != "")
+                    {
+                        mdl.Error_log = "<div style='color=Red'>" + y.Error_Log.Replace("\r\n", "<br>") + "</div>";
+                    }
+                }
+                else if (mdl.SelectedFile == "YardiPO2") // ySQL File #4
+                {
+                    clsYardiHelper y = new clsYardiHelper();
+                    if (y.Import_YardiPO_InventoryFile(_path))
+                    {
+                        ViewBag.Message = clsWebFormHelper.SuccessBoxMsgHTML("Success! " + y.RowsProcessed.ToString() + " row(s) successfully processed. (4 - Yardi PO Inventory)");
+                    }
+                    else { ViewBag.Message = clsWebFormHelper.ErrorBoxMsgHTML("Error! Error after processing " + y.RowsProcessed.ToString() + " row(s).</span>"); }
+
+                    if (y.Error_Log != "")
+                    {
+                        mdl.Error_log = "<div style='color=Red'>" + y.Error_Log.Replace("\r\n", "<br>") + "</div>";
+                    }
+                }
+                else if (mdl.SelectedFile == "YardiWOH") // 5
+                {
+                    clsYardiHelper y = new clsYardiHelper();
+                    if (y.Import_YardiWO_GeneralFile(_path))
+                    {
+                        ViewBag.Message = clsWebFormHelper.SuccessBoxMsgHTML("Success! " + y.RowsProcessed.ToString() + " row(s) successfully processed. (5 - Yardi WO General)");
+                    }
+                    else { ViewBag.Message = clsWebFormHelper.ErrorBoxMsgHTML("Error! Error after processing " + y.RowsProcessed.ToString() + " row(s).</span>"); }
+
+                    if (y.Error_Log != "")
+                    {
+                        mdl.Error_log = "<div style='color=Red'>" + y.Error_Log.Replace("\r\n", "<br>") + "</div>";
+                    }
+                }
+
+            }
             catch (Exception e)
             {
                 ViewBag.Message = clsWebFormHelper.ErrorBoxMsgHTML("File upload failed!! " + e.Message);
@@ -150,26 +194,6 @@ namespace LW_Web.Controllers
 
             return View(mdl);
         }
-
-        //[HttpPost]
-        //public ActionResult RunAllSQL()
-        //{
-        //    Server.ScriptTimeout = 1200;
-        //    ImportFilesModel model = new ImportFilesModel();
-
-        //    if (clsReportHelper.RunAllReportSQL())
-        //    {
-        //        ViewBag.Message2 = "<div class=\"alert alert-success\"><strong>Success!</strong> All Scripts Run.</div>";
-        //        model.Error_log = "";
-        //    }
-        //    else 
-        //    {
-        //        ViewBag.Message2 = "";
-        //        model.Error_log = "<div class=\"alert alert-danger\"><strong>Error!</strong> Error running scripts. Not all script might have run.</div>";
-        //    }
-
-        //    return View("ImportFile", model);
-        //}
 
         [HttpPost]
         public ActionResult Counter(string fileType)

@@ -19,14 +19,9 @@ namespace LW_Web
                 defaults: new { controller = "Import", action = "ImportFile", filetype = UrlParameter.Optional });
             
             routes.MapRoute(
-                name: "ImportInventory",
-                url: "ImportInventory/{action}/{filetype}",
-                defaults: new { controller = "ImportInventory", action = "ImportInventoryFiles", filetype = UrlParameter.Optional });
-
-            routes.MapRoute(
-                name: "Reports",
-                url: "Reports/{action}/{filetype}",
-                defaults: new { controller = "Reports", action = "Reports", filetype = UrlParameter.Optional });
+                name: "ReportPage",
+                url: "ReportPage/{action}/{filetype}",
+                defaults: new { controller = "ReportPage", action = "Index", filetype = UrlParameter.Optional });
 
             routes.MapRoute(
                 name: "Default",

@@ -26,7 +26,6 @@ namespace LW_Web.Controllers
             if (s.ValidateLogin(mdl.EmailAddress, mdl.Password, true))
             {
                 return RedirectToAction("ImportFile", "Import");
-                //return View("ImportFile", new ImportFilesModel());
             }
             else 
             {

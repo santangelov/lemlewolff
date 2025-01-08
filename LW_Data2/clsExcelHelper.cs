@@ -128,8 +128,8 @@ namespace LW_Data
 
             //close and release
             xlWorkbook.Close(true, TargetPathAndFileName);
-            xlApp.Quit();
             Marshal.ReleaseComObject(xlWorkbook);
+            xlApp.Quit();
             Marshal.ReleaseComObject(xlApp);
 
             return true;

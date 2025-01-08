@@ -34,6 +34,7 @@ namespace LW_Data
         public bool ExecuteSPCMD(string sqlStoredProcedure, bool CloseOnCompletion = true, bool OpenReadWrite = true)
         {
             cmd.CommandType = CommandType.StoredProcedure;
+            cmd.CommandTimeout = 180;  // 3 minutes
             cmd.CommandText = sqlStoredProcedure;
             if (cmd.Connection is null || cmd.Connection?.ConnectionString == "") cmd.Connection = clsDataHelper.sqlconn(OpenReadWrite);
 
@@ -72,6 +73,7 @@ namespace LW_Data
             cmd.Connection = clsDataHelper.sqlconn(false);
             cmd.CommandText = sqlStoredProcedure;
             cmd.CommandType = CommandType.StoredProcedure;
+            cmd.CommandTimeout = 180;   // 3 minutes
 
             SqlDataAdapter DA = new SqlDataAdapter(cmd);
             DataSet ds = new DataSet();
@@ -115,6 +117,7 @@ namespace LW_Data
             cmd.Connection = clsDataHelper.sqlconn(false);
             cmd.CommandText = sqlStoredProcedure;
             cmd.CommandType = CommandType.StoredProcedure;
+            cmd.CommandTimeout = 180;   // 3 minutes
 
             SqlDataAdapter DA = new SqlDataAdapter(cmd);
             DataSet ds = new DataSet();

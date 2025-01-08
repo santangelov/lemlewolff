@@ -20,25 +20,19 @@ namespace LW_Data
         [StringLength(250)]
         public string FirstName { get; set; }
 
-        [Column(TypeName = "decimal(10, 2)")]
         public decimal? LWSalariedHourlyRate { get; set; }
 
-        [Column(TypeName = "decimal(10, 2)")]
         public decimal? LWSmJobMinRateAdj { get; set; }
 
-        [Column(TypeName = "decimal(10, 2)")]
         public decimal? LWOTRate { get; set; }
 
-        [Column(TypeName = "decimal(10, 2)")]
         public decimal? LWMaterialRate { get; set; }
 
-        [Column(TypeName = "decimal(10, 2)")]
         public decimal? WageIncrease2022 { get; set; }
 
         [Required]
         public bool IncludeForInventory { get; set; } = true;
 
-        [Column(TypeName = "decimal(10, 2)")]
         public decimal? BonusFactor { get; set; } = 0;
 
         [Required]

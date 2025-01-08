@@ -1,0 +1,88 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutPage.cshtml";
+}
+
+@model LW_Data.clsADPRecord
+
+<div class="container mt-5" style="max-width:450px;">
+    <h2>Add New ADP Record</h2>
+
+    <form method="post" action="@Url.Action("AddRecord", "ADP")">
+        <div class="form-group">
+            <label for="PayDate">Pay Date</label>
+            <input type="date" id="PayDate" name="PayDate" class="form-control" required />
+        </div>
+
+        <div class="form-group">
+            <label for="LaborerID">Laborer</label>
+            <select id="LaborerID" name="LaborerID" class="form-control" required>
+                <option value="">-- Select Laborer --</option>
+                @foreach (var laborer in ViewBag.Laborers as List<SelectListItem>)
+                {
+                    <option value="@laborer.Value">@laborer.Text</option>
+                }
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="WONumber">Work Order Number</label>
+            <input type="text" id="WONumber" name="WONumber" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label for="TimeIn">Time In</label>
+            <input type="time" id="TimeIn" name="TimeIn" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label for="TimeOut">Time Out</label>
+            <input type="time" id="TimeOut" name="TimeOut" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label for="Hours">Hours</label>
+            <input type="text" id="Hours" name="Hours" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label for="Dollars">Dollars</label>
+            <input type="text" id="Dollars" name="Dollars" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label for="PayCode">Pay Code</label>
+            <select id="PayCode" name="PayCode" class="form-control" required>
+                <option value="HOLIDAY">HOLIDAY</option>
+                <option value="OVERTIME">OVERTIME</option>
+                <option value="PERSONAL">PERSONAL</option>
+                <option value="REGSAL">REGSAL</option>
+                <option selected value="REGULAR">REGULAR</option>
+                <option value="SICK">SICK</option>
+                <option value="VACATION">VACATION</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="CompanyCode">Company Code</label>
+            <select id="CompanyCode" name="CompanyCode" class="form-control" required>
+                <option value="8D2">8D2</option>
+                <option selected value="KLP">KLP</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="Location">Location</label>
+            <input type="text" id="Location" name="Location" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label for="FileNumber">File Number</label>
+            <input type="text" id="FileNumber" name="FileNumber" class="form-control" />
+        </div>
+
+
+
+        <button type="submit" class="btn btn-primary mt-3">Add Record</button>
+        <a href="@Url.Action("Index", "ADP")" class="btn btn-secondary mt-3">Cancel</a>
+    </form>
+</div>

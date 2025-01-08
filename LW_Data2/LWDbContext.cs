@@ -20,6 +20,8 @@ namespace LW_Data
         {
             // Configure mappings if necessary (optional)
             base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<clsADPRecord>().ToTable("tblADP", "dbo");
+            modelBuilder.Entity<clsLaborerRecord>().ToTable("tblLaborers", "dbo");
         }
     }
 }

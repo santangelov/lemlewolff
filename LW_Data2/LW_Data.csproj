@@ -163,6 +163,7 @@
     <Compile Include="clsDataHelper.cs" />
     <Compile Include="clsExcelHelper.cs" />
     <Compile Include="clsLaborerRecord.cs" />
+    <Compile Include="clsUserRecord.cs" />
     <Compile Include="LWDbContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

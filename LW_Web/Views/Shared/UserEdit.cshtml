@@ -1,0 +1,55 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutPage.cshtml";
+}
+
+@model LW_Data.clsUserRecord
+
+<div class="container mt-5" style="max-width:450px;">
+    <h2>@(Model.UserID == -10 ? "New User" : "Edit User")</h2>
+
+    <form method="post" action="@Url.Action("Edit", "User")">
+        @Html.AntiForgeryToken()
+        <input type="hidden" id="UserID" name="UserID" value="@(Model.UserID)" />
+
+        <div class="form-group">
+            <label for="LastName">Last Name</label>
+            <input type="text" id="LastName" name="LastName" class="form-control" value="@(Model.LastName)" />
+        </div>
+
+        <div class="form-group">
+            <label for="FirstName">First Name</label>
+            <input type="text" id="FirstName" name="FirstName" class="form-control" value="@(Model.FirstName)" />
+        </div>
+
+        <div class="form-group">
+            <label for="EmailAddress">Email Address</label>
+            <input type="text" id="EmailAddress" name="EmailAddress" class="form-control" value="@(Model.EmailAddress)" />
+        </div>
+
+        <div class="form-group">
+            <label for="EmailAddress">Password</label>
+            <input type="password" id="password_enc" name="password_enc" class="form-control" value="@(Model.password_enc)" />
+        </div>
+
+        <div class="form-group">
+            <h5>Options</h5>
+            <div class="ms-4">
+                <div class="form-check">
+                    @Html.CheckBoxFor(m => Model.isAdmin, new { @class = "form-check-input", id = "isAdmin" })
+                    <label class="form-check-label" for="isAdmin">Administrator</label>
+                </div>
+                <div class="form-check">
+                    @Html.CheckBoxFor(m => Model.isSuperAdmin, new { @class = "form-check-input", id = "isSuperAdmin" })
+                    <label class="form-check-label" for="isSuperAdmin">Super Admin</label>
+                </div>
+                <div class="form-check">
+                    @Html.CheckBoxFor(m => Model.isDisabled, new { @class = "form-check-input", id = "isDisabled" })
+                    <label class="form-check-label" for="isSuperAdmin"><span style="color:red;">Disabled</span></label>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-3">Submit</button>
+        <a href="@Url.Action("Index", "User")" class="btn btn-secondary mt-3">Cancel</a>
+    </form>
+</div>

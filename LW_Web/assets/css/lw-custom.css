@@ -3,3 +3,9 @@
 .dateLoadTable td { padding-right:15px; text-align:right;}
 
 .form-control.fieldLaborerID {min-width:15em;}
+
+/*  ADP Edit Form and Other Fields for Forms */
+.fieldWONumber {min-width:10ch;}
+.fieldLocation {min-width:12ch;}
+.fieldHours {min-width:6ch}
+.fieldDollars {min-width:8ch;}

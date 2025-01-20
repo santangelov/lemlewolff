@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Data.Entity;
 using System.Linq;
 using System.Net;
-using System.Web;
 using System.Web.Mvc;
 using LW_Data;
 using LW_Security;
@@ -58,16 +55,20 @@ namespace LW_Web.Controllers
         // GET: User/Edit/5
         public ActionResult Edit(int? id)
         {
-            if (id == null) { return new HttpStatusCodeResult(HttpStatusCode.BadRequest); }
-            if (!clsSecurity.isUserAdmin()) { return new HttpStatusCodeResult(HttpStatusCode.Forbidden); }
+           if (id == null) { return new HttpStatusCodeResult(HttpStatusCode.BadRequest); }
 
-            clsUserRecord R = _context.tblUsers.Find(id);
-            if (R == null)
+           clsUserRecord R = _context.tblUsers.Find(id);
+           if (R == null) { return HttpNotFound(); }
+
+            if (clsSecurity.isSuperAdmin() || clsSecurity.LoggedInUserID() == R.UserID)
             {
-                return HttpNotFound();
+                R.password_enc = clsSecurity.DecryptString(R.password_enc);  // decrypt the password for viewing
+                return View("UserEdit", R);
             }
-            R.password_enc = clsSecurity.DecryptString(R.password_enc);  // decrypt the password for viewing
-            return View("UserEdit", R);
+            else { 
+                return new HttpStatusCodeResult(HttpStatusCode.Forbidden); 
+            }
+
         }
 
         [HttpPost]
@@ -91,11 +92,15 @@ namespace LW_Web.Controllers
                         record.LastName = updatedRecord.LastName;
                         record.FirstName = updatedRecord.FirstName;
                         record.EmailAddress = updatedRecord.EmailAddress;
-                        record.isAdmin = updatedRecord.isAdmin;
-                        record.isSuperAdmin = updatedRecord.isSuperAdmin;
-                        record.isDisabled = updatedRecord.isDisabled;
                         record.password_enc = clsSecurity.EncryptString(updatedRecord.password_enc);
-
+                        // Only Super Admins can update this -- also for forms that have disabled checkboxes we need to not update these the same
+                        // Only a Super Admin can update all of these in any case - even if the same user is logged in
+                        if (clsSecurity.isSuperAdmin())  // Update them, otherwise they stay the same
+                        {
+                            record.isAdmin = updatedRecord.isAdmin;
+                            record.isSuperAdmin = updatedRecord.isSuperAdmin;
+                            record.isDisabled = updatedRecord.isDisabled;
+                        }
                         _context.SaveChanges();
                     }
                     else

@@ -52,7 +52,8 @@ namespace LW_Web.Controllers
             {
                 record.LaborerID = updatedRecord.LaborerID;
                 record.TimeIn = updatedRecord.TimeIn;
-                record.TimeOut = updatedRecord.TimeOut;
+                record.WONumber = updatedRecord.WONumber;
+                record.Location = updatedRecord.Location;
                 record.PayDate = updatedRecord.PayDate;
                 record.Hours = updatedRecord.Hours;
                 record.Dollars = updatedRecord.Dollars;
@@ -78,8 +79,13 @@ namespace LW_Web.Controllers
         }
 
         [HttpPost]
-        public ActionResult FilterRows(int? FilterLaborerID, DateTime? FilterPayDate)
+        public ActionResult FilterRows(string action, int? FilterLaborerID, DateTime? FilterPayDate, string FilterWONumber)
         {
+            if (action == "clear")
+            {
+                return RedirectToAction("Index");
+            }
+
             // Fetch all laborers for the dropdown
             var laborers = _context.tblLaborers
                              .OrderBy(l => l.LastName)
@@ -91,7 +97,13 @@ namespace LW_Web.Controllers
                              }).ToList();
 
             // Fetch filtered records if LaborerID is provided
+            if (_context?.tblADP == null)
+            {
+                throw new InvalidOperationException("The database context or tblADP is not properly initialized.");
+            }
+
             var records = _context.tblADP.AsQueryable();
+            records = records.Where(r => r.PayDate != null);   // We should never have NULL PayDates, but filter in case
 
             if (FilterLaborerID.HasValue && FilterLaborerID.Value > 0)
             {
@@ -105,13 +117,19 @@ namespace LW_Web.Controllers
                 ViewBag.FilterDate = FilterPayDate.Value;
             }
 
-            // Ensure you materialize the query after filtering
-            var filteredRecords = records.ToList();
+            if (!string.IsNullOrEmpty(FilterWONumber))
+            {
+                records = records.Where(r => r.WONumber.Contains(FilterWONumber));
+                ViewBag.FilterWONumber = FilterWONumber;
+            }
 
-            // Pass the data to the view
+            // Materialize the query after filtering
+            List<clsADPRecord> filteredRecords = records.ToList();
+
+            // Pass data to the view
             ViewBag.Laborers = laborers;
 
-            return View("ADPEdit", records.ToList());
+            return View("ADPEdit", filteredRecords);
         }
 
         public ActionResult AddRecord()

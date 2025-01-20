@@ -2,6 +2,7 @@
     Layout = "~/Views/Shared/_LayoutPage.cshtml";
 }
 
+@using LW_Security
 @model LW_Data.clsUserRecord
 
 <div class="container mt-5" style="max-width:450px;">
@@ -33,17 +34,23 @@
 
         <div class="form-group">
             <h5>Options</h5>
-            <div class="ms-4">
+            <div class="ms-4" disabled>
                 <div class="form-check">
-                    @Html.CheckBoxFor(m => Model.isAdmin, new { @class = "form-check-input", id = "isAdmin" })
+                    @Html.CheckBoxFor(m => Model.isAdmin, clsSecurity.isSuperAdmin() 
+                        ? (object)new { @class = "form-check-input", id = "isAdmin" } 
+                        : (object)new { @class = "form-check-input", id = "isAdmin", disabled = "true" })
                     <label class="form-check-label" for="isAdmin">Administrator</label>
                 </div>
                 <div class="form-check">
-                    @Html.CheckBoxFor(m => Model.isSuperAdmin, new { @class = "form-check-input", id = "isSuperAdmin" })
+                    @Html.CheckBoxFor(m => Model.isSuperAdmin, clsSecurity.isSuperAdmin() 
+                        ? (object)new { @class = "form-check-input", id = "isSuperAdmin" } 
+                        : (object)new { @class = "form-check-input", id = "isSuperAdmin", disabled = "true" })
                     <label class="form-check-label" for="isSuperAdmin">Super Admin</label>
                 </div>
                 <div class="form-check">
-                    @Html.CheckBoxFor(m => Model.isDisabled, new { @class = "form-check-input", id = "isDisabled" })
+                    @Html.CheckBoxFor(m => Model.isDisabled, clsSecurity.isSuperAdmin() 
+                        ? (object)new { @class = "form-check-input", id = "isDisabled" } 
+                        : (object)new { @class = "form-check-input", id = "isDisabled", disabled = "true" })
                     <label class="form-check-label" for="isSuperAdmin"><span style="color:red;">Disabled</span></label>
                 </div>
             </div>

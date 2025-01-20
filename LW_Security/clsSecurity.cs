@@ -33,6 +33,10 @@ namespace LW_Security
         {
             return clsFunc.CastToBool(HttpContext.Current.Session["IsLoggedIn"], false);
         }
+        public static bool isSuperAdmin()
+        {
+            return clsFunc.CastToBool(HttpContext.Current.Session["IsSuperAdminLoggedIn"], false);
+        }
         public static bool isUserAdmin()
         {
             return clsFunc.CastToBool(HttpContext.Current.Session["IsAdminLoggedIn"], false);
@@ -61,6 +65,7 @@ namespace LW_Security
         public bool LogOutUser()
         {
             HttpContext.Current.Session["IsAdminLoggedIn"] = null;
+            HttpContext.Current.Session["IsSuperAdminLoggedIn"] = null;
             HttpContext.Current.Session["IsLoggedIn"] = false;
             HttpContext.Current.Session["FullName"] = null;
             HttpContext.Current.Session["FirstName"] = null;
@@ -109,6 +114,7 @@ namespace LW_Security
                     Password = clsSecurity.DecryptString(r["Password_Enc"].ToString());
 
                     HttpContext.Current.Session["IsAdminLoggedIn"] = r["isAdmin"];
+                    HttpContext.Current.Session["IsSuperAdminLoggedIn"] = r["isSuperAdmin"];
                     HttpContext.Current.Session["IsLoggedIn"] = true;
                     HttpContext.Current.Session["FullName"] = FullName;
                     HttpContext.Current.Session["FirstName"] = FirstName;

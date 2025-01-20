@@ -3,7 +3,7 @@
     Layout = "~/Views/Shared/_LayoutPage.cshtml";
 }
 
-@model List<LW_Data.clsUserRecord>
+@model List<LW_Data.clsLaborerRecord>
 
 
 <!-- Start Content-->
@@ -15,16 +15,15 @@
 
             <div class="card">
                 <div class="card-body">
-                    <h4 class="header-title">Users</h4>
+                    <h4 class="header-title">Laborers</h4>
 
-                    <a href="@Url.Action("Create", "User")" class="btn btn-success mb-3">+ Add New User</a>
+                    <a href="@Url.Action("Create", "Laborer")" class="btn btn-success mb-3">+ Add New Laborer</a>
 
                     <table class="table table-striped table-responsive table-bordered table-hover">
                         <thead>
                             <tr>
                                 <th>Last Name</th>
                                 <th>First Name</th>
-                                <th>Email</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -33,11 +32,10 @@
 
                             @foreach (var record in Model)
                             {
-                                <tr data-id="@record.UserID">
+                                <tr data-id="@record.LaborerID">
                                     <td nowrap class="p-1">@record.LastName</td>
                                     <td nowrap class="p-1">@record.FirstName</td>
-                                    <td nowrap class="p-1">@record.EmailAddress</td>
-                                    <td nowrap class="p-1">@Html.Raw((clsSecurity.isSuperAdmin() || clsSecurity.LoggedInUserID() == record.UserID) ? $"<a href=\"/User/Edit/{record.UserID}\">Edit</a>" : "Edit")</td>
+                                    <td nowrap class="p-1">@Html.Raw(clsSecurity.isUserAdmin() ? $"<a href=\"/Laborer/Edit/{record.LaborerID}\">Edit</a>" : "Edit")</td>
                                 </tr>
                              }
                         </tbody>

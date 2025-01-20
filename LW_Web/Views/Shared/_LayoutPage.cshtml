@@ -95,14 +95,14 @@
                                 <img src="~/assets/images/users/avatar-1.jpg" alt="user-image" class="rounded-circle">
                             </span>
                             <span>
-                                <span class="account-user-name">@ViewBag.UserFirstName</span>
-                                <span class="account-position">@ViewBag.UserLevel</span>
+                                <span class="account-user-name">@LW_Security.clsSecurity.LoggedInUserFirstName()</span>
+                                <span class="account-position">@LW_Security.clsSecurity.LoggedInUserLevel()</span>
                             </span>
                         </a>
                         <div class="dropdown-menu dropdown-menu-end dropdown-menu-animated topbar-dropdown-menu profile-dropdown">
 
                             <!-- item-->
-                            <a href="javascript:void(0);" class="dropdown-item notify-item">
+                            <a href="/User/Edit/@LW_Security.clsSecurity.LoggedInUserID()" class="dropdown-item notify-item">
                                 <i class="mdi mdi-account-circle me-1"></i>
                                 <span>My Account</span>
                             </a>
@@ -222,12 +222,9 @@
                         </a>
                         <div class="collapse" id="sidebarAdmin">
                             <ul class="side-nav-second-level">
-                                <li>
-                                    <a href="~/ADP">Edit ADP Data</a>
-                                </li>
-                                <li>
-                                    <a href="~/User">User Accounts</a>
-                                </li>
+                                <li><a href="~/ADP">ADP Data</a></li>
+                                <li><a href="~/Laborer">Laborers</a></li>
+                                <li><a href="~/User">User Accounts</a></li>
                             </ul>
                         </div>
                     </li>

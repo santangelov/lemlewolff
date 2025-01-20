@@ -1,8 +1,6 @@
-﻿
-@{
+﻿@{
     Layout = "~/Views/Shared/_LayoutPage.cshtml";
 }
-
 @model List<LW_Data.clsADPRecord>
 
 
@@ -30,7 +28,12 @@
                         <label for="FilterPayDate">By Pay Date</label>
                         <input type="date" name="FilterPayDate" value="@ViewBag.FilterDate?.ToString('MM/dd/yyyy')" class="form-control" />
                     </div>
-                    <button type="submit" class="btn btn-primary">Filter</button>
+                    <div class="form-group d-inline-block m-3">
+                        <label for="FilterPayDate">WO Number</label>
+                        <input type="text" name="FilterWONumber" value="@ViewBag.FilterWONumber" class="form-control" />
+                    </div>
+                    <button type="submit" name="action" value="filter" class="btn btn-primary">Filter</button>
+                    <button type="submit" name="action" value="clear" class="btn btn-secondary">Clear</button>
                 </form>
             </div>
 
@@ -45,9 +48,10 @@
                             <tr>
                                 <th>Pay Date</th>
                                 <th>Laborer</th>
-                                <th>Name in ADP</th>
+                                <th>&nbsp;</th>
                                 <th>Time In</th>
-                                <th>Time Out</th>
+                                <th>WO#</th>
+                                <th>Location</th>
                                 <th>Hours</th>
                                 <th>Dollars</th>
                                 <th>Locked</th>
@@ -67,17 +71,14 @@
                                             }
                                         </select>
                                     </td>
-                                    <td nowrap>@record.PayrollName</td>
+                                    <td nowrap><i class="uil-info-circle" title="In ADP: @record.PayrollName"></i></td>
                                     <td>
                                         <input type="time"
                                                value="@(record.TimeIn.HasValue ? record.TimeIn.Value.ToString("HH:mm") : "")"
                                                class="form-control fieldTimeIn" />
                                     </td>
-                                    <td>
-                                        <input type="time"
-                                               value="@(record.TimeOut.HasValue ? record.TimeOut.Value.ToString("HH:mm") : "")"
-                                               class="form-control fieldTimeOut" />
-                                    </td>
+                                    <td><input type="text" value="@record.WONumber" class="form-control fieldWONumber" /></td>
+                                    <td><input type="text" value="@record.Location" class="form-control fieldLocation" /></td>
                                     <td><input type="text" value="@record.Hours" class="form-control fieldHours" /></td>
                                     <td><input type="text" value="@record.Dollars" class="form-control fieldDollars" /></td>
                                     <td><input type="checkbox" disabled @(record.isLockedForUpdates ? "checked" : "") value="@record.isLockedForUpdates" class="form-check-input fieldIsLocked m-2" /></td>
@@ -108,10 +109,10 @@
                 var payDate = row.find('.fieldPayDate').val();
                 var laborerId = row.find('.fieldLaborerID').val();
                 var timeIn = row.find('.fieldTimeIn').val();
-                var timeOut = row.find('.fieldTimeOut').val();
+                var Location = row.find('.fieldLocation').val();
+                var WONumber = row.find('.fieldWONumber').val();
                 var hours = row.find('.fieldHours').val();
                 var dollars = row.find('.fieldDollars').val();
-                //var isLocked = row.find('.fieldIsLocked').is(':checked');
 
                 $.ajax({
                     url: '/ADP/Update',
@@ -122,7 +123,8 @@
                         PayDate: payDate,
                         LaborerID: laborerId,
                         TimeIn: timeIn,
-                        TimeOut: timeOut,
+                        WONumber: WONumber,
+                        Location: Location,
                         Hours: hours,
                         Dollars: dollars
                         //isLockedForUpdates: isLocked

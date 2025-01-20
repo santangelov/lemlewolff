@@ -403,6 +403,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\ADPController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
+    <Compile Include="Controllers\LaborerController.cs" />
     <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ReportPageController.cs" />
@@ -414,7 +415,6 @@
     </Compile>
     <Compile Include="Models\ReportPageModel.cs" />
     <Compile Include="Models\LoginModel.cs" />
-    <Compile Include="Models\ReportsModel.cs" />
     <Compile Include="Models\ImportFilesModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -432,6 +432,8 @@
     <Content Include="Views\Shared\ADPAdd.cshtml" />
     <Content Include="Views\Shared\UserList.cshtml" />
     <Content Include="Views\Shared\UserEdit.cshtml" />
+    <Content Include="Views\Shared\LaborerList.cshtml" />
+    <Content Include="Views\Shared\LaborerEdit.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

@@ -55,13 +55,6 @@
                             </div>
                         </div>
 
-                        @*<div class="row mb-3">
-                            <div class="col">
-                                @Html.LabelFor(m => m.WorkSheetName)
-                                @Html.TextBox("WorkSheetName", Model.WorkSheetName, new { @class = "form-control" })
-                            </div>
-                        </div>*@
-
                         <div class="row mb-3">
                             <div class="col">
                                 @Html.TextBoxFor(m => m.UploadedFile, new { type = "file", name = "UploadedFile", @class = "form-control" })   <!--("file", Model.UploadedFile, new { type = "file" and comma form-control }) -->

@@ -12,6 +12,7 @@ using System.Web.WebPages;
 using LW_Common;
 using LW_Data;
 using LW_Web.Models;
+using LW_Security;
 
 namespace LW_Web.Controllers
 {
@@ -185,6 +186,25 @@ namespace LW_Web.Controllers
                         mdl.Error_log = "<div style='color=Red'>" + y.Error_Log.Replace("\r\n", "<br>") + "</div>";
                     }
                 }
+                else if (mdl.SelectedFile == "PC")
+                {
+                    clsGeneralImportHelper s = new clsGeneralImportHelper();
+
+                    // Get the list of WorkSheets
+                    List<string> sheetNames = clsExcelHelper.GetWorksheetNames(_path);
+                    string openSheetName = sheetNames[0].ToString();
+                    //if (sheetNames.Count == 1) openSheetName = sheetNames[0].ToString(); else openSheetName = mdl.WorkSheetName;
+
+                    if (s.Import_PhysicalCounts_File(_path, openSheetName, clsSecurity.LoggedInUserFirstName()))
+                    {
+                        string msgStr = "Success! " + s.RowsProcessed.ToString() + " row(s) successfully processed. (Physical Inventory Counts)";
+                        if (!s.WarningMsg.IsEmpty()) msgStr += s.WarningMsg;
+
+                        ViewBag.Message = clsWebFormHelper.SuccessBoxMsgHTML(msgStr);
+                    }
+                    else { ViewBag.Message = clsWebFormHelper.ErrorBoxMsgHTML("Error! Error after processing " + s.RowsProcessed.ToString() + " row(s). " + s.WarningMsg + "</span>"); }
+                }
+
 
             }
             catch (Exception e)

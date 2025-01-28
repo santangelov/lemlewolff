@@ -1,12 +1,10 @@
-﻿using LW_Web.Models;
+﻿using LW_Data;
+using LW_Security;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
-using LW_Data;
-using LW_Security;
 using System.Data;
+using System.Linq;
+using System.Web.Mvc;
 
 namespace LW_Web.Controllers
 {
@@ -21,11 +19,10 @@ namespace LW_Web.Controllers
 
         public ActionResult Index()
         {
-            // { a.ADPRowID, a.PayDate, a.LaborerID, a.TimeIn, a.TimeOut, a.Hours, a.isLockedForUpdates }) // Include only necessary fields
             var adpRecords = _context.tblADP
                                      .Where(a => a.LaborerID != null)
                                      .OrderByDescending(a => a.PayDate)
-                                     .Take(75)
+                                     .Take(150)
                                      .ToList();
 
             // Fetch all laborers for the dropdown
@@ -71,7 +68,7 @@ namespace LW_Web.Controllers
             var record = _context.tblADP.Find(updatedRecord.ADPRowID);
             if (record != null)
             {
-                record.isLockedForUpdates = false; 
+                record.isLockedForUpdates = false;
                 _context.SaveChanges();
                 return Json(record);
             }
@@ -124,7 +121,7 @@ namespace LW_Web.Controllers
             }
 
             // Materialize the query after filtering
-            List<clsADPRecord> filteredRecords = records.ToList();
+            List<clsADPRecord> filteredRecords = records.Take(150).ToList();
 
             // Pass data to the view
             ViewBag.Laborers = laborers;

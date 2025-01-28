@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
+﻿using System.Web.Mvc;
 using System.Web.Routing;
 
 namespace LW_Web
@@ -17,7 +13,7 @@ namespace LW_Web
                 name: "Import",
                 url: "Import/{action}/{filetype}",
                 defaults: new { controller = "Import", action = "ImportFile", filetype = UrlParameter.Optional });
-            
+
             routes.MapRoute(
                 name: "ReportPage",
                 url: "ReportPage/{action}/{filetype}",

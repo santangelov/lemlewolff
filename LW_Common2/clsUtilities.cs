@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.IO;
-using Newtonsoft.Json;
-using System.Diagnostics.PerformanceData;
-using System.Runtime.Caching;
+﻿using Newtonsoft.Json;
+using System;
 using System.Data;
+using System.Linq;
+using System.Runtime.Caching;
+using System.Text;
 
 namespace LW_Common
 {
@@ -50,7 +46,7 @@ namespace LW_Common
 
             try
             {
-                if (!cache.Contains("Counter_" + CounterName)) 
+                if (!cache.Contains("Counter_" + CounterName))
                 {
                     return new clsCounter { Message = "...", Count = "..." };
                 }
@@ -88,5 +84,5 @@ namespace LW_Common
             }
         }
     }
-    
+
 }

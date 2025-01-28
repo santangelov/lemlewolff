@@ -1,16 +1,6 @@
 ﻿using LW_Common;
-using LW_Data;
 using LW_Web.Models;
-using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel.Composition.Primitives;
-using System.Data;
-using System.Data.SqlClient;
-using System.IO;
-using System.Reflection;
-using System.Text;
-using System.Web;
 using System.Web.Mvc;
 
 namespace LW_Web.Controllers
@@ -62,7 +52,7 @@ namespace LW_Web.Controllers
             string StartDate = model.StartDateI;  // Inclusive
             string EndDate = model.EndDateI;   // Not-Inclusive
 
-            if (string.IsNullOrEmpty(StartDate) || string.IsNullOrEmpty(EndDate)) 
+            if (string.IsNullOrEmpty(StartDate) || string.IsNullOrEmpty(EndDate))
             {
                 ViewBag.Message3 = R.error_message;
                 model.Error_log3 = "<div class=\"alert alert-danger\"><strong>*</strong> Choose a Date Range.</div>";

@@ -1,13 +1,8 @@
-﻿using System.IO;
-using System.Data;
-using System.Data.SqlClient;
-using System.Data.OleDb;
-using System.Configuration;
-using LW_Data;
-using System.Threading;
+﻿using LW_Data;
 using System;
 using System.Collections.Generic;
-using System.Security.Policy;
+using System.Data;
+using System.Data.OleDb;
 
 namespace LW_Common
 {
@@ -71,7 +66,7 @@ namespace LW_Common
                         clsDataHelper dh = new clsDataHelper();
                         // Change Period to "#" and brackets [] to Parenthasis () in the field names from Excel
                         dh.cmd.Parameters.AddWithValue("@CompanyCode", r["Company Code"].ToString());
-                        dh.cmd.Parameters.AddWithValue("@PayrollName", r["Payroll Name"].ToString().Replace("\t"," "));
+                        dh.cmd.Parameters.AddWithValue("@PayrollName", r["Payroll Name"].ToString().Replace("\t", " "));
                         dh.cmd.Parameters.AddWithValue("@FileNumber", r["File Number"].ToString());
                         dh.cmd.Parameters.AddWithValue("@TimeIn", "1/1/1900 " + r["Time In"].ToString());
                         dh.cmd.Parameters.AddWithValue("@TimeOut", "1/1/1900 " + r["Time Out"].ToString());
@@ -170,7 +165,7 @@ namespace LW_Common
                         dh.cmd.Parameters.AddWithValue("@isLockedForUpdates", LockRowsForUpdate);
 
                         dh.cmd.Parameters.AddWithValue("@NoReturn", true);  // Force it to not return data for speed
-                        dh.cmd.Parameters.AddWithValue("@allowUpdateOfLockedRows", AllowUpdatesOfLockedRows);  
+                        dh.cmd.Parameters.AddWithValue("@allowUpdateOfLockedRows", AllowUpdatesOfLockedRows);
                         bool isSuccess = dh.ExecuteSPCMD("spADPUpdate", false);
                         if (isSuccess)
                         {

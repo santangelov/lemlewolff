@@ -1,26 +1,12 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Data;
-using System.Data.OleDb;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Resources;
-using System.Runtime.ConstrainedExecution;
-using System.Text;
-using System.Threading.Tasks;
-using LW_Data;
-using System.Runtime.InteropServices;
-using System.IO;
 
 namespace LW_Common
 {
     using LW_Data;
-    using Microsoft.Office.Interop.Excel;
     using System.Data;
     using System.Data.SqlClient;
     using System.Web.Hosting;
-    using System.Web.UI.WebControls;
     using DataTable = DataTable;
     using Excel = Microsoft.Office.Interop.Excel;
 
@@ -59,7 +45,7 @@ namespace LW_Common
             clsDataHelper H = new clsDataHelper();
             H.cmd.Parameters.AddWithValue("@DateKey", DateKey);
             DataRow r = H.GetDataRow("spImportDates");
-            
+
             clsImportDateRange retObj = new clsImportDateRange();
             retObj.DateKey = DateKey;
             if (r is null) { retObj.DateRangeAsString = "No record."; return retObj; }
@@ -147,7 +133,7 @@ namespace LW_Common
 
             //  PAGE 1. Fill in the full report
             E.FillExcelRangeFromSP(ref xlWorkbook, "spWOAnalysisReport", 1, 2, 1, cmd);
-             
+
             //  PAGE 2. Fill in the Laborers Tab
             E.FillExcelRangeFromSP(ref xlWorkbook, "spWOAnalysisReport_Labor", 2, 2, 1, cmd);
 
@@ -264,12 +250,13 @@ namespace LW_Common
                 // Sheet: Exceptions
                 dt = ds.Tables[5];
                 E.FillExcelRangeFromDT(ref xlWorkbook, ref dt, 6, 2, 1);
-            } 
-            catch (Exception) 
+            }
+            catch (Exception)
             {
                 retVal = false;
             }
-            finally { 
+            finally
+            {
                 // Close Excel Session if there is an exception or just con completion
                 E.CleanUpExcelSession(ref xlApp, ref xlWorkbook, TargetPathAndFileName);
             }
@@ -281,10 +268,10 @@ namespace LW_Common
         {
             return RunAllReportSQL();
         }
-        
+
         private static bool RunAllReportSQL()
         {
-             bool isSuccess = true;
+            bool isSuccess = true;
 
             clsDataHelper dh = new clsDataHelper();
 

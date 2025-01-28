@@ -1,14 +1,10 @@
 ﻿using LW_Common;
 using LW_Data;
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.IO;
-using System.Net;
-using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading;
 using System.Web;
 
 namespace LW_Security
@@ -86,8 +82,8 @@ namespace LW_Security
             dh.cmd.Parameters.AddWithValue("@password_enc", pw_enc);
             DataRow r = dh.GetDataRow("spUsers");
 
-            if (r is null) 
-            { 
+            if (r is null)
+            {
                 if (LogInTheUser)
                 {
                     // If not found then we log out the user essentially

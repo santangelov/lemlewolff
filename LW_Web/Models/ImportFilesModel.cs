@@ -1,12 +1,8 @@
-﻿using System;
+﻿using LW_Common;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using System.ComponentModel;
+using System.Web;
 using System.Web.Mvc;
-using System.Reflection;
-using System.ComponentModel.DataAnnotations;
-using LW_Common;
 
 namespace LW_Web.Models
 {
@@ -15,8 +11,9 @@ namespace LW_Web.Models
         public ImportFilesModel()
         {
             ImportFileList = new List<SelectListItem>();
-            ImportFileList.Add(new SelectListItem { Text = "ADP", Value = "ADP", Selected=(SelectedFile == "ADP" ? true : false) });
+            ImportFileList.Add(new SelectListItem { Text = "ADP", Value = "ADP", Selected = (SelectedFile == "ADP" ? true : false) });
             ImportFileList.Add(new SelectListItem { Text = "Sortly (xlsx)", Value = "Sortly", Selected = (SelectedFile == "Sortly" ? true : false) });
+            ImportFileList.Add(new SelectListItem { Text = "Physical Count Import (xlsx)", Value = "PC", Selected = (SelectedFile == "PC" ? true : false) });
             ImportFileList.Add(new SelectListItem { Text = "1 - Yardi Work Orders (CSV)", Value = "YardiWO", Selected = (SelectedFile == "YardiWO" ? true : false) });
             ImportFileList.Add(new SelectListItem { Text = "2 - Yardi POs (CSV)", Value = "YardiPO", Selected = (SelectedFile == "YardiPO" ? true : false) });
             ImportFileList.Add(new SelectListItem { Text = "3 - Yardi Work Orders for Inventory (CSV)", Value = "YardiWO2", Selected = (SelectedFile == "YardiWO2" ? true : false) });

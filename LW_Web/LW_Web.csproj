@@ -46,12 +46,6 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Azure.Core, Version=1.38.0.0, Culture=neutral, PublicKeyToken=92742159e12e44c8, processorArchitecture=MSIL">
-      <HintPath>..\packages\Azure.Core.1.38.0\lib\net472\Azure.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="Azure.Identity, Version=1.11.4.0, Culture=neutral, PublicKeyToken=92742159e12e44c8, processorArchitecture=MSIL">
-      <HintPath>..\packages\Azure.Identity.1.11.4\lib\netstandard2.0\Azure.Identity.dll</HintPath>
-    </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.4.4\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
@@ -73,30 +67,6 @@
     </Reference>
     <Reference Include="Microsoft.Extensions.Primitives, Version=6.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Extensions.Primitives.6.0.0\lib\net461\Microsoft.Extensions.Primitives.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Identity.Client, Version=4.61.3.0, Culture=neutral, PublicKeyToken=0a613f4dd989e8ae, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Identity.Client.4.61.3\lib\net462\Microsoft.Identity.Client.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Identity.Client.Extensions.Msal, Version=4.61.3.0, Culture=neutral, PublicKeyToken=0a613f4dd989e8ae, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Identity.Client.Extensions.Msal.4.61.3\lib\netstandard2.0\Microsoft.Identity.Client.Extensions.Msal.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.IdentityModel.Abstractions, Version=6.35.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.IdentityModel.Abstractions.6.35.0\lib\net472\Microsoft.IdentityModel.Abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.IdentityModel.JsonWebTokens, Version=6.35.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.IdentityModel.JsonWebTokens.6.35.0\lib\net472\Microsoft.IdentityModel.JsonWebTokens.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.IdentityModel.Logging, Version=6.35.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.IdentityModel.Logging.6.35.0\lib\net472\Microsoft.IdentityModel.Logging.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.IdentityModel.Protocols, Version=6.35.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.IdentityModel.Protocols.6.35.0\lib\net472\Microsoft.IdentityModel.Protocols.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect, Version=6.35.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.IdentityModel.Protocols.OpenIdConnect.6.35.0\lib\net472\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.IdentityModel.Tokens, Version=6.35.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.IdentityModel.Tokens.6.35.0\lib\net472\Microsoft.IdentityModel.Tokens.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Net.Http.Headers, Version=2.2.8.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Net.Http.Headers.2.2.8\lib\netstandard2.0\Microsoft.Net.Http.Headers.dll</HintPath>
@@ -121,7 +91,6 @@
       <HintPath>..\packages\System.Configuration.ConfigurationManager.6.0.1\lib\net461\System.Configuration.ConfigurationManager.dll</HintPath>
     </Reference>
     <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Data.OracleClient" />
     <Reference Include="System.Diagnostics.DiagnosticSource, Version=6.0.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Diagnostics.DiagnosticSource.6.0.1\lib\net461\System.Diagnostics.DiagnosticSource.dll</HintPath>
     </Reference>
@@ -231,128 +200,23 @@
     <Content Include="assets\images\bg-pattern-dark.png" />
     <Content Include="assets\images\bg-pattern-light.svg" />
     <Content Include="assets\images\bg-pattern.png" />
-    <Content Include="assets\images\brands\bitbucket.png" />
-    <Content Include="assets\images\brands\dribbble.png" />
-    <Content Include="assets\images\brands\dropbox.png" />
-    <Content Include="assets\images\brands\g-suite.png" />
-    <Content Include="assets\images\brands\github.png" />
-    <Content Include="assets\images\brands\instagram.png" />
-    <Content Include="assets\images\brands\messenger.png" />
-    <Content Include="assets\images\brands\slack.png" />
     <Content Include="assets\images\favicon.ico" />
-    <Content Include="assets\images\flags\french.jpg" />
-    <Content Include="assets\images\flags\germany.jpg" />
-    <Content Include="assets\images\flags\italy.jpg" />
-    <Content Include="assets\images\flags\russia.jpg" />
-    <Content Include="assets\images\flags\spain.jpg" />
-    <Content Include="assets\images\flags\us.jpg" />
-    <Content Include="assets\images\layouts\layout-1.png" />
-    <Content Include="assets\images\layouts\layout-2.png" />
-    <Content Include="assets\images\layouts\layout-3.png" />
-    <Content Include="assets\images\layouts\layout-4.png" />
-    <Content Include="assets\images\layouts\layout-5.png" />
-    <Content Include="assets\images\layouts\layout-6.png" />
     <Content Include="assets\images\logo-dark-sm.png" />
     <Content Include="assets\images\logo-dark.png" />
     <Content Include="assets\images\logo.png" />
     <Content Include="assets\images\logo-sm.png" />
-    <Content Include="assets\images\payments\amazon.png" />
-    <Content Include="assets\images\payments\american-express.png" />
-    <Content Include="assets\images\payments\btc.png" />
-    <Content Include="assets\images\payments\citi.png" />
-    <Content Include="assets\images\payments\cod.png" />
-    <Content Include="assets\images\payments\discover.png" />
-    <Content Include="assets\images\payments\master.png" />
-    <Content Include="assets\images\payments\payoneer.png" />
-    <Content Include="assets\images\payments\paypal.png" />
-    <Content Include="assets\images\payments\stripe.png" />
-    <Content Include="assets\images\payments\visa.png" />
-    <Content Include="assets\images\products\product-1.jpg" />
-    <Content Include="assets\images\products\product-2.jpg" />
-    <Content Include="assets\images\products\product-3.jpg" />
-    <Content Include="assets\images\products\product-4.jpg" />
-    <Content Include="assets\images\products\product-5.jpg" />
-    <Content Include="assets\images\products\product-6.jpg" />
-    <Content Include="assets\images\projects\project-1.jpg" />
-    <Content Include="assets\images\projects\project-2.jpg" />
-    <Content Include="assets\images\projects\project-3.jpg" />
-    <Content Include="assets\images\projects\project-4.jpg" />
-    <Content Include="assets\images\small\small-1.jpg" />
-    <Content Include="assets\images\small\small-2.jpg" />
-    <Content Include="assets\images\small\small-3.jpg" />
-    <Content Include="assets\images\small\small-4.jpg" />
-    <Content Include="assets\images\svg\email-campaign.svg" />
-    <Content Include="assets\images\svg\features-1.svg" />
-    <Content Include="assets\images\svg\features-2.svg" />
-    <Content Include="assets\images\svg\file-searching.svg" />
-    <Content Include="assets\images\svg\help-icon.svg" />
-    <Content Include="assets\images\svg\mail_sent.svg" />
-    <Content Include="assets\images\svg\maintenance.svg" />
-    <Content Include="assets\images\svg\report.svg" />
-    <Content Include="assets\images\svg\startman.svg" />
-    <Content Include="assets\images\svg\startup.svg" />
     <Content Include="assets\images\users\avatar-1.jpg" />
-    <Content Include="assets\images\users\avatar-10.jpg" />
-    <Content Include="assets\images\users\avatar-2.jpg" />
-    <Content Include="assets\images\users\avatar-3.jpg" />
-    <Content Include="assets\images\users\avatar-4.jpg" />
-    <Content Include="assets\images\users\avatar-5.jpg" />
-    <Content Include="assets\images\users\avatar-6.jpg" />
-    <Content Include="assets\images\users\avatar-7.jpg" />
-    <Content Include="assets\images\users\avatar-8.jpg" />
-    <Content Include="assets\images\users\avatar-9.jpg" />
     <Content Include="assets\images\waves.png" />
+    <Content Include="assets\jquery\jquery-3.6.0.js" />
+    <Content Include="assets\jquery\jquery-3.6.0.min.js" />
+    <Content Include="assets\jquery\jquery-3.6.0.slim.js" />
     <Content Include="assets\js-custom\importFilePage.js" />
     <Content Include="assets\js\app.min.js" />
     <Content Include="assets\js\hyper-config.js" />
-    <Content Include="assets\js\hyper-syntax.js" />
-    <Content Include="assets\js\pages\demo.britechart.js" />
-    <Content Include="assets\js\pages\demo.calendar.js" />
-    <Content Include="assets\js\pages\demo.chartjs-area.js" />
-    <Content Include="assets\js\pages\demo.chartjs-bar.js" />
-    <Content Include="assets\js\pages\demo.chartjs-line.js" />
-    <Content Include="assets\js\pages\demo.chartjs-other.js" />
-    <Content Include="assets\js\pages\demo.crm-dashboard.js" />
-    <Content Include="assets\js\pages\demo.crm-management.js" />
-    <Content Include="assets\js\pages\demo.crm-project.js" />
-    <Content Include="assets\js\pages\demo.customers.js" />
-    <Content Include="assets\js\pages\demo.dashboard-analytics.js" />
-    <Content Include="assets\js\pages\demo.dashboard-projects.js" />
-    <Content Include="assets\js\pages\demo.dashboard-wallet.js" />
-    <Content Include="assets\js\pages\demo.dashboard.js" />
-    <Content Include="assets\js\pages\demo.datatable-init.js" />
-    <Content Include="assets\js\pages\demo.form-wizard.js" />
-    <Content Include="assets\js\pages\demo.google-maps.js" />
-    <Content Include="assets\js\pages\demo.inbox.js" />
-    <Content Include="assets\js\pages\demo.jstree.js" />
-    <Content Include="assets\js\pages\demo.materialdesignicons.js" />
-    <Content Include="assets\js\pages\demo.products.js" />
-    <Content Include="assets\js\pages\demo.profile.js" />
-    <Content Include="assets\js\pages\demo.project-detail.js" />
-    <Content Include="assets\js\pages\demo.project-gantt.js" />
-    <Content Include="assets\js\pages\demo.quilljs.js" />
-    <Content Include="assets\js\pages\demo.remixicons.js" />
-    <Content Include="assets\js\pages\demo.sellers.js" />
-    <Content Include="assets\js\pages\demo.simplemde.js" />
-    <Content Include="assets\js\pages\demo.sparkline.js" />
-    <Content Include="assets\js\pages\demo.tasks.js" />
-    <Content Include="assets\js\pages\demo.timepicker.js" />
-    <Content Include="assets\js\pages\demo.toastr.js" />
-    <Content Include="assets\js\pages\demo.typehead.js" />
-    <Content Include="assets\js\pages\demo.vector-maps.js" />
-    <Content Include="assets\js\pages\demo.widgets.js" />
-    <Content Include="assets\js\ui\component.chat.js" />
-    <Content Include="assets\js\ui\component.dragula.js" />
-    <Content Include="assets\js\ui\component.fileupload.js" />
-    <Content Include="assets\js\ui\component.range-slider.js" />
-    <Content Include="assets\js\ui\component.rating.js" />
-    <Content Include="assets\js\ui\component.scrollbar.js" />
-    <Content Include="assets\js\ui\component.todo.js" />
     <Content Include="assets\js\vendor.min.js" />
     <Content Include="Global.asax" />
     <Content Include="assets\css\app-modern.min.css.map" />
     <Content Include="assets\css\icons.min.css.map" />
-    <Content Include="assets\data\ajax_demo_children.json" />
     <Content Include="assets\fonts\materialdesignicons-webfont.eot" />
     <Content Include="assets\fonts\materialdesignicons-webfont.ttf" />
     <Content Include="assets\fonts\materialdesignicons-webfont.woff" />
@@ -382,6 +246,7 @@
     <Content Include="assets\fonts\unicons.ttf" />
     <Content Include="assets\fonts\unicons.woff" />
     <Content Include="assets\fonts\unicons.woff2" />
+    <Content Include="Web.config" />
     <Content Include="_Downloads\placeholder.txt" />
     <Content Include="_FileUploads\placeholder.txt" />
     <Content Include="_YardiExportSQL\01 - WO List.txt" />
@@ -389,18 +254,19 @@
     <Content Include="_YardiExportSQL\03 - WO Inventory List.txt" />
     <Content Include="_YardiExportSQL\04 - PO Inventory List.txt" />
     <Content Include="_YardiExportSQL\05 - WorkOrderGeneral.txt" />
-    <None Include="assets\jquery\jquery-3.6.0.intellisense.js" />
-    <Content Include="assets\jquery\jquery-3.6.0.js" />
-    <Content Include="assets\jquery\jquery-3.6.0.min.js" />
-    <Content Include="assets\jquery\jquery-3.6.0.slim.js" />
-    <Content Include="assets\jquery\jquery-3.6.0.slim.min.js" />
-    <Content Include="Web.config" />
     <Content Include="_Templates\_Template - Inventory Daily Pivot_WithDollars.xlsx" />
     <Content Include="_Templates\_Template - WOAnalysis_01 - MMM-MMM.xlsm" />
     <Content Include="_Templates\_Template - InvItemReview.xlsx" />
+    <None Include="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\PIController.cs" />
     <Compile Include="Controllers\ADPController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\LaborerController.cs" />
@@ -423,8 +289,6 @@
     <Content Include="Documents\LW Portal User Manual - vsn241031.pdf" />
     <None Include="packages.config" />
     <Content Include="Views\Shared\ImportFile.cshtml" />
-    <Content Include="assets\jquery\jquery-3.6.0.slim.min.map" />
-    <Content Include="assets\jquery\jquery-3.6.0.min.map" />
     <Content Include="Views\Shared\_LayoutPage.cshtml" />
     <Content Include="Views\Shared\Login.cshtml" />
     <Content Include="Views\Shared\ReportPage.cshtml" />
@@ -434,12 +298,8 @@
     <Content Include="Views\Shared\UserEdit.cshtml" />
     <Content Include="Views\Shared\LaborerList.cshtml" />
     <Content Include="Views\Shared\LaborerEdit.cshtml" />
-    <None Include="Web.Debug.config">
-      <DependentUpon>Web.config</DependentUpon>
-    </None>
-    <None Include="Web.Release.config">
-      <DependentUpon>Web.config</DependentUpon>
-    </None>
+    <Content Include="Views\Shared\PhysicalInvEdit.cshtml" />
+    <Content Include="Views\Shared\PhysicalInvAdd.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

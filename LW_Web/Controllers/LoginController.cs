@@ -1,10 +1,6 @@
 ﻿using LW_Common;
 using LW_Security;
 using LW_Web.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 
 namespace LW_Web.Controllers
@@ -27,21 +23,21 @@ namespace LW_Web.Controllers
             {
                 return RedirectToAction("ImportFile", "Import");
             }
-            else 
+            else
             {
-                mdl.Error_log = clsWebFormHelper.ErrorBoxMsgHTML("Invalid Login"); 
+                mdl.Error_log = clsWebFormHelper.ErrorBoxMsgHTML("Invalid Login");
                 return View("Login", mdl);
             }
         }
 
         [HttpGet]
-        public ActionResult LogOutUser()  
+        public ActionResult LogOutUser()
         {
             clsSecurity s = new clsSecurity();
             s.LogOutUser();
 
             //return RedirectToAction("Index", "Login");
-            LoginModel mdl =  new LoginModel { Error_log = clsWebFormHelper.SuccessBoxMsgHTML("User Logged Out") };
+            LoginModel mdl = new LoginModel { Error_log = clsWebFormHelper.SuccessBoxMsgHTML("User Logged Out") };
             return View("Login", mdl);
 
         }

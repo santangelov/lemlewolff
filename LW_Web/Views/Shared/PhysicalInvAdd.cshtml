@@ -1,0 +1,34 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutPage.cshtml";
+}
+
+@model LW_Data.clsPhysicalInventoryRecord
+
+<div class="container mt-5" style="max-width:450px;">
+    <h2>Add New Physical Inventory Count Record</h2>
+
+    <form method="post" action="@Url.Action("AddRecord", "PI")">
+        <div class="form-group">
+            <label for="AsOfDate">As Of Date</label>
+            <input type="date" id="AsOfDate" name="AsOfDate" class="form-control" required />
+        </div>
+
+        <div class="form-group">
+            <label for="Code">Item Code</label>
+            <input type="text" id="Code" name="Code" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label for="PhysicalCount">Quantity</label>
+            <input type="text" id="PhysicalCount" name="PhysicalCount" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label for="Description">Description</label>
+            <input type="text" id="Description" name="Description" class="form-control" />
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-3">Add Record</button>
+        <a href="@Url.Action("Index", "PI")" class="btn btn-secondary mt-3">Cancel</a>
+    </form>
+</div>

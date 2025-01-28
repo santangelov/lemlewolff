@@ -11,7 +11,7 @@ namespace LW_Data
 
         public string data_err_msg = "";
         public SqlCommand cmd = new SqlCommand();
-        
+
         public static SqlConnection sqlconn(bool OpenReadWrite)
         {
             if (OpenReadWrite)
@@ -149,11 +149,11 @@ namespace LW_Data
             data_err_msg = "";
 
             DataTable dt = GetDataTable(sqlStoredProcedure);
-            if (dt == null) { return  null; }
+            if (dt == null) { return null; }
             if (dt.Rows.Count == 0) { return null; }
 
             return dt.Rows[0];
         }
 
     }
-}                                               
+}

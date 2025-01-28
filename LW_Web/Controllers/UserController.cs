@@ -1,10 +1,9 @@
-﻿using System;
+﻿using LW_Data;
+using LW_Security;
 using System.Data;
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
-using LW_Data;
-using LW_Security;
 
 namespace LW_Web.Controllers
 {
@@ -15,7 +14,7 @@ namespace LW_Web.Controllers
 
         public UserController()
         {
-            _context = new LWDbContext(); 
+            _context = new LWDbContext();
         }
 
 
@@ -55,18 +54,19 @@ namespace LW_Web.Controllers
         // GET: User/Edit/5
         public ActionResult Edit(int? id)
         {
-           if (id == null) { return new HttpStatusCodeResult(HttpStatusCode.BadRequest); }
+            if (id == null) { return new HttpStatusCodeResult(HttpStatusCode.BadRequest); }
 
-           clsUserRecord R = _context.tblUsers.Find(id);
-           if (R == null) { return HttpNotFound(); }
+            clsUserRecord R = _context.tblUsers.Find(id);
+            if (R == null) { return HttpNotFound(); }
 
             if (clsSecurity.isSuperAdmin() || clsSecurity.LoggedInUserID() == R.UserID)
             {
                 R.password_enc = clsSecurity.DecryptString(R.password_enc);  // decrypt the password for viewing
                 return View("UserEdit", R);
             }
-            else { 
-                return new HttpStatusCodeResult(HttpStatusCode.Forbidden); 
+            else
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.Forbidden);
             }
 
         }
@@ -84,7 +84,7 @@ namespace LW_Web.Controllers
                     _context.SaveChanges();
                     return RedirectToAction("Index");
                 }
-                  // edit the record
+                // edit the record
                 {
                     var record = _context.tblUsers.Find(updatedRecord.UserID);
                     if (record != null)

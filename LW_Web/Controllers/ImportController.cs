@@ -1,18 +1,12 @@
-﻿using System;
+﻿using LW_Common;
+using LW_Data;
+using LW_Security;
+using LW_Web.Models;
+using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.IO;
-using System.Linq;
-using System.Net;
-using System.Reflection;
-using System.Runtime.Remoting.Contexts;
-using System.Web;
 using System.Web.Mvc;
 using System.Web.WebPages;
-using LW_Common;
-using LW_Data;
-using LW_Web.Models;
-using LW_Security;
 
 namespace LW_Web.Controllers
 {
@@ -41,8 +35,8 @@ namespace LW_Web.Controllers
 
             clsUtilities.WriteToCounter(mdl.SelectedFile, "Uploading Data...");
 
-            if (mdl.UploadedFile == null) 
-            { 
+            if (mdl.UploadedFile == null)
+            {
                 ViewBag.Message = clsWebFormHelper.ErrorBoxMsgHTML("No File chosen to upload.");
                 return View(mdl);
             }
@@ -224,16 +218,16 @@ namespace LW_Web.Controllers
 
         private bool DeleteTable(string TableFlag)
         {
-                //            IF @FileType = 'Sortly'             DELETE FROM tblImport_Sortly
-                //--ELSE IF @FileType = 'ADP'         DELETE FROM tblImport_ADP-- - We don't need to ever delete from this table now - do it manually if need be
+            //            IF @FileType = 'Sortly'             DELETE FROM tblImport_Sortly
+            //--ELSE IF @FileType = 'ADP'         DELETE FROM tblImport_ADP-- - We don't need to ever delete from this table now - do it manually if need be
 
-                //    ELSE IF @FileType = 'YardiWO'       DELETE FROM tblImport_Yardi_WOList
-                //    ELSE IF @FileType = 'YardiPO'       DELETE FROM tblImport_Yardi_POs
-                //    --ELSE IF @FileType = 'master'      DELETE FROM tblMasterWOReview
-                //    ELSE IF @FileType = 'InventoryWO'   DELETE FROM tblImport_Inv_Yardi_WOItems
-                //    ELSE IF @FileType = 'InventoryPO'   DELETE FROM tblImport_Inv_Yardi_POItems
-                //    ELSE IF @FileType = 'MasterInv'     DELETE FROM tblMasterInventoryReview where isSeedItem = 0
-                //    --ELSE IF @FileType = 'MasterInv-All'   DELETE FROM tblMasterInventoryReview
+            //    ELSE IF @FileType = 'YardiWO'       DELETE FROM tblImport_Yardi_WOList
+            //    ELSE IF @FileType = 'YardiPO'       DELETE FROM tblImport_Yardi_POs
+            //    --ELSE IF @FileType = 'master'      DELETE FROM tblMasterWOReview
+            //    ELSE IF @FileType = 'InventoryWO'   DELETE FROM tblImport_Inv_Yardi_WOItems
+            //    ELSE IF @FileType = 'InventoryPO'   DELETE FROM tblImport_Inv_Yardi_POItems
+            //    ELSE IF @FileType = 'MasterInv'     DELETE FROM tblMasterInventoryReview where isSeedItem = 0
+            //    --ELSE IF @FileType = 'MasterInv-All'   DELETE FROM tblMasterInventoryReview
 
             if (TableFlag.IsEmpty()) return false;
 

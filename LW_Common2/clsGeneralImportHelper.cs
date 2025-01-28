@@ -1,13 +1,9 @@
-﻿using System.IO;
-using System.Data;
-using System.Data.SqlClient;
-using System.Data.OleDb;
-using System.Configuration;
-using LW_Data;
-using System.Threading;
+﻿using LW_Data;
 using System;
-using System.Text.RegularExpressions;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.OleDb;
+using System.IO;
 
 namespace LW_Common
 {
@@ -73,7 +69,7 @@ namespace LW_Common
                     dh.cmd.Parameters.AddWithValue("@AsOfDate", r["AsOfDate"].ToString());
                     dh.cmd.Parameters.AddWithValue("@PhysicalCount", r["Quantity"].ToString());
                     dh.cmd.Parameters.AddWithValue("@Description", r["Description"].ToString());
-                    dh.cmd.Parameters.AddWithValue("@CreatedBy", UserName );
+                    dh.cmd.Parameters.AddWithValue("@CreatedBy", UserName);
                     dh.cmd.Parameters.AddWithValue("@CreateDate", CreateDate);
 
                     dh.cmd.Parameters.AddWithValue("@NoReturn", true);  // Force it to not return data for speed

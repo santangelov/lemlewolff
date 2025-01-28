@@ -1,10 +1,8 @@
-﻿using System;
+﻿using LW_Data;
 using System.Data;
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
-using LW_Data;
-using LW_Security;
 
 namespace LW_Web.Controllers
 {
@@ -15,7 +13,7 @@ namespace LW_Web.Controllers
 
         public LaborerController()
         {
-            _context = new LWDbContext(); 
+            _context = new LWDbContext();
         }
 
 
@@ -84,7 +82,7 @@ namespace LW_Web.Controllers
                     _context.SaveChanges();
                     return RedirectToAction("Index");
                 }
-                  // edit the record
+                // edit the record
                 {
                     var record = _context.tblLaborers.Find(updatedRecord.LaborerID);
                     if (record != null)

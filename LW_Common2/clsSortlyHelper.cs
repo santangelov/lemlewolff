@@ -1,13 +1,9 @@
-﻿using System.IO;
-using System.Data;
-using System.Data.SqlClient;
-using System.Data.OleDb;
-using System.Configuration;
-using LW_Data;
-using System.Threading;
+﻿using LW_Data;
 using System;
-using System.Text.RegularExpressions;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.OleDb;
+using System.IO;
 
 namespace LW_Common
 {
@@ -19,7 +15,6 @@ namespace LW_Common
 
         public bool Import_Sortly_File(string FilePathAndName, string WorksheetName)
         {
-
             DataTable dtImport = new DataTable();
 
             clsUtilities.WriteToCounter("Sortly", "Starting...");
@@ -79,7 +74,7 @@ namespace LW_Common
                     clsDataHelper dh = new clsDataHelper();
                     dh.cmd.Parameters.AddWithValue("@ItemName", r["Entry Name"].ToString());
                     dh.cmd.Parameters.AddWithValue("@SortlyID", r["SID"].ToString());
-                    dh.cmd.Parameters.AddWithValue("@Quantity", clsFunc.CastToInt(r["Quantity"],0));
+                    dh.cmd.Parameters.AddWithValue("@Quantity", clsFunc.CastToInt(r["Quantity"], 0));
                     dh.cmd.Parameters.AddWithValue("@unitPrice", r["Price"]);
                     dh.cmd.Parameters.AddWithValue("@TotalValue", r["Value"]);
                     dh.cmd.Parameters.AddWithValue("@sellPrice", r["Sell price"]);
@@ -96,7 +91,7 @@ namespace LW_Common
 
                     dh.cmd.Parameters.AddWithValue("@NoReturn", true);  // Force it to not return data for speed
                     bool isSuccess = dh.ExecuteSPCMD("spSortlyWorkOrderUpdate", false);
-                    if (isSuccess) RowsProcessed++; else WarningMsg += " || row " + rowCount.ToString() +": " + dh.data_err_msg;
+                    if (isSuccess) RowsProcessed++; else WarningMsg += " || row " + rowCount.ToString() + ": " + dh.data_err_msg;
                     if (RowsProcessed % 15 == 0) clsUtilities.WriteToCounter("Sortly", RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###"));  // only update every 15 records
                 }
 

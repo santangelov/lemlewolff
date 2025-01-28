@@ -1,12 +1,8 @@
-﻿using System.IO;
-using System.Data;
-using System.Data.SqlClient;
-using System.Data.OleDb;
-using System.Configuration;
-using LW_Data;  
-using System.Threading;
+﻿using LW_Data;
 using System;
-using Microsoft.Office.Interop.Excel;
+using System.Data;
+using System.Data.OleDb;
+using System.IO;
 
 namespace LW_Common
 {
@@ -409,19 +405,19 @@ namespace LW_Common
                 clsReportHelper.RecordFileDateRanges("YardiWO_GeneralFile", null, DateTime.Now);
 
                 // We are loading the tblWorkOrders table directly
-               foreach (DataRow r in sourceTable.Rows)
+                foreach (DataRow r in sourceTable.Rows)
                 {
                     clsDataHelper dh = new clsDataHelper();
-                    dh.cmd.Parameters.AddWithValue("@WONumber",         r["WONumber"].ToString());
-                    dh.cmd.Parameters.AddWithValue("@CompleteDate",     r["CompleteDate"]);
-                    dh.cmd.Parameters.AddWithValue("@Category",         r["Category"]);
-                    dh.cmd.Parameters.AddWithValue("@JObStatus",        r["JObStatus"]);
-                    dh.cmd.Parameters.AddWithValue("@CallDate",         r["CallDate"]);
-                    dh.cmd.Parameters.AddWithValue("@SchedDate",        r["SchedDate"]);
-                    dh.cmd.Parameters.AddWithValue("@BatchID",          r["BatchID"]);
-                    dh.cmd.Parameters.AddWithValue("@BriefDesc",        r["BriefDesc"]);
-                    dh.cmd.Parameters.AddWithValue("@ExpenseType",      r["ExpenseType"]);
-                    dh.cmd.Parameters.AddWithValue("@yardiCreateDate",  r["yardiCreateDate"]);
+                    dh.cmd.Parameters.AddWithValue("@WONumber", r["WONumber"].ToString());
+                    dh.cmd.Parameters.AddWithValue("@CompleteDate", r["CompleteDate"]);
+                    dh.cmd.Parameters.AddWithValue("@Category", r["Category"]);
+                    dh.cmd.Parameters.AddWithValue("@JObStatus", r["JObStatus"]);
+                    dh.cmd.Parameters.AddWithValue("@CallDate", r["CallDate"]);
+                    dh.cmd.Parameters.AddWithValue("@SchedDate", r["SchedDate"]);
+                    dh.cmd.Parameters.AddWithValue("@BatchID", r["BatchID"]);
+                    dh.cmd.Parameters.AddWithValue("@BriefDesc", r["BriefDesc"]);
+                    dh.cmd.Parameters.AddWithValue("@ExpenseType", r["ExpenseType"]);
+                    dh.cmd.Parameters.AddWithValue("@yardiCreateDate", r["yardiCreateDate"]);
                     dh.cmd.Parameters.AddWithValue("@yardiUpdatedDate", r["yardiUpdatedDate"]);
 
                     bool isSuccess = dh.ExecuteSPCMD("spWorkOrderUpdate", false);
@@ -438,12 +434,12 @@ namespace LW_Common
                 }
 
                 if (!clsReportHelper.RunAllReportSQL_Public()) { return false; }  // Run the SQL because it uses the temp tables just loaded
- 
+
                 if (RowsProcessed == 5000)
                 {
                     Error_Log += DateTime.Now.ToString() + ": <span style='color:Orange;'>WARNING: Exactly 5,000 rows were imported. This could indicate that you had filtering on to limit the export to the first 5000 rows. This import was completed, however , please check your export to insure filtering in Yardi allows unlimited rows.</span>\r\n";
                 }
-           }
+            }
             return true;
         }
 

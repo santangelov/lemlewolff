@@ -1,11 +1,12 @@
 ﻿
-
 .dateLoadTable td { padding-right:15px; text-align:right;}
 
-.form-control.fieldLaborerID {min-width:15em;}
-
-/*  ADP Edit Form and Other Fields for Forms */
-.fieldWONumber {min-width:10ch;}
+/*  Fields for Forms */
+.fieldLaborerID {min-width:15em;}  /* Field shows full name of laborer */
+.fieldWONumber {min-width:10ch; max-width:15ch}
 .fieldLocation {min-width:12ch;}
-.fieldHours {min-width:6ch}
-.fieldDollars {min-width:8ch;}
+.fieldHours {min-width:5em;}
+.fieldDollars {min-width:5em;}
+.fieldCode {width: 8em;}
+.fieldQuantity {width: 6em;}
+.fieldDescription {min-width: 25em;}

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace LW_Common
+﻿namespace LW_Common
 {
     public class clsWebFormHelper
     {
@@ -13,6 +10,11 @@ namespace LW_Common
         public static string ErrorBoxMsgHTML(string msg)
         {
             return "<div class=\"alert alert-danger\" role=\"alert\"><strong>" + msg + "</strong></div>";
+        }
+
+        public static string BasicMsgBoxHTML(string msg)
+        {
+            return "<div class=\"alert alert-primary\" role=\"alert\"><strong>" + msg + "</strong></div>";
         }
     }
 }

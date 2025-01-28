@@ -1,0 +1,139 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutPage.cshtml";
+}
+@model List<LW_Data.clsPhysicalInventoryRecord>
+
+
+<!-- Start Content-->
+<div class="container-fluid">
+
+    <div class="row">
+
+        <div class="col-12">
+
+            <div class="card">
+                <form method="post" action="@Url.Action("FilterRows", "PI")">
+                    <div class="form-group d-inline-block m-3">
+                        <h3>Filter</h3>
+                        <label for="FilterPayDate">By As Of Date</label>
+                        <input type="text" id="FilterAsOfDate" name="FilterAsOfDate" value="@ViewBag.FilterAsOfDate" class="form-control" />
+                    </div>
+                    <div class="form-group d-inline-block m-3">
+                        <label for="FilterItemCode">By Item Code</label>
+                        <input type="text" id="FilterItemCode" name="FilterItemCode" value="@ViewBag.FilterItemCode" class="form-control" />
+                    </div>
+                    <button type="submit" name="action" value="filter" class="btn btn-primary">Filter</button>
+                    <button type="submit" name="action" value="clear" class="btn btn-secondary">Clear</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="header-title">Physical Inventory Count Records</h4>
+
+                    <a href="@Url.Action("AddRecord", "PI")" class="btn btn-success mb-3">+ Add New Record</a>
+
+                    <table border="0">
+                        <thead>
+                            <tr>
+                                <th>As Of Date</th>
+                                <th>Item Code</th>
+                                <th>Quantity</th>
+                                <th>Description</th>
+                                <th>&nbsp;</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var record in Model)
+                            {
+                                <tr data-id="@record.PIRowID">
+                                    <td><input type="date" value="@(((DateTime)record.AsOfDate).ToString("yyyy-MM-dd"))" class="form-control fieldAsOfDate" /></td>
+                                    <td><input type="text" value="@(record.Code)" class="form-control fieldCode" /></td>
+                                    <td><input type="text" value="@record.PhysicalCount" class="form-control fieldQuantity" /></td>
+                                    <td><input type="text" value="@record.Description" class="form-control fieldDescription" /></td>
+                                    <td><button class="btn btn-sm btnSave">Save</button></td>
+                                    <td><button class="btn btn-sm btnDelete">Delete</button></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                </div> <!-- end card-body -->
+            </div>  <!-- end card -->
+
+        </div>
+        <!-- end col -->
+
+
+    </div>
+</div>
+
+    <script>
+        $(document).ready(function () {
+            $(document).on('click', '.btnSave', function () {
+                var row = $(this).closest('tr');
+                var recordId = row.data('id');
+
+                var AsOfDate = row.find('.fieldAsOfDate').val();
+                var ItemCode = row.find('.fieldCode').val();
+                var PhysicalCount = row.find('.fieldQuantity').val();
+                var Description = row.find('.fieldDescription').val();
+
+                $.ajax({
+                    url: '/PI/Update',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        PIRowID: recordId,
+                        AsOfDate: AsOfDate,
+                        Code: ItemCode,
+                        Description: Description,
+                        PhysicalCount: PhysicalCount
+                    }),
+                    success: function (data) {
+                        alert('Update successful!');
+                    },
+                    error: function () {
+                        alert('Update failed!');
+                    }
+                });
+
+                return false;  // Prevent default form submission
+            });
+
+            $(document).on('click', '.btnDelete', function () {
+                var row = $(this).closest('tr');
+                var recordId = row.data('id');
+
+                // Confirm before deleting
+                if (!confirm('Are you sure you want to delete this record?')) {
+                    return false; 
+                }
+
+                $.ajax({
+                    url: '/PI/Delete',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        PIRowID: recordId
+                    }),
+                    success: function (data) {
+                        alert('Record Removed!');
+                        row.remove();
+                    },
+                    error: function () {
+                        alert('Failed to delete');
+                    }
+                });
+
+                return false;  // Prevent default form submission
+            });
+
+        });
+    </script>
+
+
+
+
+
+

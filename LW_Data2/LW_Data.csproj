@@ -159,6 +159,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="clsPhysicalInvRecord.cs" />
     <Compile Include="clsADPRecord.cs" />
     <Compile Include="clsDataHelper.cs" />
     <Compile Include="clsExcelHelper.cs" />

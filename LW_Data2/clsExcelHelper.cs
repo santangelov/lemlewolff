@@ -1,20 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.IO;
-using System.Data;
-using System.Data.SqlClient;
 using System.Data.OleDb;
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.ComTypes;
-using Microsoft.Office.Interop.Excel;
 
 namespace LW_Data
 {
-    using LW_Data;
-    using Microsoft.Office.Interop.Excel;
     using System.Data;
     using System.Data.SqlClient;
     using Excel = Microsoft.Office.Interop.Excel;
@@ -92,7 +82,7 @@ namespace LW_Data
             Marshal.ReleaseComObject(xlRange);
             Marshal.ReleaseComObject(xlWorksheet);
 
-            return i;  
+            return i;
         }
 
         /// <summary>
@@ -136,7 +126,7 @@ namespace LW_Data
         }
 
 
-        public static string GetExcelConnectionString (string fileNameAndPath)
+        public static string GetExcelConnectionString(string fileNameAndPath)
         {
             return string.Format("Provider=Microsoft.ACE.OLEDB.12.0;Data Source=\"{0}\";Extended Properties=\"Excel 12.0 Xml;IMEX=1;HDR=YES\";", fileNameAndPath);
         }

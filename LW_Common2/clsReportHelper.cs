@@ -216,15 +216,16 @@ namespace LW_Common
 
                 // Sheet: Detail Data
                 dt = ds.Tables[2];
-                E.FillExcelRangeFromDT(ref xlWorkbook, ref dt, 2, 3, 1);   // Details
+                E.FillExcelRangeFromDT(ref xlWorkbook, ref dt, 2, 4, 1);   // Details
                 int numTotalColumns = E.FillExcelHeadersFromDT(ref xlWorkbook, ref dt, 2, 1, 1);   // Header
                 int columnCopyFrom = 8;   // Column number that has the formula to copy across - nothing else needs to be set below
-                E.CopyExcelRange(ref xlWorkbook, 2, 2, columnCopyFrom, 2, columnCopyFrom + 1, 2, numTotalColumns);  // Names Formula: copy the cell with the formula (H8) across all further columns
+                E.CopyExcelRange(ref xlWorkbook, 2, 2, columnCopyFrom, 2, columnCopyFrom + 1, 2, numTotalColumns);  // ROW 2; Categories for Work Orders formula - copy across sheet
+                E.CopyExcelRange(ref xlWorkbook, 2, 3, columnCopyFrom, 3, columnCopyFrom + 1, 3, numTotalColumns);  // ROW 3; Names Formula: copy the cell with the formula (H8) across all further columns
 
                 // Return to Cell A1
                 xlApp.Goto(xlWorkbook.Sheets[2].Range("A1"));
 
-                // Sheet: Full Inventory  (seperate stored procedure)
+                // Sheet: Full Inventory  (separate stored procedure)
                 clsDataHelper DH2 = new clsDataHelper();
                 DataSet DS2 = new DataSet();
                 DH2.cmd.Parameters.AddWithValue("@EndDate", EndDate);

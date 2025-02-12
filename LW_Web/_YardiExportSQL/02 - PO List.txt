@@ -13,8 +13,7 @@ select --distinct
     v.uLastName as VendorName,
     tm.FirstInvoiceDate as InvoiceDate, 
     acct.sCode as AcctCode,
-    CASE WHEN acct.sCode in ('600100', '711340') --OR wo.sCategory in ('AFP', 'APH-Boiler','APH-Plumbing') 
-         THEN 'LABOR' ELSE 'MATERIALS' END as AcctCategory,
+    CASE WHEN acct.sCode in ('600100', '711340') THEN 'LABOR' ELSE 'MATERIALS' END as AcctCategory,
     acct.sDesc as AcctDesc,
     isnull(podet.dTranTotalCost,0) as IndivPOTotal,
     isnull(po.DTOTAL,0) as POAmount,
@@ -31,7 +30,7 @@ from mm2wo wo
 	inner join mm2po po on wo.hmy=po.hWo
     left join mm2podet podet on podet.hPo = po.hmy 
     left join vendor v on po.hVendor = v.hMyPerson
-    left join acct on hPayAcct = acct.hMy
+    left join acct on podet.hPayAcct = acct.hMy
     left join trans t on wo.hChgRcd = t.hMy
 	left join (	
           select d.hPoDet, format(min(tr.SDATEOCCURRED),'MM/dd/yyyy') as FirstInvoiceDate

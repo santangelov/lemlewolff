@@ -19,6 +19,7 @@ namespace LW_Web.Controllers
 
         public ActionResult Index()
         {
+            //var PIRecords = LW_Data.GetAllPIRecords(150);
             var PIRecords = _context.tblPhysicalInventory
                                 .Where(a => a.AsOfDate.HasValue && a.Code != "")
                                 .OrderBy(a => a.Code)

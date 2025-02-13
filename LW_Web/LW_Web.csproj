@@ -259,6 +259,8 @@
     <Content Include="_Templates\_Template - InvItemReview.xlsx" />
     <Content Include="Documents\LW Portal User Manual - vsn250203.pdf" />
     <Content Include="Documents\LW Portal User Manual.docx" />
+    <Content Include="Views\Shared\VendorList.cshtml" />
+    <Content Include="Views\Shared\LaborerEdit - Copy.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -268,6 +270,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\VendorController.cs" />
     <Compile Include="Controllers\PIController.cs" />
     <Compile Include="Controllers\ADPController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
@@ -298,7 +301,7 @@
     <Content Include="Views\Shared\UserList.cshtml" />
     <Content Include="Views\Shared\UserEdit.cshtml" />
     <Content Include="Views\Shared\LaborerList.cshtml" />
-    <Content Include="Views\Shared\LaborerEdit.cshtml" />
+    <Content Include="Views\Shared\VendorEdit.cshtml" />
     <Content Include="Views\Shared\PhysicalInvEdit.cshtml" />
     <Content Include="Views\Shared\PhysicalInvAdd.cshtml" />
   </ItemGroup>

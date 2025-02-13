@@ -1,0 +1,41 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutPage.cshtml";
+}
+
+@model LW_Data.clsVendorRecord
+
+<div class="container mt-5" style="max-width:450px;">
+    <h2>@(Model.VendorID == -10 ? "New Vendor" : "Edit Vendor")</h2>
+
+    <form method="post" action="@Url.Action("Edit", "Vendor")">
+        @Html.AntiForgeryToken()
+        <input type="hidden" id="VendorID" name="VendorID" value="@(Model.VendorID)" />
+
+        <div class="row">
+            <div class="form-group col-md-6">
+                <label for="VendorCode" class="mt-2">Vendor Code</label>
+                <input type="text" id="VendorCode" name="VendorCode" class="form-control" value="@(Model.VendorCode)" />
+            </div>
+
+            <div class="form-group col-md-6">
+                <label for="VendorName" class="mt-2">Vendor Name</label>
+                <input type="text" id="VendorName" name="VendorName" class="form-control" value="@(Model.VendorName)" />
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group col-md-12">
+                <h5>Options</h5>
+                <div class="ms-4">
+                    <div class="form-check">
+                        @Html.CheckBoxFor(m => Model.isSubcontractor, new { @class = "form-check-input", id = "isSubcontractor" })
+                        <label class="form-check-label" for="isSubcontractor">Is Subcontractor</label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-3">Submit</button>
+                <a href="@Url.Action("Index", "Vendor")" class="btn btn-secondary mt-3">Cancel</a>
+            </div>
+        </div>
+    </form>
+</div>

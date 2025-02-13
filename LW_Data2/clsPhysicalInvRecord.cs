@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Runtime.Remoting.Messaging;
 
 namespace LW_Data
 {
@@ -62,4 +63,19 @@ namespace LW_Data
 
     }
 
+    //public class PIRecordsHelper
+    //{
+    //    public static bool GetAllPIRecords<clsPhysicalInventoryRecord>()
+    //    {
+
+    //        var retRecords = _context.tblPhysicalInventory
+    //                .Where(a => a.AsOfDate.HasValue && a.Code != "")
+    //                .OrderBy(a => a.Code)
+    //                //.Skip((pageNumber - 1) * 75) // Skip records for previous pages
+    //                .Take(150) // Take only the records for the current page
+    //                .ToList();
+
+    //        return retRecords;
+    //    }
+    //}
 }

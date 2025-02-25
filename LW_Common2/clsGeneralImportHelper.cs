@@ -78,6 +78,7 @@ namespace LW_Common
                     if (RowsProcessed % 15 == 0) clsUtilities.WriteToCounter("PC", RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###"));  // only update every 15 records
                 }
             }
+            clsUtilities.WriteToCounter("PC", "Completed");
             return true;
         }
 

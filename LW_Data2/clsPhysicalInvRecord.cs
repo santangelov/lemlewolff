@@ -28,7 +28,7 @@ namespace LW_Data
         /// Uses Stored Procedure spPhysicalInvUpdate to process updates
         /// </summary>
         /// <returns></returns>
-        public bool SaveToDB()
+        public bool SaveToDB(string EditedByFirstName)
         {
             bool isSuccess = false;
             try
@@ -37,13 +37,13 @@ namespace LW_Data
                 if (this.PIRowID > 0)
                 {
                     dh.cmd.Parameters.AddWithValue("@PIRowID", this.PIRowID);
-                    dh.cmd.Parameters.AddWithValue("@modDate", this.modDate);
-                    dh.cmd.Parameters.AddWithValue("@modBy", this.modBy);
+                    dh.cmd.Parameters.AddWithValue("@modDate", DateTime.Now.ToString());
+                    dh.cmd.Parameters.AddWithValue("@modBy", EditedByFirstName);
                 }
                 else
                 {
-                    dh.cmd.Parameters.AddWithValue("@createDate", this.CreateDate);
-                    dh.cmd.Parameters.AddWithValue("@createdBy", this.CreatedBy);
+                    dh.cmd.Parameters.AddWithValue("@createDate", DateTime.Now.ToString());
+                    dh.cmd.Parameters.AddWithValue("@createdBy", EditedByFirstName);
                 }
                 dh.cmd.Parameters.AddWithValue("@AsOfDate", this.AsOfDate);
                 dh.cmd.Parameters.AddWithValue("@Code", this.Code);
@@ -62,20 +62,4 @@ namespace LW_Data
         }
 
     }
-
-    //public class PIRecordsHelper
-    //{
-    //    public static bool GetAllPIRecords<clsPhysicalInventoryRecord>()
-    //    {
-
-    //        var retRecords = _context.tblPhysicalInventory
-    //                .Where(a => a.AsOfDate.HasValue && a.Code != "")
-    //                .OrderBy(a => a.Code)
-    //                //.Skip((pageNumber - 1) * 75) // Skip records for previous pages
-    //                .Take(150) // Take only the records for the current page
-    //                .ToList();
-
-    //        return retRecords;
-    //    }
-    //}
 }

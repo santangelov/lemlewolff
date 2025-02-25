@@ -105,6 +105,7 @@ namespace LW_Common
                     }
                 }
             }
+            clsUtilities.WriteToCounter("ADP", "Completed");
             return true;
         }
 
@@ -186,6 +187,7 @@ namespace LW_Common
                     }
                 }
             }
+            clsUtilities.WriteToCounter("ADP", "Completed");
             return true;
         }
 

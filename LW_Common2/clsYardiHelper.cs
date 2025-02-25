@@ -23,7 +23,7 @@ namespace LW_Common
 
             System.Data.DataTable dtImport = new System.Data.DataTable();
 
-            clsUtilities.WriteToCounter("Yardi WOs", "Starting...");
+            clsUtilities.WriteToCounter("YardiWO2", "Starting...");
 
             // Always delete contents of temp table first
             clsDataHelper dh1 = new clsDataHelper();
@@ -51,7 +51,6 @@ namespace LW_Common
             int NumToProcess = sourceTable.Rows.Count;
             if (NumToProcess > 0)
             {
-                //clsReportHelper.RecordFileDateRanges("YardiWO_Inventory", (DateTime)sourceTable.Rows[0]["Date1"], (DateTime)sourceTable.Rows[0]["Date2"]);
                 clsReportHelper.RecordFileDateRanges("YardiWO_Inventory", clsFunc.CastToDateTime(sourceTable.Rows[0]["Date1"], new DateTime(1900, 1, 1)), clsFunc.CastToDateTime(sourceTable.Rows[0]["Date2"], new DateTime(1900, 1, 1)));
 
                 foreach (DataRow r in sourceTable.Rows)
@@ -73,12 +72,12 @@ namespace LW_Common
                     RowsProcessed++;
                     if (!isSuccess)
                     {
-                        clsUtilities.WriteToCounter("YardiWO", "Error: " + dh.data_err_msg + " (" + RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###") + ")");
+                        clsUtilities.WriteToCounter("YardiWO2", "Error: " + dh.data_err_msg + " (" + RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###") + ")");
                         Error_Log += DateTime.Now.ToString() + ": Item Code " + r["ItemCode"].ToString() + "; WO Number: " + r["WONumber"].ToString() + "; ERROR: " + dh.data_err_msg + "\r\n";
                     }
                     else
                     {
-                        if (RowsProcessed % 15 == 0) clsUtilities.WriteToCounter("YardiWO", RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###"));  // only update every 15 records
+                        if (RowsProcessed % 15 == 0) clsUtilities.WriteToCounter("YardiWO2", RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###"));  // only update every 15 records
                     }
                 }
             }
@@ -88,6 +87,7 @@ namespace LW_Common
                 Error_Log += DateTime.Now.ToString() + ": <span style='color:Orange;'>WARNING: Exactly 5000 rows were imported. This could indicate that you had filtering on to limit the export to the first 5000 rows. This import was completed, however , please check your export to insure filtering in Yardi allows unlimited rows.</span>\r\n";
             }
 
+            clsUtilities.WriteToCounter("YardiWO2", "Completed");
             return true;
         }
 
@@ -102,7 +102,7 @@ namespace LW_Common
 
             System.Data.DataTable dtImport = new System.Data.DataTable();
 
-            clsUtilities.WriteToCounter("Yardi POs", "Starting...");
+            clsUtilities.WriteToCounter("YardiPO2", "Starting...");
 
             // Always delete contents of temp table first
             clsDataHelper dh1 = new clsDataHelper();
@@ -174,12 +174,12 @@ namespace LW_Common
 
                     if (!isSuccess)
                     {
-                        clsUtilities.WriteToCounter("YardiPO", "Error: " + dh.data_err_msg + " (" + RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###") + ")");
+                        clsUtilities.WriteToCounter("YardiPO2", "Error: " + dh.data_err_msg + " (" + RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###") + ")");
                         Error_Log += DateTime.Now.ToString() + ": Item Code " + r["ItemCode"].ToString() + "; PO Number: " + r["PONumber"].ToString() + "; ERROR: " + dh.data_err_msg + "\r\n";
                     }
                     else
                     {
-                        if (RowsProcessed % 15 == 0) clsUtilities.WriteToCounter("YardiPO", RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###"));  // only update every 15 records
+                        if (RowsProcessed % 15 == 0) clsUtilities.WriteToCounter("YardiPO2", RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###"));  // only update every 15 records
                     }
                 }
 
@@ -191,6 +191,7 @@ namespace LW_Common
                 Error_Log += DateTime.Now.ToString() + ": <span style='color:Orange;'>WARNING: Exactly 5000 rows were imported. This could indicate that you had filtering on to limit the export to the first 5000 rows. This import was completed, however , please check your export to insure filtering in Yardi allows unlimited rows.</span>\r\n";
             }
 
+            clsUtilities.WriteToCounter("YardiPO2", "Completed");
             return true;
         }
 
@@ -205,7 +206,7 @@ namespace LW_Common
 
             System.Data.DataTable dtImport = new System.Data.DataTable();
 
-            clsUtilities.WriteToCounter("Yardi WOs", "Starting...");
+            clsUtilities.WriteToCounter("YardiWO", "Starting...");
 
             string FolderOnly = Path.GetDirectoryName(FilePathAndName);
             string FileNameOnly = Path.GetFileName(FilePathAndName);
@@ -284,11 +285,12 @@ namespace LW_Common
                 Error_Log += DateTime.Now.ToString() + ": <span style='color:Orange;'>WARNING: Exactly 5000 rows were imported. This could indicate that you had filtering on to limit the export to the first 5000 rows. This import was completed, however , please check your export to insure filtering in Yardi allows unlimited rows.</span>\r\n";
             }
 
+            clsUtilities.WriteToCounter("YardiWO", "Completed");
             return true;
         }
 
         /// <summary>
-        /// Import POs for the WO Review Report (tblMasterWOReview). It also updates tblWorkOrders with some vendor info
+        /// Import POs for the WO Review Report (tblMasterWOReview). It also updates tblWorkOrders with some vendor info. File #2
         /// </summary>
         /// <param name="FilePathAndName"></param>
         /// <returns></returns>
@@ -371,16 +373,23 @@ namespace LW_Common
                     Error_Log += DateTime.Now.ToString() + ": <span style='color:Orange;'>WARNING: Exactly 5000 rows were imported. This could indicate that you had filtering on to limit the export to the first 5000 rows. This import was completed, however , please check your export to insure filtering in Yardi allows unlimited rows.</span>\r\n";
                 }
             }
+
+            clsUtilities.WriteToCounter("YardiPO", "Completed");
             return true;
         }
 
+        /// <summary>
+        /// Work Order File #5
+        /// </summary>
+        /// <param name="FilePathAndName"></param>
+        /// <returns></returns>
         public bool Import_YardiWO_GeneralFile(string FilePathAndName)
         {
             Error_Log = "";
 
             System.Data.DataTable dtImport = new System.Data.DataTable();
 
-            clsUtilities.WriteToCounter("YardiWO", "Starting...");
+            clsUtilities.WriteToCounter("YardiWOH", "Starting...");
 
             string FolderOnly = Path.GetDirectoryName(FilePathAndName);
             string FileNameOnly = Path.GetFileName(FilePathAndName);
@@ -424,12 +433,12 @@ namespace LW_Common
                     RowsProcessed++;
                     if (!isSuccess)
                     {
-                        clsUtilities.WriteToCounter("YardiPO", "Error: " + dh.data_err_msg + " (" + RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###") + ")");
+                        clsUtilities.WriteToCounter("YardiWOH", "Error: " + dh.data_err_msg + " (" + RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###") + ")");
                         Error_Log += DateTime.Now.ToString() + ": WO Number: " + r["WONumber"].ToString() + "; ERROR: " + dh.data_err_msg + "\r\n";
                     }
                     else
                     {
-                        if (RowsProcessed % 15 == 0) clsUtilities.WriteToCounter("YardiPO", RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###"));  // only update every 15 records
+                        if (RowsProcessed % 15 == 0) clsUtilities.WriteToCounter("YardiWOH", RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###"));  // only update every 15 records
                     }
                 }
 
@@ -440,6 +449,7 @@ namespace LW_Common
                     Error_Log += DateTime.Now.ToString() + ": <span style='color:Orange;'>WARNING: Exactly 5,000 rows were imported. This could indicate that you had filtering on to limit the export to the first 5000 rows. This import was completed, however , please check your export to insure filtering in Yardi allows unlimited rows.</span>\r\n";
                 }
             }
+            clsUtilities.WriteToCounter("YardiWOH", "Completed");
             return true;
         }
 

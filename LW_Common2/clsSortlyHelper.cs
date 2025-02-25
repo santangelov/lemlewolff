@@ -99,6 +99,7 @@ namespace LW_Common
                 clsDataHelper sp = new clsDataHelper();
                 if (!sp.ExecuteSPCMD("spRptBuilder_WOReview_04_SortlyFixes", false)) WarningMsg += " || spRptBuilder_WOReview_04_SortlyFixes: " + sp.data_err_msg;
             }
+            clsUtilities.WriteToCounter("Sortly", "Completed");
             return true;
         }
 

@@ -218,17 +218,6 @@ namespace LW_Web.Controllers
 
         private bool DeleteTable(string TableFlag)
         {
-            //            IF @FileType = 'Sortly'             DELETE FROM tblImport_Sortly
-            //--ELSE IF @FileType = 'ADP'         DELETE FROM tblImport_ADP-- - We don't need to ever delete from this table now - do it manually if need be
-
-            //    ELSE IF @FileType = 'YardiWO'       DELETE FROM tblImport_Yardi_WOList
-            //    ELSE IF @FileType = 'YardiPO'       DELETE FROM tblImport_Yardi_POs
-            //    --ELSE IF @FileType = 'master'      DELETE FROM tblMasterWOReview
-            //    ELSE IF @FileType = 'InventoryWO'   DELETE FROM tblImport_Inv_Yardi_WOItems
-            //    ELSE IF @FileType = 'InventoryPO'   DELETE FROM tblImport_Inv_Yardi_POItems
-            //    ELSE IF @FileType = 'MasterInv'     DELETE FROM tblMasterInventoryReview where isSeedItem = 0
-            //    --ELSE IF @FileType = 'MasterInv-All'   DELETE FROM tblMasterInventoryReview
-
             if (TableFlag.IsEmpty()) return false;
 
             clsDataHelper dh = new clsDataHelper();

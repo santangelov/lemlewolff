@@ -2,7 +2,9 @@
 using LW_Security;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
+using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Web.Mvc;
 
@@ -10,24 +12,12 @@ namespace LW_Web.Controllers
 {
     public class PIController : Controller
     {
-        private readonly LWDbContext _context;
-
-        public PIController()
-        {
-            _context = new LWDbContext();
-        }
+        //private readonly LWDbContext _context;
+        private clsPhysicalInvHelper _PIHelper = new clsPhysicalInvHelper();
 
         public ActionResult Index()
         {
-            //var PIRecords = LW_Data.GetAllPIRecords(150);
-            var PIRecords = _context.tblPhysicalInventory
-                                .Where(a => a.AsOfDate.HasValue && a.Code != "")
-                                .OrderBy(a => a.Code)
-                                //.Skip((pageNumber - 1) * 75) // Skip records for previous pages
-                                .Take(150) // Take only the records for the current page
-                                .ToList();
-
-            return View("PhysicalInvEdit", PIRecords);
+            return View("PhysicalInvEdit", _PIHelper.GetAllPIRecords(150));
         }
 
         [HttpPost]
@@ -39,18 +29,15 @@ namespace LW_Web.Controllers
                 return Json(new { success = false, message = "Missing Date and/or Item Code" });
             }
 
-            var record = _context.tblPhysicalInventory.Find(updatedRecord.PIRowID);
+            clsPhysicalInventoryRecord record = _PIHelper.GetPIRecord(updatedRecord.PIRowID);
             if (record != null)
             {
-                record.PIRowID = updatedRecord.PIRowID;
                 record.AsOfDate = updatedRecord.AsOfDate;
                 record.Code = updatedRecord.Code;
                 record.PhysicalCount = updatedRecord.PhysicalCount;
                 record.Description = updatedRecord.Description;
-                record.modBy = clsSecurity.LoggedInUserFirstName();
-                record.modDate = DateTime.Now;
-
-                _context.SaveChanges();
+                
+                _PIHelper.SaveToDB(record, clsSecurity.LoggedInUserFirstName());
                 return Json(record);
             }
             return Json(new { success = false, message = "Record not found." });
@@ -59,49 +46,21 @@ namespace LW_Web.Controllers
         [HttpPost]
         public ActionResult Delete(clsPhysicalInventoryRecord updatedRecord)
         {
-            var record = _context.tblPhysicalInventory.Find(updatedRecord.PIRowID);
-            if (record != null)
-            {
-                _context.tblPhysicalInventory.Remove(record);
-                _context.SaveChanges();
-                return Json(record);
-            }
-            return Json(new { success = false, message = "Delete Error." });
+           bool retVal = _PIHelper.DeleteFromDB(updatedRecord.PIRowID);
+           return Json(new { success = retVal });           
         }
 
         [HttpPost]
         public ActionResult FilterRows(string action, DateTime? FilterAsOfDate, string FilterItemCode)
         {
-            if (action == "clear")
-            {
-                return RedirectToAction("Index");
-            }
+            if (action == "clear") return RedirectToAction("Index"); 
 
-            // Fetch filtered records 
-            if (_context?.tblPhysicalInventory == null)
-            {
-                throw new InvalidOperationException("The database context or tblPhysicalInventory is not properly initialized.");
-            }
+            // save the default values for the form
+            if (FilterAsOfDate.HasValue) ViewBag.FilterAsOfDate = FilterAsOfDate.Value;
+            if (!string.IsNullOrEmpty(FilterItemCode)) ViewBag.FilterItemCode = FilterItemCode;
 
-            var records = _context.tblPhysicalInventory.AsQueryable();
-            records = records.Where(r => r.AsOfDate != null);   // We should never have NULL PayDates, but filter in case
-
-            if (FilterAsOfDate.HasValue)
-            {
-                records = records.Where(r => r.AsOfDate == FilterAsOfDate.Value);
-                ViewBag.FilterAsOfDate = FilterAsOfDate.Value;
-            }
-
-            if (!string.IsNullOrEmpty(FilterItemCode))
-            {
-                records = records.Where(r => r.Code.Contains(FilterItemCode));
-                ViewBag.FilterItemCode = FilterItemCode;
-            }
-
-            // Materialize the query after filtering
-            List<clsPhysicalInventoryRecord> filteredRecords = records.Take(150).ToList();
-
-            return View("PhysicalInvEdit", filteredRecords);
+            // Return the View filtered
+            return View("PhysicalInvEdit", _PIHelper.GetFilteredRecords(150, FilterAsOfDate, FilterItemCode));
         }
 
         public ActionResult AddRecord()
@@ -120,9 +79,8 @@ namespace LW_Web.Controllers
                 I.Code = (string)newRecord.Code;
                 I.Description = (string)newRecord.Description;
                 I.PhysicalCount = (int)newRecord.PhysicalCount;
-                I.CreatedBy = clsSecurity.LoggedInUserFirstName();
-                I.CreateDate = DateTime.Now;
-                if (I.SaveToDB())
+
+                if (_PIHelper.SaveToDB(I, clsSecurity.LoggedInUserFirstName()))
                 {
                     TempData["SuccessMessage"] = "New record added successfully!";
                 }

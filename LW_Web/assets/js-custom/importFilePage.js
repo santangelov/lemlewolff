@@ -1,27 +1,34 @@
-﻿
+﻿var uploadInterval; // Declare globally
 
-$(function () {
+$('#btnUpload').on('click', function () {
+    var e = document.getElementById("SelectedFile");
 
-    $('#btnUpload').on('click', function () {
-        var e = document.getElementById("SelectedFile");
+    // Clear existing interval if any
+    if (uploadInterval) {
+        clearInterval(uploadInterval);
+    }
 
-        var x = setInterval(function () {
-            $.ajax({
-                type: "POST",
-                url: "/Import/Counter/" + e.value,
-                dataType: "json",
-                success: function (result, status, xhr) {
-                    $("#counterMsg").html("Progress: " + result["Count"] + (result["Message"] == null ? "" : " " + result["Message"]));
-                },
-                error: function (xhr, exception) { alert(exception); }
-            });
+    uploadInterval = setInterval(function () {
+        $.ajax({
+            type: "POST",
+            url: "/Import/Counter/" + e.value,
+            dataType: "json",
+            async: true, // Ensure async (should be by default)
+            success: function (result, status, xhr) {
+                $("#counterMsg").html("Progress: " + result["Count"] + (result["Message"] == null ? "" : " " + result["Message"]));
 
-            return false;
-        }, 4000);
+                // Stop when done
+                if (result["Message"] === "Completed") {
+                    clearInterval(uploadInterval);
+                    uploadInterval = null; // Reset
+                    $('#btnUpload').removeClass('disabled');
+                }
+            },
+            error: function (xhr, exception) { alert(exception); }
+        });
 
-        $("#counterMsg").html("Progress: reading file...");
+    }, 4000); // Fires every 4 seconds
 
-        $('#btnUpload').addClass('disabled');
-    });
-
+    $("#counterMsg").html("Progress: reading file...");
+    $('#btnUpload').addClass('disabled');
 });

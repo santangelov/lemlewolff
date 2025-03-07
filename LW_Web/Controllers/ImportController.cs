@@ -198,12 +198,26 @@ namespace LW_Web.Controllers
                     }
                     else { ViewBag.Message = clsWebFormHelper.ErrorBoxMsgHTML("Error! Error after processing " + s.RowsProcessed.ToString() + " row(s). " + s.WarningMsg + "</span>"); }
                 }
+                else if (mdl.SelectedFile == "YardiPAU") // 6
+                {
+                    clsYardiHelper y = new clsYardiHelper();
+                    if (y.Import_YardiProperty_File(_path))
+                    {
+                        ViewBag.Message = clsWebFormHelper.SuccessBoxMsgHTML("Success! " + y.RowsProcessed.ToString() + " row(s) successfully processed. (6 - Property/Units Data)");
+                    }
+                    else { ViewBag.Message = clsWebFormHelper.ErrorBoxMsgHTML("Error! Error after processing " + y.RowsProcessed.ToString() + " row(s).</span>"); }
+
+                    if (y.Error_Log != "")
+                    {
+                        mdl.Error_log = "<div style='color:Red';>" + y.Error_Log.Replace("\r\n", "<br>") + "</div>";
+                    }
+                }
 
 
             }
             catch (Exception e)
             {
-                ViewBag.Message = clsWebFormHelper.ErrorBoxMsgHTML("File upload failed!! " + e.Message);
+                ViewBag.Message = clsWebFormHelper.ErrorBoxMsgHTML("File upload failed. " + e.Message);
             }
 
             return View(mdl);
@@ -218,17 +232,6 @@ namespace LW_Web.Controllers
 
         private bool DeleteTable(string TableFlag)
         {
-            //            IF @FileType = 'Sortly'             DELETE FROM tblImport_Sortly
-            //--ELSE IF @FileType = 'ADP'         DELETE FROM tblImport_ADP-- - We don't need to ever delete from this table now - do it manually if need be
-
-            //    ELSE IF @FileType = 'YardiWO'       DELETE FROM tblImport_Yardi_WOList
-            //    ELSE IF @FileType = 'YardiPO'       DELETE FROM tblImport_Yardi_POs
-            //    --ELSE IF @FileType = 'master'      DELETE FROM tblMasterWOReview
-            //    ELSE IF @FileType = 'InventoryWO'   DELETE FROM tblImport_Inv_Yardi_WOItems
-            //    ELSE IF @FileType = 'InventoryPO'   DELETE FROM tblImport_Inv_Yardi_POItems
-            //    ELSE IF @FileType = 'MasterInv'     DELETE FROM tblMasterInventoryReview where isSeedItem = 0
-            //    --ELSE IF @FileType = 'MasterInv-All'   DELETE FROM tblMasterInventoryReview
-
             if (TableFlag.IsEmpty()) return false;
 
             clsDataHelper dh = new clsDataHelper();

@@ -65,7 +65,7 @@ namespace LW_Common
                     rowCount++;
 
                     /* THe WO Number will be calculated later for Sorty data at this point - 
-                     * So no WO Number will be imported now. Later we can set the WO Mumber during the import if we want. 
+                     * So no WO Number will be imported now. Later we can set the WO Number during the import if we want. 
                      * It is in the Folder columns */
 
                     // Importing the Excel Sortly file. Not all columns are imported
@@ -99,6 +99,7 @@ namespace LW_Common
                 clsDataHelper sp = new clsDataHelper();
                 if (!sp.ExecuteSPCMD("spRptBuilder_WOReview_04_SortlyFixes", false)) WarningMsg += " || spRptBuilder_WOReview_04_SortlyFixes: " + sp.data_err_msg;
             }
+            clsUtilities.WriteToCounter("Sortly", "Completed");
             return true;
         }
 

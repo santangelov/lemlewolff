@@ -19,6 +19,7 @@ namespace LW_Web.Models
             ImportFileList.Add(new SelectListItem { Text = "3 - Yardi Work Orders for Inventory (CSV)", Value = "YardiWO2", Selected = (SelectedFile == "YardiWO2" ? true : false) });
             ImportFileList.Add(new SelectListItem { Text = "4 - Yardi Inventory POs (CSV)", Value = "YardiPO2", Selected = (SelectedFile == "YardiPO2" ? true : false) });
             ImportFileList.Add(new SelectListItem { Text = "5 - Yardi Work Orders for Historical Data (CSV)", Value = "YardiWOH", Selected = (SelectedFile == "YardiWOH" ? true : false) });
+            ImportFileList.Add(new SelectListItem { Text = "6 - Properties and Units (CSV)", Value = "YardiPAU", Selected = (SelectedFile == "YardiPAU" ? true : false) });
 
             // Look up the Import Dates
             clsReportHelper RH = new clsReportHelper();
@@ -28,6 +29,7 @@ namespace LW_Web.Models
             YardiWO2DateRangeLoaded = clsReportHelper.GetFileDateRangeValues("YardiWO_Inventory").DateRangeAsString;
             YardiPO2DateRangeLoaded = clsReportHelper.GetFileDateRangeValues("YardiPO_Inventory").DateRangeAsString;
             YardiWOGeneralDateRangeLoaded = clsReportHelper.GetFileDateRangeValues("YardiWO_GeneralFile").DateRangeAsString;
+            YardiPropertyAndUnitDateRangeLoaded = clsReportHelper.GetFileDateRangeValues("YardiPU_File").DateRangeAsString;
             ADPDateRangeLoaded = clsReportHelper.GetFileDateRangeValues("ADP").DateRangeAsString;
         }
 
@@ -63,6 +65,9 @@ namespace LW_Web.Models
 
         [DisplayName("Yardi WO General Date Range Loaded")]
         public string YardiWOGeneralDateRangeLoaded { get; set; }
+
+        [DisplayName("Yardi Property and Unit File Loaded")]
+        public string YardiPropertyAndUnitDateRangeLoaded { get; set; }
 
         [DisplayName("ADP Date Range Loaded")]
         public string ADPDateRangeLoaded { get; set; }

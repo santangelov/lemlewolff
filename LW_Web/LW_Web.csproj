@@ -261,6 +261,7 @@
     <Content Include="Documents\LW Portal User Manual.docx" />
     <Content Include="Views\Shared\VendorList.cshtml" />
     <Content Include="Views\Shared\LaborerEdit - Copy.cshtml" />
+    <Content Include="_YardiExportSQL\06 - Property-Unit.txt" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

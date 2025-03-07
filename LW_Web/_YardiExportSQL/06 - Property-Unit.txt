@@ -1,0 +1,32 @@
+﻿SELECT 
+  u.hMy as yardiUnitRowID, 
+  p.hMy as yardiPropertyRowID,
+  ltrim(p.scode) as BuildingCode, 
+  isnull(p.saddr1,'') as addr1_Co, 
+  isnull(p.saddr2,'') as addr2, 
+  isnull(p.saddr3,'') as addr3, 
+  isnull(p.saddr4,'') as addr4, 
+  isnull(p.sCity,'') as City, 
+  isnull(p.sState,'') as StateCode, 
+  isnull(ltrim(sZipCode),'') as zipCode,
+  isnull(u.scode,'') as AptNumber,
+  u.srent as Rent,
+  u.sStatus as UnitStatus,
+  isnull(u.ibedrooms,0) as Bedrooms,
+  us.LastMoveInDate,
+  us.LastMoveOutDate,
+  u.DSQFT as SqFt,
+  isnull(p.bInactive,0) as isPropertyInactive,  --  -1 = True/Inactive
+  p.dtInactive as propertyInactiveDate,
+  isnull(u.exclude,0) as isUnitExcluded -- -1 = True/Excluded
+from
+  unit u
+  inner join property p on u.hproperty = p.hMy
+  left join (SELECT hUnit, MAX(dtMoveIn) as LastMoveInDate, MAX(dtMoveOut) as LastMoveOutDate FROM unit_status WHERE hUnit > 0 GROUP BY hUnit ) as us on u.hMy = us.hUnit
+where 
+    u.hMy is not null
+    and p.hMy is not null
+    and u.scode is not null 
+    and p.scode is not null
+order by
+  p.scode, u.scode

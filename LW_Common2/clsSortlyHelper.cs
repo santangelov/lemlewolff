@@ -65,7 +65,7 @@ namespace LW_Common
                     rowCount++;
 
                     /* THe WO Number will be calculated later for Sorty data at this point - 
-                     * So no WO Number will be imported now. Later we can set the WO Mumber during the import if we want. 
+                     * So no WO Number will be imported now. Later we can set the WO Number during the import if we want. 
                      * It is in the Folder columns */
 
                     // Importing the Excel Sortly file. Not all columns are imported

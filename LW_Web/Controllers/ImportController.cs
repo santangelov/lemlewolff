@@ -198,12 +198,26 @@ namespace LW_Web.Controllers
                     }
                     else { ViewBag.Message = clsWebFormHelper.ErrorBoxMsgHTML("Error! Error after processing " + s.RowsProcessed.ToString() + " row(s). " + s.WarningMsg + "</span>"); }
                 }
+                else if (mdl.SelectedFile == "YardiPAU") // 6
+                {
+                    clsYardiHelper y = new clsYardiHelper();
+                    if (y.Import_YardiProperty_File(_path))
+                    {
+                        ViewBag.Message = clsWebFormHelper.SuccessBoxMsgHTML("Success! " + y.RowsProcessed.ToString() + " row(s) successfully processed. (6 - Property/Units Data)");
+                    }
+                    else { ViewBag.Message = clsWebFormHelper.ErrorBoxMsgHTML("Error! Error after processing " + y.RowsProcessed.ToString() + " row(s).</span>"); }
+
+                    if (y.Error_Log != "")
+                    {
+                        mdl.Error_log = "<div style='color:Red';>" + y.Error_Log.Replace("\r\n", "<br>") + "</div>";
+                    }
+                }
 
 
             }
             catch (Exception e)
             {
-                ViewBag.Message = clsWebFormHelper.ErrorBoxMsgHTML("File upload failed!! " + e.Message);
+                ViewBag.Message = clsWebFormHelper.ErrorBoxMsgHTML("File upload failed. " + e.Message);
             }
 
             return View(mdl);

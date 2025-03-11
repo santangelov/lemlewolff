@@ -2,7 +2,9 @@
 using LW_Data;
 using LW_Web.Models;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Web.Mvc;
 
 namespace LW_Web.Controllers
@@ -145,15 +147,26 @@ namespace LW_Web.Controllers
 
             model.selectedBuildingCode = BuildingCode;
             model.selectedAptNumber = AptNumber;
+            model.Properties = _context.tblProperties
+                .Where(p => !p.isInactive) // Filter inactive properties
+                .OrderBy(p => p.buildingCode)
+                .Select(p => new SelectListItem
+                {
+                    Value = p.buildingCode,
+                    Text = string.Concat(p.buildingCode, " - ", (p.addr1_Co ?? "n/a").ToUpper()) // Concatenate in the DB query
+                })
+                .ToList();
+
+            model.AptNumbers = GetApartmentsByProperty_List(BuildingCode);
+
             return View("ReportPage", model);
         }
 
-        [HttpGet]
-        public JsonResult GetApartmentsByProperty(string lookupBuildingCode)
+        public List<SelectListItem> GetApartmentsByProperty_List(string lookupBuildingCode)
         {
             if (string.IsNullOrEmpty(lookupBuildingCode))
             {
-                return Json(new { error = "Invalid property code." }, JsonRequestBehavior.AllowGet);
+                return new List<SelectListItem>();
             }
 
             var apartments = (from u in _context.tblPropertyUnits
@@ -166,6 +179,13 @@ namespace LW_Web.Controllers
                                   Text = u.AptNumber + (u.StatusBasedOnDates == "Vacant" ? " (Vacant)" : "")
                               }).ToList();
 
+            return apartments;
+        }
+
+        [HttpGet]
+        public JsonResult GetApartmentsByProperty(string lookupBuildingCode)
+        {
+            var apartments = GetApartmentsByProperty_List(lookupBuildingCode);
             return Json(apartments, JsonRequestBehavior.AllowGet);
         }
 

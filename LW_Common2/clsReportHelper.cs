@@ -277,16 +277,21 @@ namespace LW_Common
             xlApp.UserControl = false;
             Excel.Workbook xlWorkbook = xlApp.Workbooks.Open(TargetPathAndFileName);
 
-            SqlCommand cmd = new SqlCommand();
-            cmd.Parameters.AddWithValue("@buildingCode", BuildingCode);
-            cmd.Parameters.AddWithValue("@aptNumber", AptNumber);
             clsDataHelper D = new clsDataHelper();
+            D.cmd.Parameters.AddWithValue("@buildingCode", BuildingCode);
+            D.cmd.Parameters.AddWithValue("@aptNumber", AptNumber);
             DataRow r = D.GetDataRow("spRptBuilder_Vacancy_Cover");
 
             //  PAGE 1. Fill in the Cover Sheet
             clsExcelHelper E = new clsExcelHelper();
-            E.FillExcelCellFromValue(ref xlWorkbook, 1, 4, 3, r["BuildingCode"]);
-            E.FillExcelCellFromValue(ref xlWorkbook, 1, 6, 3, r["AptNumber"]);
+            E.FillExcelCellFromValue(ref xlWorkbook, 1, 1, 1, "Date: " + DateTime.Now.ToString("MM/dd/yyyy"));
+            E.FillExcelCellFromValue(ref xlWorkbook, 1, 4, 2, r["BuildingCode"]);
+            E.FillExcelCellFromValue(ref xlWorkbook, 1, 6, 2, r["fullAddress_calc"]);
+            E.FillExcelCellFromValue(ref xlWorkbook, 1, 8, 2, r["aptNumber"]);
+            E.FillExcelCellFromValue(ref xlWorkbook, 1, 8, 3, r["statusBasedOnDates"]);
+            E.FillExcelCellFromValue(ref xlWorkbook, 1, 10, 2, r["Bedrooms"]);
+            E.FillExcelCellFromValue(ref xlWorkbook, 1, 12, 2, r["yearsOccupied"]);
+            E.FillExcelCellFromValue(ref xlWorkbook, 1, 12, 3, r["UnitStatus"]);
 
             // Close Excel Session
             E.CleanUpExcelSession(ref xlApp, ref xlWorkbook, TargetPathAndFileName);

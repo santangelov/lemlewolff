@@ -170,13 +170,19 @@
                         <div class="row mb">
                             <div class="col-10">
                                 @Html.LabelFor(model => model.Properties, "Select Property")
-                                @Html.DropDownListFor(model => model.selectedBuildingCode, ViewBag.PropertyList as IEnumerable<SelectListItem>, "-- Select Property --", new { @class = "form-control", id = "propertyDropdown", name = "propertyDropdown" })
+                                @Html.DropDownListFor(model => model.selectedBuildingCode,
+                                    Model.Properties ?? new List<SelectListItem>(),
+                                    "-- Select Property --",
+                                    new { @class = "form-control", id = "propertyDropdown", name = "propertyDropdown" })
                             </div>
                         </div>
                         <div class="row mb">
                             <div class="col-10">
                                 @Html.LabelFor(model => model.AptNumbers, "Select Apartment")
-                                @Html.DropDownListFor(model => model.selectedAptNumber, new SelectList(Enumerable.Empty<SelectListItem>()), "-- Select Apartment --", new { @class = "form-control", id = "apartmentDropdown", name = "apartmentDropdown" })
+                                @Html.DropDownListFor(model => model.selectedAptNumber, 
+                                    Model.AptNumbers ?? new List<SelectListItem>(), 
+                                    "-- Select Apartment --", 
+                                    new { @class = "form-control", id = "apartmentDropdown", name = "apartmentDropdown" })
                             </div>
                         </div>
 

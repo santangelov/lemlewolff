@@ -1,6 +1,7 @@
 ﻿using LW_Common;
 using LW_Data;
 using LW_Web.Models;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 
@@ -15,26 +16,26 @@ namespace LW_Web.Controllers
             _context = new LWDbContext();
         }
 
-
         // GET: Home
         public ActionResult Index()
         {
             ReportPageModel mdl = new ReportPageModel();
 
-            // Fill in Properties
-            ViewBag.PropertyList = new SelectList(
-                _context.tblProperties
-                    .Where(p => p.isInactive == false) // Filter inactive properties
-                    .OrderBy(p => p.buildingCode)
-                    .Select(p => new {
-                        Value = p.buildingCode,
-                        Text = string.Concat(p.buildingCode, " - ", (p.addr1_Co ?? "n/a").ToUpper()) // Concatenate in the DB query
-                    }),
-                "Value", "Text"
-            );
+            mdl.Properties = _context.tblProperties
+                .Where(p => !p.isInactive) // Filter inactive properties
+                .OrderBy(p => p.buildingCode)
+                .Select(p => new SelectListItem
+                {
+                    Value = p.buildingCode,
+                    Text = string.Concat(p.buildingCode, " - ", (p.addr1_Co ?? "n/a").ToUpper()) // Concatenate in the DB query
+                })
+                .ToList();
 
+            mdl.AptNumbers = new List<SelectListItem>();
+            mdl.selectedBuildingCode = null;
+            mdl.selectedAptNumber = null;
 
-            return View("ReportPage", mdl);
+            return View("ReportPage", mdl); 
         }
 
         [HttpPost]

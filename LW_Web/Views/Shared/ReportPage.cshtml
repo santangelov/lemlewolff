@@ -22,18 +22,8 @@
 
     <div class="row">
 
-        <!--<div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body">-->
-        @*<h4 class="header-title">Most Recent Loads (WO Analysis Files)</h4>*@
-        @*<p><strong>Yardi WO:</strong> @Html.Raw(Model.YardiWODateRangeLoaded) | <strong>Yardi PO:</strong> @Html.Raw(Model.YardiPODateRangeLoaded) | <strong>Yardi WO General:</strong> @Html.Raw(Model.YardiWOGeneralDateRangeLoaded)</p>*@
-        <!--<p>Content</p>
-                </div>
-            </div>
-        </div>
-    </div>-->
         <!-- WO ANALYSIS REPORT -->
+        <!--====================-->
         <div class="col-6">
 
             <div class="card">
@@ -76,8 +66,10 @@
             </div>  <!-- end card -->
 
         </div>
-        <!-- end col -->
+
+
         <!-- INVENTORY REPORT -->
+        <!--====================-->
         <div class="col-6">
 
             <div class="card">
@@ -120,11 +112,11 @@
             </div>  <!-- end card -->
 
         </div>
-        <!-- end col -->
+
 
         <!-- INVENTORY ITEM REVIEW REPORT -->
+        <!--==============================-->
         <div class="col-6">
-
             <div class="card">
                 <div class="card-body">
                     <h4 class="header-title">PO Inventory Item Review Report</h4>
@@ -165,14 +157,93 @@
             </div>  <!-- end card -->
 
         </div>
-        <!-- end col -->
+
+        <!-- VACANCY REPORT -->
+        <!--==============================-->
+        <div class="col-6">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="header-title">Vacancy Report Cover Sheet</h4>
+                    <p class="text-muted font-14">Insure that Yardi Export #6 is loaded recently.</p>
+                    @using (Html.BeginForm("GetVacancyCoverSheet", "Reports", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal" }))
+                    {
+                        <div class="row mb">
+                            <div class="col-10">
+                                @Html.LabelFor(model => model.Properties, "Select Property")
+                                @Html.DropDownListFor(model => model.selectedBuildingCode, ViewBag.PropertyList as IEnumerable<SelectListItem>, "-- Select Property --", new { @class = "form-control", id = "propertyDropdown", name = "propertyDropdown" })
+                            </div>
+                        </div>
+                        <div class="row mb">
+                            <div class="col-10">
+                                @Html.LabelFor(model => model.AptNumbers, "Select Apartment")
+                                @Html.DropDownListFor(model => model.selectedAptNumber, new SelectList(Enumerable.Empty<SelectListItem>()), "-- Select Apartment --", new { @class = "form-control", id = "apartmentDropdown", name = "apartmentDropdown" })
+                            </div>
+                        </div>
+
+                        <div class="row mb" style="margin-top:20px;">
+                            <div class="col-10">
+                                <button type="submit" id="btnVACReport" class="btn btn-primary w-100">Download Cover Sheet</button>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <span id="DownloadReportMsgVAC"></span>
+                            </div>
+                        </div>
+                    }
+
+                    @Html.Raw(ViewBag.MessageVAC)
+
+                    @Html.Raw(Model.Error_logVAC)
+
+                </div> <!-- end card-body -->
+            </div>  <!-- end card -->
+
+        </div>
 
     </div>
 
-<script type="text/javascript" src="~/assets/js-custom/importFilePage.js"></script>
+    <script>
+        $(document).ready(function () {
+            console.log("Document Ready!");
 
+            $("#propertyDropdown").change(function () {
+                console.log("Property dropdown changed!");
+                var buildingCode = $(this).val();
+                console.log("Selected Property Code:", buildingCode);
 
+                var apartmentDropdown = $("#apartmentDropdown");
 
+                apartmentDropdown.empty().append('<option value="">Loading...</option>');
+
+                if (buildingCode) {
+                    $.ajax({
+                        url: '@Url.Action("GetApartmentsByProperty", "Reports")',
+                        type: 'GET',
+                        dataType: 'json', // Ensures the response is properly handled
+                        data: { lookupBuildingCode: buildingCode },
+                        success: function (data) {
+                            apartmentDropdown.empty().append('<option value="">-- Select Apartment --</option>');
+
+                            $.each(data, function (index, item) {
+                                apartmentDropdown.append(new Option(item.Text, item.Value));
+                            });
+                        },
+                        error: function (xhr, status, error) {
+                            console.error("AJAX Error:", error);
+                            alert("Error fetching apartments. Please try again.");
+                            apartmentDropdown.empty().append('<option value="">-- Select Apartment --</option>');
+                        }
+                    });
+                } else {
+                    apartmentDropdown.empty().append('<option value="">-- Select Apartment --</option>');
+                }
+            });
+        });
+    </script>
+
+    <script type="text/javascript" src="~/assets/js-custom/importFilePage.js"></script>
 
 
 

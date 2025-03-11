@@ -14,7 +14,7 @@ namespace LW_Web.Controllers
 
         public ADPController()
         {
-            _context = new LWDbContext(); // Replace with your DbContext
+            _context = new LWDbContext();
         }
 
         public ActionResult Index()

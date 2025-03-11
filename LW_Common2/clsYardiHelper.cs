@@ -493,8 +493,6 @@ namespace LW_Common
             int NumToProcess = filteredTable.Rows.Count;
             if (NumToProcess > 0)
             {
-                clsReportHelper.RecordFileDateRanges("YardiPropertyFile", null, DateTime.Now);
-
                 // We are loading the table directly into tblProperties
                 foreach (DataRow r in filteredTable.Rows)
                 {
@@ -538,8 +536,6 @@ namespace LW_Common
             NumToProcess = unitsTable.Rows.Count;
             if (NumToProcess > 0)
             {
-                clsReportHelper.RecordFileDateRanges("YardiPropertyFile", null, DateTime.Now);
-
                 // We are loading the table directly into tblUnits
                 foreach (DataRow r in unitsTable.Rows)
                 {
@@ -577,6 +573,8 @@ namespace LW_Common
             }
             clsUtilities.WriteToCounter("YardiProp", "Completed");
             clsUtilities.WriteToCounter("YardiUnit", "Completed");
+
+            clsReportHelper.RecordFileDateRanges("YardiPropertyFile", null, DateTime.Now);
 
             return true;
         }

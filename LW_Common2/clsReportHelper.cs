@@ -20,6 +20,7 @@ namespace LW_Common
         public static string WOAnalysisReportTemplateFileName = "_Template - WOAnalysis_01 - MMM-MMM.xlsm";
         public static string POInventoryItemReviewReportTemplateFileName = "_Template - InvItemReview.xlsx";
         public static string InventoryReportTemplateFileName_Pivot = "_Template - Inventory Daily Pivot_WithDollars.xlsx";
+        public static string VacancyCoverSheetFileName = "_Template - VacancyCoverSheet.xlsx";
 
         public static bool RecordFileDateRanges(string DateKey, DateTime? Date1, DateTime Date2)
         {
@@ -52,15 +53,6 @@ namespace LW_Common
 
             if (r["LatestImportDateRange_Date1"] != null) { retObj.Date1 = clsFunc.CastToStr(r["LatestImportDateRange_Date1"]); }
             retObj.Date2 = clsFunc.CastToStr(r["LatestImportDateRange_Date2"]);
-
-            //retObj.DateRangeAsString = clsFunc.CastToDateTime(r["LatestImportDateRange_Date1"], new DateTime(1900, 1, 1)).ToString("M/d/yy");
-            //if (retObj.DateRangeAsString != "1/1/00")
-            //{
-            //    retObj.DateRangeAsString += " - " + clsFunc.CastToDateTime(r["LatestImportDateRange_Date2"], new DateTime(1900, 1, 1)).ToString("M/d/yy");
-            //}else
-            //{
-            //    retObj.DateRangeAsString = "Up to " + clsFunc.CastToDateTime(r["LatestImportDateRange_Date2"], new DateTime(1900, 1, 1)).ToString("M/d/yy");
-            //}
 
             retObj.DateRangeAsString = clsFunc.CastToDateTime(r["LatestImportDateRange_Date2"], new DateTime(1900, 1, 1)).ToString("M/d/yy");
 
@@ -163,8 +155,6 @@ namespace LW_Common
             return true;
         }
 
-
-
         public bool FillExcel_InventoryDailyPivotReport(string NewFileName, string StartDate, string EndDate)
         {
             // Run the pre-processing of data
@@ -264,6 +254,46 @@ namespace LW_Common
 
             return retVal;
         }
+
+        public bool FillExcel_VacancyCoverSheet(string NewFileName, string BuildingCode, string AptNumber)
+        {
+            // Run Pre-Processing of data
+            if (!RunAllReportSQL()) { return false; }
+
+            string TargetPathAndFileName = WOAnalysisReportDownloadPath + "\\" + NewFileName;
+
+            // Delete any existing file of the same name
+            try
+            {
+                System.IO.File.Delete(TargetPathAndFileName);
+            }
+            catch (Exception) { }
+
+            // Copy the Template file first to the new file name
+            System.IO.File.Copy(TemplatePath + "\\" + VacancyCoverSheetFileName, TargetPathAndFileName, true);   // Default to overwrite = true
+
+            Excel.Application xlApp = new Excel.Application();
+            xlApp.Visible = false;
+            xlApp.UserControl = false;
+            Excel.Workbook xlWorkbook = xlApp.Workbooks.Open(TargetPathAndFileName);
+
+            SqlCommand cmd = new SqlCommand();
+            cmd.Parameters.AddWithValue("@buildingCode", BuildingCode);
+            cmd.Parameters.AddWithValue("@aptNumber", AptNumber);
+            clsDataHelper D = new clsDataHelper();
+            DataRow r = D.GetDataRow("spRptBuilder_Vacancy_Cover");
+
+            //  PAGE 1. Fill in the Cover Sheet
+            clsExcelHelper E = new clsExcelHelper();
+            E.FillExcelCellFromValue(ref xlWorkbook, 1, 4, 3, r["BuildingCode"]);
+            E.FillExcelCellFromValue(ref xlWorkbook, 1, 6, 3, r["AptNumber"]);
+
+            // Close Excel Session
+            E.CleanUpExcelSession(ref xlApp, ref xlWorkbook, TargetPathAndFileName);
+
+            return true;
+        }
+
 
         public static bool RunAllReportSQL_Public()
         {

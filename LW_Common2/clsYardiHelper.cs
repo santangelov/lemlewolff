@@ -550,6 +550,7 @@ namespace LW_Common
                     dh.cmd.Parameters.AddWithValue("@LastMoveInDate", r["LastMoveInDate"]);
                     dh.cmd.Parameters.AddWithValue("@LastMoveOutDate", r["LastMoveOutDate"]);
                     dh.cmd.Parameters.AddWithValue("@isExcluded", r["isUnitExcluded"]);
+                    dh.cmd.Parameters.AddWithValue("@LastTenantRent", r["LastTenantRent"]);
 
                     bool isSuccess = dh.ExecuteSPCMD("spPropertyUnitUpdate", false);
                     RowsProcessed++;

@@ -1,5 +1,7 @@
-﻿using LW_Data;
+﻿using LW_Common;
+using LW_Data;
 using LW_Security;
+using LW_Web.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -19,6 +21,17 @@ namespace LW_Web.Controllers
 
         public ActionResult Index()
         {
+            if (!clsSecurity.isUserLoggedIn())
+            {
+                return View("Login", new LoginModel() { Error_log = "ERROR: Not logged in." });
+            }
+
+            if (clsSecurity.isUserAdmin() == false && clsSecurity.isSuperAdmin() == false)
+            {
+                return View("Dashboard", new DashboardModel() { ErrorMsg = clsWebFormHelper.ErrorBoxMsgHTML("ERROR: You do not have access view or edit ADP data.") });
+            }
+
+
             var adpRecords = _context.tblADP
                                      .Where(a => a.LaborerID != null)
                                      .OrderByDescending(a => a.PayDate)

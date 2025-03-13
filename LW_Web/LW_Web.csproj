@@ -260,17 +260,20 @@
     <Content Include="Documents\LW Portal User Manual - vsn250203.pdf" />
     <Content Include="Documents\LW Portal User Manual.docx" />
     <Content Include="Views\Shared\VendorList.cshtml" />
-    <Content Include="Views\Shared\LaborerEdit - Copy.cshtml" />
+    <Content Include="Views\Shared\LaborerEdit.cshtml" />
     <Content Include="_YardiExportSQL\06 - Property-Unit.txt" />
+    <Content Include="Views\Shared\Dashboard.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
     <None Include="Web.Release.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
+    <Content Include="_Templates\_Template - VacancyCoverSheet.xlsx" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\DashboardController.cs" />
     <Compile Include="Controllers\VendorController.cs" />
     <Compile Include="Controllers\PIController.cs" />
     <Compile Include="Controllers\ADPController.cs" />
@@ -285,6 +288,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\DashboardModel.cs" />
     <Compile Include="Models\ReportPageModel.cs" />
     <Compile Include="Models\LoginModel.cs" />
     <Compile Include="Models\ImportFilesModel.cs" />

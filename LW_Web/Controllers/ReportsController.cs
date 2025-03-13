@@ -147,8 +147,10 @@ namespace LW_Web.Controllers
 
             model.selectedBuildingCode = BuildingCode;
             model.selectedAptNumber = AptNumber;
+
+            // Excluding properties that have all EXCLUDED units
             model.Properties = _context.tblProperties
-                .Where(p => !p.isInactive) // Filter inactive properties
+                .Where(p => !p.isInactive && _context.tblPropertyUnits.Any(u => u.yardiPropertyRowID == p.yardiPropertyRowID && !u.isExcluded))
                 .OrderBy(p => p.buildingCode)
                 .Select(p => new SelectListItem
                 {
@@ -172,12 +174,14 @@ namespace LW_Web.Controllers
             var apartments = (from u in _context.tblPropertyUnits
                               join p in _context.tblProperties
                               on u.yardiPropertyRowID equals p.yardiPropertyRowID
-                              where p.buildingCode == lookupBuildingCode
+                              where (p.buildingCode == lookupBuildingCode && !u.isExcluded)
+                              orderby u.AptNumber
                               select new SelectListItem
                               {
                                   Value = u.AptNumber.ToString(),
                                   Text = u.AptNumber + (u.StatusBasedOnDates == "Vacant" ? " (Vacant)" : "")
-                              }).ToList();
+                              })
+                              .ToList();
 
             return apartments;
         }

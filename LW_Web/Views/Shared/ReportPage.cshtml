@@ -47,7 +47,7 @@
 
                         <div class="row mb" style="margin-top:20px;">
                             <div class="col-10">
-                                <button type="submit" id="btnWOAnalysisReport" class="btn btn-primary w-100">Download Analysis Report</button>
+                                <button type="submit" id="btnWOAnalysisReport" class="btn btn-primary w-100" @(Model.DisableWOReports ? "disabled" : "")>Download Analysis Report</button>
                             </div>
                         </div>
 
@@ -93,7 +93,7 @@
 
                         <div class="row mb" style="margin-top:20px;">
                             <div class="col-10">
-                                <button type="submit" id="btnWOAnalysisReport" class="btn btn-primary w-100">Download Daily Inventory Report</button>
+                                <button type="submit" id="btnWOAnalysisReport" class="btn btn-primary w-100" @(Model.DisableINVReports ? "disabled" : "")>Download Daily Inventory Report</button>
                             </div>
                         </div>
 
@@ -138,7 +138,7 @@
 
                         <div class="row mb" style="margin-top:20px;">
                             <div class="col-10">
-                                <button type="submit" id="btnPOIReport" class="btn btn-primary w-100">Download PO Inventory Item Review Report</button>
+                                <button type="submit" id="btnPOIReport" class="btn btn-primary w-100" @(Model.DisableItemReviewReport ? "disabled" : "")>Download PO Inventory Item Review Report</button>
                             </div>
                         </div>
 
@@ -188,7 +188,7 @@
 
                         <div class="row mb" style="margin-top:20px;">
                             <div class="col-10">
-                                <button type="submit" id="btnVACReport" class="btn btn-primary w-100">Download Cover Sheet</button>
+                                <button type="submit" id="btnVACReport" class="btn btn-primary w-100" @(Model.DisableVacancyCoverSheets ? "disabled" : "")>Download Cover Sheet</button>
                             </div>
                         </div>
 

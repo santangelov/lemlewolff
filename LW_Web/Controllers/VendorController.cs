@@ -1,4 +1,7 @@
-﻿using LW_Data;
+﻿using LW_Common;
+using LW_Data;
+using LW_Security;
+using LW_Web.Models;
 using System.Data;
 using System.Linq;
 using System.Net;
@@ -20,6 +23,17 @@ namespace LW_Web.Controllers
         // GET: Vendor
         public ActionResult Index()
         {
+            if (!clsSecurity.isUserLoggedIn())
+            {
+                return View("Login", new LoginModel() { Error_log = "ERROR: Not logged in." });
+            }
+
+            if (clsSecurity.isUserAdmin() == false && clsSecurity.isSuperAdmin() == false)
+            {
+                return View("Dashboard", new DashboardModel() { ErrorMsg = clsWebFormHelper.ErrorBoxMsgHTML("ERROR: You do not have access view or edit Vendor data.") });
+            }
+
+
             var VendorRecords = _context.tblVendors
                          .OrderBy(a => a.VendorName)
                          .ToList();

@@ -21,7 +21,10 @@ namespace LW_Web.Controllers
 
             if (s.ValidateLogin(mdl.EmailAddress, mdl.Password, true))
             {
-                return RedirectToAction("ImportFile", "Import");
+                DashboardModel m = new DashboardModel();
+                return View("Dashboard", m);
+
+                //return RedirectToAction("ImportFile", "Import");
             }
             else
             {

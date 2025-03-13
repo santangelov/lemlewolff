@@ -282,6 +282,8 @@ namespace LW_Common
             D.cmd.Parameters.AddWithValue("@aptNumber", AptNumber);
             DataRow r = D.GetDataRow("spRptBuilder_Vacancy_Cover");
 
+            if (r is null) { error_message = "Property Not Found with included Units."; return false; }
+
             //  PAGE 1. Fill in the Cover Sheet
             clsExcelHelper E = new clsExcelHelper();
             E.FillExcelCellFromValue(ref xlWorkbook, 1, 1, 1, "Date: " + DateTime.Now.ToString("MM/dd/yyyy"));
@@ -292,6 +294,7 @@ namespace LW_Common
             E.FillExcelCellFromValue(ref xlWorkbook, 1, 10, 2, r["Bedrooms"]);
             E.FillExcelCellFromValue(ref xlWorkbook, 1, 12, 2, r["yearsOccupied"]);
             E.FillExcelCellFromValue(ref xlWorkbook, 1, 12, 3, r["UnitStatus"]);
+            E.FillExcelCellFromValue(ref xlWorkbook, 1, 14, 2, r["LastTenantRent"]);
 
             // Close Excel Session
             E.CleanUpExcelSession(ref xlApp, ref xlWorkbook, TargetPathAndFileName);

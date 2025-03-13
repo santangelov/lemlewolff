@@ -18,11 +18,16 @@
   u.DSQFT as SqFt,
   isnull(p.bInactive,0) as isPropertyInactive,  --  -1 = True/Inactive
   p.dtInactive as propertyInactiveDate,
-  isnull(u.exclude,0) as isUnitExcluded -- -1 = True/Excluded
+  isnull(u.exclude,0) as isUnitExcluded, -- -1 = True/Excluded
+  t.LastTenantRent
 from
   unit u
   inner join property p on u.hproperty = p.hMy
   left join (SELECT hUnit, MAX(dtMoveIn) as LastMoveInDate, MAX(dtMoveOut) as LastMoveOutDate FROM unit_status WHERE hUnit > 0 GROUP BY hUnit ) as us on u.hMy = us.hUnit
+  LEFT JOIN (SELECT hUnit, sRent AS LastTenantRent 
+             FROM (
+            	SELECT hUnit, sRent, ROW_NUMBER() OVER (PARTITION BY hUnit ORDER BY dtMoveIn DESC) AS rn FROM tenant) AS x
+        	WHERE x.rn = 1) AS t ON u.hMy = t.hUnit
 where 
     u.hMy is not null
     and p.hMy is not null

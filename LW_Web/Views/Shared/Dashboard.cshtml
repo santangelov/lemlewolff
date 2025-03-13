@@ -1,0 +1,76 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_LayoutPage.cshtml";
+}
+
+@model LW_Web.Models.DashboardModel
+
+<!-- Start Content-->
+<div class="container-fluid">
+
+    <!-- start page title -->
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box">
+                <h4 class="page-title" style="color:darkorange">DASHBOARD</h4>
+            </div>
+        </div>
+    </div>
+    <!-- end page title -->
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="header-title">Most Recent Loads</h4>
+                    <table class="dateLoadTable">
+                        <tr><td><strong>ADP: </strong></td><td>@Html.Raw(Model.ADPDateRangeLoaded)</td><td><strong>Sortly: </strong></td><td>@Html.Raw(Model.SortlyDateRangeLoaded)</td><td><strong>(1) Yardi WO: </strong></td><td>@Html.Raw(Model.YardiWODateRangeLoaded)</td></tr>
+                        <tr><td><strong>(2) Yardi PO: </strong></td><td>@Html.Raw(Model.YardiPODateRangeLoaded)</td><td><strong>(3) Yardi WO Inv: </strong></td><td>@Html.Raw(Model.YardiWO2DateRangeLoaded)</td><td><strong>(4) Yardi PO Inv: </strong></td><td>@Html.Raw(Model.YardiPO2DateRangeLoaded)</td></tr>
+                        <tr><td><strong>(5) Yardi WO General: </strong></td><td>@Html.Raw(Model.YardiWOGeneralDateRangeLoaded)</td><td><strong>(6) Yardi Property/Unit: </strong></td><td>@Html.Raw(Model.YardiPropertyAndUnitDateRangeLoaded)</td></tr>
+                    </table>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row">
+
+        <!-- IMPORT FILES -->
+        <div class="col-6">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="header-title">Common Links</h4>
+                    <p>
+                        <ul>
+                            <li><a href="~/Import">Import Files</a></li>
+                            <li><a href="~/ReportPage">Reports and Cover Sheets</a></li>
+                        </ul>
+                    </p>
+
+                </div> <!-- end card-body -->
+            </div>  <!-- end card -->
+        </div>
+        <!-- end col -->
+        <!-- MAINTENANCE -->
+        <div class="col-6">
+
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="header-title">WELCOME!</h4>
+                    @Html.Raw(Model.ErrorMsg)
+                </div> <!-- end card-body -->
+            </div>  <!-- end card -->
+
+        </div>
+        <!-- end col -->
+    </div>
+</div>
+
+
+
+
+
+
+

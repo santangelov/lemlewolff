@@ -22,7 +22,7 @@ namespace LW_Web.Controllers
             ReportPageModel mdl = new ReportPageModel();
 
             mdl.Properties = _context.tblProperties
-                .Where(p => !p.isInactive) // Filter inactive properties
+                .Where(p => !p.isInactive && _context.tblPropertyUnits.Any(u => u.yardiPropertyRowID == p.yardiPropertyRowID && !u.isExcluded))
                 .OrderBy(p => p.buildingCode)
                 .Select(p => new SelectListItem
                 {

@@ -1,4 +1,5 @@
 ﻿using LW_Common;
+using LW_Security;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Web;
@@ -9,9 +10,21 @@ namespace LW_Web.Models
     public class ReportPageModel
     {
         public ReportPageModel() { 
-        
+            
+            // Security
+            if (clsSecurity.isUserLoggedIn() && !(clsSecurity.isSuperAdmin() || clsSecurity.isUserAdmin()))
+            {
+                DisableWOReports = true;
+                DisableINVReports = true;
+                DisableItemReviewReport = true;
+            }
             
         }
+
+        public bool DisableWOReports { get; set; } = false;
+        public bool DisableINVReports { get; set; } = false;
+        public bool DisableItemReviewReport { get; set; } = false;
+        public bool DisableVacancyCoverSheets { get; set; } = false;
 
         [DisplayName("Analysis Report Start Date (inclusive)")]
         public string StartDateA { get; set; }

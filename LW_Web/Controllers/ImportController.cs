@@ -12,17 +12,28 @@ namespace LW_Web.Controllers
 {
     public class ImportController : BaseController
     {
-        // GET: Import
-        [HttpGet]
-        public ActionResult ImportInventoryFiles(String filetype)
-        {
-            return View(new ReportPageModel());
-        }
+        //// GET: Import
+        //[HttpGet]
+        //public ActionResult ImportInventoryFiles(String filetype)
+        //{
+
+        //    return View(new ReportPageModel());
+        //}
 
         // GET: Import
         [HttpGet]
         public ActionResult ImportFile(String filetype)
         {
+            if (!clsSecurity.isUserLoggedIn())
+            {
+                return View("Login", new LoginModel() { Error_log = "ERROR: Not logged in." });
+            }
+
+            if (clsSecurity.isUserAdmin()==false && clsSecurity.isSuperAdmin()==false)
+            {
+                return View("Dashboard", new DashboardModel() { ErrorMsg = clsWebFormHelper.ErrorBoxMsgHTML("ERROR: You do not have access to import data.") });
+            }
+
             return View(new ImportFilesModel());
         }
 

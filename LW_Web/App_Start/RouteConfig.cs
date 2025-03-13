@@ -29,6 +29,11 @@ namespace LW_Web
                 url: "{controller}/{action}/{id}",
                 defaults: new { controller = "Reports", action = "Index", id = UrlParameter.Optional });
 
+            routes.MapRoute(
+                name: "Dashboard",
+                url: "{controller}/{action}/{id}",
+                defaults: new { controller = "Dashboard", action = "Index", id = UrlParameter.Optional });
+
         }
     }
 }

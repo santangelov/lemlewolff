@@ -36,20 +36,26 @@
             <h5>Options</h5>
             <div class="ms-4" disabled>
                 <div class="form-check">
-                    @Html.CheckBoxFor(m => Model.isAdmin, clsSecurity.isSuperAdmin() 
-                        ? (object)new { @class = "form-check-input", id = "isAdmin" } 
+                    @Html.CheckBoxFor(m => Model.isProjectManager, clsSecurity.isSuperAdmin()
+                        ? (object)new { @class = "form-check-input", id = "isProjectManager" }
+                        : (object)new { @class = "form-check-input", id = "isProjectManager", disabled = "true" })
+                    <label class="form-check-label" for="isProjectManager">Project Manager</label>
+                </div>
+                <div class="form-check">
+                    @Html.CheckBoxFor(m => Model.isAdmin, clsSecurity.isSuperAdmin()
+                        ? (object)new { @class = "form-check-input", id = "isAdmin" }
                         : (object)new { @class = "form-check-input", id = "isAdmin", disabled = "true" })
                     <label class="form-check-label" for="isAdmin">Administrator</label>
                 </div>
                 <div class="form-check">
-                    @Html.CheckBoxFor(m => Model.isSuperAdmin, clsSecurity.isSuperAdmin() 
-                        ? (object)new { @class = "form-check-input", id = "isSuperAdmin" } 
+                    @Html.CheckBoxFor(m => Model.isSuperAdmin, clsSecurity.isSuperAdmin()
+                        ? (object)new { @class = "form-check-input", id = "isSuperAdmin" }
                         : (object)new { @class = "form-check-input", id = "isSuperAdmin", disabled = "true" })
                     <label class="form-check-label" for="isSuperAdmin">Super Admin</label>
                 </div>
                 <div class="form-check">
-                    @Html.CheckBoxFor(m => Model.isDisabled, clsSecurity.isSuperAdmin() 
-                        ? (object)new { @class = "form-check-input", id = "isDisabled" } 
+                    @Html.CheckBoxFor(m => Model.isDisabled, clsSecurity.isSuperAdmin()
+                        ? (object)new { @class = "form-check-input", id = "isDisabled" }
                         : (object)new { @class = "form-check-input", id = "isDisabled", disabled = "true" })
                     <label class="form-check-label" for="isSuperAdmin"><span style="color:red;">Disabled</span></label>
                 </div>

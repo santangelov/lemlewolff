@@ -7,10 +7,13 @@ namespace LW_Data
 {
     using System.Data;
     using System.Data.SqlClient;
+    using System.Security.RightsManagement;
     using Excel = Microsoft.Office.Interop.Excel;
 
     public class clsExcelHelper
     {
+        public string ErrorMsg = "";
+
         public bool FillExcelRangeFromSP(ref Excel.Workbook xlWorkbook, string StoredProcedure, int WorksheetNumber, int CellStartRow, int CellStartColumn, SqlCommand cmd = null)
         {
             // Read the full datatable
@@ -21,6 +24,57 @@ namespace LW_Data
 
             return FillExcelRangeFromDT(ref xlWorkbook, ref sourcedt, WorksheetNumber, CellStartRow, CellStartColumn);
         }
+
+        public bool FillExcelCellFromValue(ref Excel.Workbook xlWorkbook, int worksheetNumber, int row, int column, object value)
+        {
+            this.ErrorMsg = "";
+            if (xlWorkbook == null) return false;
+
+            Excel.Worksheet xlWorksheet = null;
+            Excel.Range xlCell = null;
+
+            try
+            {
+                // Get the specified worksheet
+                xlWorksheet = xlWorkbook.Sheets[worksheetNumber] as Excel.Worksheet;
+                if (xlWorksheet == null) return false;
+
+                // Access the cell
+                xlCell = xlWorksheet.Cells[row, column] as Excel.Range;
+                xlCell.Value = value;
+
+                // Save workbook
+                xlWorkbook.Save();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                this.ErrorMsg = "Error filling Excel cell: " + ex.Message;
+                return false;
+            }
+            finally
+            {
+                // Release COM objects properly
+                if (xlCell != null)
+                {
+                    Marshal.ReleaseComObject(xlCell);
+                    xlCell = null;
+                }
+
+                //if (xlWorksheet != null)
+                //{
+                //    Marshal.ReleaseComObject(xlWorksheet);
+                //    xlWorksheet = null;
+                //}
+
+                // Force garbage collection (optional, but recommended for COM cleanup)
+                //GC.Collect();
+                //GC.WaitForPendingFinalizers();
+            }
+        }
+
+
 
         public bool FillExcelRangeFromDT(ref Excel.Workbook xlWorkbook, ref System.Data.DataTable dt, int WorksheetNumber, int CellStartRow, int CellStartColumn)
         {

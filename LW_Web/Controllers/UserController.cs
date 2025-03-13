@@ -1,5 +1,7 @@
-﻿using LW_Data;
+﻿using LW_Common;
+using LW_Data;
 using LW_Security;
+using LW_Web.Models;
 using System.Data;
 using System.Linq;
 using System.Net;
@@ -66,7 +68,7 @@ namespace LW_Web.Controllers
             }
             else
             {
-                return new HttpStatusCodeResult(HttpStatusCode.Forbidden);
+                return View("Dashboard", new DashboardModel() { ErrorMsg = clsWebFormHelper.ErrorBoxMsgHTML("You do not have rights to edit user accounts.") });
             }
 
         }
@@ -97,6 +99,7 @@ namespace LW_Web.Controllers
                         // Only a Super Admin can update all of these in any case - even if the same user is logged in
                         if (clsSecurity.isSuperAdmin())  // Update them, otherwise they stay the same
                         {
+                            record.isProjectManager = updatedRecord.isProjectManager;
                             record.isAdmin = updatedRecord.isAdmin;
                             record.isSuperAdmin = updatedRecord.isSuperAdmin;
                             record.isDisabled = updatedRecord.isDisabled;

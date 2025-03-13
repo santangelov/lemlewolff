@@ -12,6 +12,8 @@ namespace LW_Data
         public DbSet<clsUserRecord> tblUsers { get; set; }
         public DbSet<clsPhysicalInventoryRecord> tblPhysicalInventory { get; set; }
         public DbSet<clsVendorRecord> tblVendors { get; set; }
+        public DbSet<clsPropertyRecord> tblProperties { get; set; }
+        public DbSet<clsPropertyUnitRecord> tblPropertyUnits { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -22,6 +24,8 @@ namespace LW_Data
             modelBuilder.Entity<clsUserRecord>().ToTable("tblUsers", "dbo");
             modelBuilder.Entity<clsPhysicalInventoryRecord>().ToTable("tblPhysicalInventory", "dbo");
             modelBuilder.Entity<clsVendorRecord>().ToTable("tblVendors", "dbo");
+            modelBuilder.Entity<clsPropertyRecord>().ToTable("tblProperties", "dbo");
+            modelBuilder.Entity<clsPropertyUnitRecord>().ToTable("tblPropertyUnits", "dbo");
         }
     }
 }

@@ -160,6 +160,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="clsPhysicalInvHelper.cs" />
+    <Compile Include="clsPropertyUnitRecord.cs" />
+    <Compile Include="clsPropertyRecord.cs" />
     <Compile Include="clsVendorRecord.cs" />
     <Compile Include="clsPhysicalInvRecord.cs" />
     <Compile Include="clsADPRecord.cs" />

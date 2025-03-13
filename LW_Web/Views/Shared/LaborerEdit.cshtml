@@ -1,0 +1,80 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutPage.cshtml";
+}
+
+@model LW_Data.clsLaborerRecord
+
+<div class="container mt-5" style="max-width:450px;">
+    <h2>@(Model.LaborerID == -10 ? "New Laborer" : "Edit Laborer")</h2>
+
+    <form method="post" action="@Url.Action("Edit", "Laborer")">
+        @Html.AntiForgeryToken()
+        <input type="hidden" id="LaborerID" name="LaborerID" value="@(Model.LaborerID)" />
+
+        <div class="row">
+            <div class="form-group col-md-6">
+                <label for="LastName" class="mt-2">Last Name</label>
+                <input type="text" id="LastName" name="LastName" class="form-control" value="@(Model.LastName)" />
+            </div>
+
+            <div class="form-group col-md-6">
+                <label for="FirstName" class="mt-2">First Name</label>
+                <input type="text" id="FirstName" name="FirstName" class="form-control" value="@(Model.FirstName)" />
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group col-md-6">
+                <label for="LWSalariedHourlyRate" class="mt-2">Salaried Hourly Rate</label>
+                <input type="text" id="LWSalariedHourlyRate" name="LWSalariedHourlyRate" class="form-control" value="@(Model.LWSalariedHourlyRate)" />
+            </div>
+
+            <div class="form-group col-md-6">
+                <label for="LWOTRate" class="mt-2">Overtime Rate</label>
+                <input type="text" id="LWOTRate" name="LWOTRate" class="form-control" value="@(Model.LWOTRate)" />
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group col-md-6">
+                <label for="LWMaterialRate" class="mt-2">Material Rate</label>
+                <input type="text" id="LWMaterialRate" name="LWMaterialRate" class="form-control" value="@(Model.LWMaterialRate)" />
+            </div>
+
+            <div class="form-group col-md-6">
+                <label for="BonusFactor" class="mt-2">Bonus Factor</label>
+                <input type="text" id="BonusFactor" name="BonusFactor" class="form-control" value="@(Model.BonusFactor)" />
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group col-md-12">
+                <label for="LWSmJobMinRateAdj" class="mt-2">Job Min Rate Adjustment</label>
+                <input type="text" id="LWSmJobMinRateAdj" name="LWSmJobMinRateAdj" class="form-control" value="@(Model.LWSmJobMinRateAdj)" />
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group col-md-12">
+                <h5>Options</h5>
+                <div class="ms-4">
+                    <div class="form-check">
+                        @Html.CheckBoxFor(m => Model.IsSupervisor, new { @class = "form-check-input", id = "IsSupervisor" })
+                        <label class="form-check-label" for="IsSupervisor">Is Supervisor</label>
+                    </div>
+                    <div class="form-check">
+                        @Html.CheckBoxFor(m => Model.IsCoopSupplier, new { @class = "form-check-input", id = "IsCoopSupplier" })
+                        <label class="form-check-label" for="IsCoopSupplier">COOP Supplier</label>
+                    </div>
+                    <div class="form-check">
+                        @Html.CheckBoxFor(m => Model.IncludeForInventory, new { @class = "form-check-input", id = "IncludeForInventory" })
+                        <label class="form-check-label" for="IncludeForInventory">Include for Material (Inventory + POs)</label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-3">Submit</button>
+                <a href="@Url.Action("Index", "Laborer")" class="btn btn-secondary mt-3">Cancel</a>
+            </div>
+        </div>
+    </form>
+</div>

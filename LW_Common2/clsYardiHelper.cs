@@ -156,20 +156,9 @@ namespace LW_Common
 
                     bool isSuccess = true;
 
-                    // Import into the PO Items Table (tblPurchaseOrderItems which holds ALL items, good or bad, from the PO)
-                    // Later we can get rid of the exceptions table and only report on the ALL ITEMS table
-
-                    // Capture Exceptions for the PO Exception Table
-                    //  1. Item Code = "material%"
-
-                    if (r["ItemCode"].ToString().ToLower().Contains("material"))
-                    {
-                        isSuccess = dh.ExecuteSPCMD("spPurchaseOrderItems_ExceptionsUpdate", false);   // Importing to tblImport_Inv_Yardi_POItems_Exception table
-                    }
-
                     /* Start importing all into tblImport_Inv_Yardi_POItems even with Materials even though we are filling up the Exceptions table */
+                    if (isSuccess) isSuccess = dh.ExecuteSPCMD("spYardiPODetailsUpdate", false);     // Importing PO data into tblPurchaseOrders_Details - do this first because ItemsUpdate depends on it
                     if (isSuccess) isSuccess = dh.ExecuteSPCMD("spYardiPOsInvItemsUpdate", false);   // Importing to tblImport_Inv_Yardi_POItems 
-                    if (isSuccess) isSuccess = dh.ExecuteSPCMD("spYardiPODetailsUpdate", false);     // Importing PO data into tblPurchaseOrders_Details
 
                     RowsProcessed++;
 
@@ -551,6 +540,7 @@ namespace LW_Common
                     dh.cmd.Parameters.AddWithValue("@LastMoveOutDate", r["LastMoveOutDate"]);
                     dh.cmd.Parameters.AddWithValue("@isExcluded", r["isUnitExcluded"]);
                     dh.cmd.Parameters.AddWithValue("@LastTenantRent", r["LastTenantRent"]);
+                    dh.cmd.Parameters.AddWithValue("@unitTypeDesc", r["unitTypeDesc"]);
 
                     bool isSuccess = dh.ExecuteSPCMD("spPropertyUnitUpdate", false);
                     RowsProcessed++;

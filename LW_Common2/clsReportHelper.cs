@@ -257,8 +257,8 @@ namespace LW_Common
 
         public bool FillExcel_VacancyCoverSheet(string NewFileName, string BuildingCode, string AptNumber)
         {
-            // Run Pre-Processing of data
-            if (!RunAllReportSQL()) { return false; }
+            //// Run Pre-Processing of data
+            //if (!RunAllReportSQL()) { return false; }
 
             string TargetPathAndFileName = WOAnalysisReportDownloadPath + "\\" + NewFileName;
 
@@ -281,20 +281,33 @@ namespace LW_Common
             D.cmd.Parameters.AddWithValue("@buildingCode", BuildingCode);
             D.cmd.Parameters.AddWithValue("@aptNumber", AptNumber);
             DataRow r = D.GetDataRow("spRptBuilder_Vacancy_Cover");
-
+            DataTable dt = D.GetDataTable("spRptBuilder_Vacancy_Cover_pt2");  // The parameters are still the same as above
+            
             if (r is null) { error_message = "Property Not Found with included Units."; return false; }
 
-            //  PAGE 1. Fill in the Cover Sheet
+            //  TOP OF COVER SHEET
             clsExcelHelper E = new clsExcelHelper();
             E.FillExcelCellFromValue(ref xlWorkbook, 1, 1, 1, "Date: " + DateTime.Now.ToString("MM/dd/yyyy"));
-            E.FillExcelCellFromValue(ref xlWorkbook, 1, 4, 2, r["BuildingCode"]);
+            E.FillExcelCellFromValue(ref xlWorkbook, 1, 4, 2, r["BuildingCode"].ToString() + (r["unitCount"].ToString() == "" ? "" : " (" + r["unitCount"].ToString() + " units)"));
             E.FillExcelCellFromValue(ref xlWorkbook, 1, 6, 2, r["fullAddress_calc"]);
-            E.FillExcelCellFromValue(ref xlWorkbook, 1, 8, 2, r["aptNumber"]);
+            E.FillExcelCellFromValue(ref xlWorkbook, 1, 8, 2, r["aptNumber"].ToString());
             E.FillExcelCellFromValue(ref xlWorkbook, 1, 8, 3, r["statusBasedOnDates"]);
-            E.FillExcelCellFromValue(ref xlWorkbook, 1, 10, 2, r["Bedrooms"]);
+            E.FillExcelCellFromValue(ref xlWorkbook, 1, 10, 2, r["Bedrooms"].ToString());
+            E.FillExcelCellFromValue(ref xlWorkbook, 1, 10, 3, r["unitTypeDesc"]);
             E.FillExcelCellFromValue(ref xlWorkbook, 1, 12, 2, r["yearsOccupied"]);
             E.FillExcelCellFromValue(ref xlWorkbook, 1, 12, 3, r["UnitStatus"]);
             E.FillExcelCellFromValue(ref xlWorkbook, 1, 14, 2, r["LastTenantRent"]);
+
+            //  BOTTOM PORTION OF COVER SHEET
+            int startRow = 26;
+            int i = 0;
+            foreach(DataRow dr in dt.Rows)
+            {
+                E.FillExcelCellFromValue(ref xlWorkbook, 1, startRow + i, 1, dr["Category"]);
+                E.FillExcelCellFromValue(ref xlWorkbook, 1, startRow + i, 2, dr["SumOfInvoicePrice"]);
+                E.FillExcelCellFromValue(ref xlWorkbook, 1, startRow + i, 3, dr["WONumbers"]);
+                i++;
+            }
 
             // Close Excel Session
             E.CleanUpExcelSession(ref xlApp, ref xlWorkbook, TargetPathAndFileName);

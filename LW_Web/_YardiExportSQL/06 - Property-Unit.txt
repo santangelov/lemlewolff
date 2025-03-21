@@ -19,19 +19,23 @@
   isnull(p.bInactive,0) as isPropertyInactive,  --  -1 = True/Inactive
   p.dtInactive as propertyInactiveDate,
   isnull(u.exclude,0) as isUnitExcluded, -- -1 = True/Excluded
-  t.LastTenantRent
+  t.LastTenantRent,
+  ut.sDesc as UnitTypeDesc
 from
   unit u
   inner join property p on u.hproperty = p.hMy
   left join (SELECT hUnit, MAX(dtMoveIn) as LastMoveInDate, MAX(dtMoveOut) as LastMoveOutDate FROM unit_status WHERE hUnit > 0 GROUP BY hUnit ) as us on u.hMy = us.hUnit
   LEFT JOIN (SELECT hUnit, sRent AS LastTenantRent 
              FROM (
-            	SELECT hUnit, sRent, ROW_NUMBER() OVER (PARTITION BY hUnit ORDER BY dtMoveIn DESC) AS rn FROM tenant) AS x
+            	SELECT hUnit, sRent, ROW_NUMBER() OVER (PARTITION BY hUnit ORDER BY dtLeaseFrom DESC) AS rn FROM tenant) AS x
         	WHERE x.rn = 1) AS t ON u.hMy = t.hUnit
+  left join unittype ut on u.hUnitType=ut.hMy
 where 
     u.hMy is not null
     and p.hMy is not null
     and u.scode is not null 
     and p.scode is not null
+    --and p.scode='3655'
+    --and u.scode='3658-2B'
 order by
   p.scode, u.scode

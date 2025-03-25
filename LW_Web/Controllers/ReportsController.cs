@@ -37,19 +37,21 @@ namespace LW_Web.Controllers
             DateTime EndDate_dt = clsFunc.CastToDateTime(EndDate, new DateTime(2099, 1, 1));
 
             string NewFileName = "PortalReport_WOAnalysis_" + StartDate_dt.ToString("yyyyMMdd") + "-" + EndDate_dt.ToString("yyyyMMdd") + ".xlsm";
+            string fileNameAndPath = Server.MapPath("~/_Downloads/" + NewFileName);
 
             if (R.FillExcel_WOAnalysisReport(NewFileName, StartDate, EndDate))
             {
-                ViewBag.Message = "<div class=\"alert alert-success\"><strong><a href=\"\\_Downloads\\" + NewFileName + "\" target='_blank'>Download " + NewFileName + "</a></strong></div>";
+                //ViewBag.Message = "<div class=\"alert alert-success\"><strong><a href=\"\\_Downloads\\" + NewFileName + "\" target='_blank'>Download " + NewFileName + "</a></strong></div>";
                 model.Error_log = "";
+                return File(fileNameAndPath, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", NewFileName);
             }
             else
             {
                 ViewBag.Message = R.error_message;
                 model.Error_log = "<div class=\"alert alert-danger\"><strong>Error!</strong> Error creating download file.</div>";
+                return View("ReportPage", model);
             }
 
-            return View("ReportPage", model);
         }
 
         [HttpPost]
@@ -69,19 +71,21 @@ namespace LW_Web.Controllers
             }
 
             string NewFileName = "PortalReport_InventoryByDay_" + DateTime.Parse(StartDate).ToString("yyyyMMdd") + " to " + DateTime.Parse(EndDate).ToString("yyyyMMdd") + ".xlsx";
+            string fileNameAndPath = Server.MapPath("~/_Downloads/" + NewFileName);
 
             if (R.FillExcel_InventoryDailyPivotReport(NewFileName, StartDate, EndDate))
             {
-                ViewBag.Message3 = "<div class=\"alert alert-success\"><strong><a href=\"\\_Downloads\\" + NewFileName + "\" target='_blank'>Download " + NewFileName + "</a></strong></div>";
+                //ViewBag.Message3 = "<div class=\"alert alert-success\"><strong><a href=\"\\_Downloads\\" + NewFileName + "\" target='_blank'>Download " + NewFileName + "</a></strong></div>";
                 model.Error_log3 = "";
+                return File(fileNameAndPath, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", NewFileName);
             }
             else
             {
                 ViewBag.Message3 = R.error_message;
                 model.Error_log3 = "<div class=\"alert alert-danger\"><strong>Error!</strong> Error creating download file.</div>";
+                return View("ReportPage", model);
             }
 
-            return View("ReportPage", model);
         }
 
         [HttpPost]
@@ -101,19 +105,21 @@ namespace LW_Web.Controllers
             }
 
             string NewFileName = "PortalReport_POInventoryItemReview_" + DateTime.Parse(StartDate).ToString("yyyyMMdd") + " to " + DateTime.Parse(EndDate).ToString("yyyyMMdd") + ".xlsx";
+            string fileNameAndPath = Server.MapPath("~/_Downloads/" + NewFileName);
 
             if (R.FillExcel_POInventoryItemReviewReport(NewFileName, StartDate, EndDate))
             {
-                ViewBag.MessagePOI = "<div class=\"alert alert-success\"><strong><a href=\"\\_Downloads\\" + NewFileName + "\" target='_blank'>Download " + NewFileName + "</a></strong></div>";
+                //ViewBag.MessagePOI = "<div class=\"alert alert-success\"><strong><a href=\"\\_Downloads\\" + NewFileName + "\" target='_blank'>Download " + NewFileName + "</a></strong></div>";
                 model.Error_logPOI = "";
+                return File(fileNameAndPath, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", NewFileName);
             }
             else
             {
                 ViewBag.MessagePOI = R.error_message;
                 model.Error_logPOI = "<div class=\"alert alert-danger\"><strong>Error!</strong> Error creating download file.</div>";
+                return View("ReportPage", model);
             }
 
-            return View("ReportPage", model);
         }
 
         [HttpPost]
@@ -133,35 +139,38 @@ namespace LW_Web.Controllers
             }
 
             string NewFileName = "VacancyCoverSheet_" + BuildingCode + "_" + AptNumber + "_" + DateTime.Now.ToString("yyyyMMdd") + ".xlsx";
+            string fileNameAndPath = Server.MapPath("~/_Downloads/" + NewFileName);
 
             if (R.FillExcel_VacancyCoverSheet(NewFileName, BuildingCode, AptNumber))
             {
-                ViewBag.MessageVAC = "<div class=\"alert alert-success\"><strong><a href=\"\\_Downloads\\" + NewFileName + "\" target='_blank'>Download " + NewFileName + "</a></strong></div>";
+                //ViewBag.MessageVAC = "<div class=\"alert alert-success\"><strong><a href=\"\\_Downloads\\" + NewFileName + "\" target='_blank'>Download " + NewFileName + "</a></strong></div>";
                 model.Error_logVAC = "";
+                return File(fileNameAndPath, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", NewFileName);
             }
             else
             {
                 ViewBag.MessageVAC = R.error_message;
                 model.Error_logVAC = "<div class=\"alert alert-danger\"><strong>Error!</strong> Error creating download file.</div>";
+
+                model.selectedBuildingCode = BuildingCode;
+                model.selectedAptNumber = AptNumber;
+
+                // Excluding properties that have all EXCLUDED units
+                model.Properties = _context.tblProperties
+                    .Where(p => !p.isInactive && _context.tblPropertyUnits.Any(u => u.yardiPropertyRowID == p.yardiPropertyRowID && !u.isExcluded))
+                    .OrderBy(p => p.buildingCode)
+                    .Select(p => new SelectListItem
+                    {
+                        Value = p.buildingCode,
+                        Text = string.Concat(p.buildingCode, " - ", (p.addr1_Co ?? "n/a").ToUpper()) // Concatenate in the DB query
+                    })
+                    .ToList();
+
+                model.AptNumbers = GetApartmentsByProperty_List(BuildingCode);
+
+                return View("ReportPage", model);
             }
 
-            model.selectedBuildingCode = BuildingCode;
-            model.selectedAptNumber = AptNumber;
-
-            // Excluding properties that have all EXCLUDED units
-            model.Properties = _context.tblProperties
-                .Where(p => !p.isInactive && _context.tblPropertyUnits.Any(u => u.yardiPropertyRowID == p.yardiPropertyRowID && !u.isExcluded))
-                .OrderBy(p => p.buildingCode)
-                .Select(p => new SelectListItem
-                {
-                    Value = p.buildingCode,
-                    Text = string.Concat(p.buildingCode, " - ", (p.addr1_Co ?? "n/a").ToUpper()) // Concatenate in the DB query
-                })
-                .ToList();
-
-            model.AptNumbers = GetApartmentsByProperty_List(BuildingCode);
-
-            return View("ReportPage", model);
         }
 
         public List<SelectListItem> GetApartmentsByProperty_List(string lookupBuildingCode)

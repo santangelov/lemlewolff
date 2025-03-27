@@ -3,6 +3,7 @@ using LW_Data;
 using System;
 using System.Data;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Web;
@@ -61,6 +62,7 @@ namespace LW_Security
         {
             return clsFunc.CastToInt(HttpContext.Current.Session["UserID"], -1);
         }
+
 
         public bool LogOutUser()
         {
@@ -128,6 +130,34 @@ namespace LW_Security
             }
         }
 
+        static string GenerateRandomPassword()
+        {
+            Random rand = new Random();
+            int randomNumber = rand.Next(100000, 900001); // Upper bound is exclusive
+            return randomNumber.ToString();
+        }
+
+        public bool InitiateForgotPassword(string emailAddress)
+        {
+            if (string.IsNullOrEmpty(emailAddress)) { return false; }
+
+            string pw_enc = EncryptString(GenerateRandomPassword());
+            clsDataHelper dh = new clsDataHelper();
+            dh.cmd.Parameters.AddWithValue("@emailAddress", emailAddress);
+            dh.cmd.Parameters.AddWithValue("@forgotPassword", 1);
+            dh.cmd.Parameters.AddWithValue("@tempPassword_enc", pw_enc);
+
+            // Save the new temp password 
+            if (dh.ExecuteSPCMD("spUserUpdate"))
+            {
+                /* Email the user the new password - returns false if cannot send email */
+                return clsUtilities.SendEmail(emailAddress, "Password Reset", "<p>Your temporary password is: <strong>" + DecryptString(pw_enc) + "</strong><p><p>If you did not request a password reset, please ignore this email or contact our support team immediately.</p>");
+            }
+            else
+            {
+                return false;
+            }
+        }
 
         public static string EncryptString(string plainText)
         {

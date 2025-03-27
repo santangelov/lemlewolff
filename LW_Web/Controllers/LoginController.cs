@@ -10,7 +10,7 @@ namespace LW_Web.Controllers
         // GET: Login
         public ActionResult Index()
         {
-            return View();
+            return View("~/Views/Shared/login.cshtml", new LoginModel());
         }
 
         [HttpPost]
@@ -23,8 +23,6 @@ namespace LW_Web.Controllers
             {
                 DashboardModel m = new DashboardModel();
                 return View("Dashboard", m);
-
-                //return RedirectToAction("ImportFile", "Import");
             }
             else
             {
@@ -44,6 +42,33 @@ namespace LW_Web.Controllers
             return View("Login", mdl);
 
         }
+
+        [HttpGet]
+        public ActionResult ForgotPassword()
+        {
+            return View("~/Views/Shared/forgotPassword.cshtml", new LoginModel());  
+        }
+
+        [HttpPost]
+        public ActionResult SubmitForgotPassword(LoginModel mdl)   // This will auto-bind the model to the payload
+        {
+            ViewBag.Message = "";
+            clsSecurity s = new clsSecurity();
+
+            if (s.InitiateForgotPassword(mdl.EmailAddress))
+            {
+                LoginModel m = new LoginModel();
+                m.EmailAddress = mdl.EmailAddress;
+                m.Error_log = clsWebFormHelper.SuccessBoxMsgHTML("Password Reset Initiated. Check your email for instructions.");
+                return View("Login", m);
+            }
+            else
+            {
+                mdl.Error_log = clsWebFormHelper.ErrorBoxMsgHTML("Invalid Account, or unable to send email");
+                return View("Login", mdl);
+            }
+        }
+
 
     }
 }

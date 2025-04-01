@@ -1,9 +1,14 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Configuration;
 using System.Data;
 using System.Linq;
+using MailKit.Net.Smtp;
+using MimeKit;
 using System.Runtime.Caching;
 using System.Text;
+using System.Threading.Tasks;
+using System.Net;
 
 namespace LW_Common
 {
@@ -17,7 +22,6 @@ namespace LW_Common
 
     public class clsUtilities
     {
-        public string err_msg = "";
 
         /// <summary>
         /// The Counters are stored in memory cache
@@ -83,6 +87,47 @@ namespace LW_Common
                 return "ERROR: " + e.Message;
             }
         }
-    }
+
+        public static bool SendEmail(string ToEmail, string Subject, string BodyHTML)
+        {
+            // Set these settings in the web.config file: SMTPServer, SMTPPort, FromEmailAddress, FromEmailPassword
+            // Example: <add key="SMTPServer" value="smtp.gmail.com" />
+
+            string SMTPServer = ConfigurationManager.AppSettings["SMTPServer"];
+            int SMTPPort = int.Parse(ConfigurationManager.AppSettings["SMTPPort"]);
+            string FromEmailAddress = ConfigurationManager.AppSettings["FromEmailAddress"];
+            string FromEmailPassword = ConfigurationManager.AppSettings["FromEmailPassword"];
+            bool SMTPEnableSSL = bool.Parse(ConfigurationManager.AppSettings["SMTPEnableSSL"]);
+
+            System.Net.Mail.SmtpClient client = new System.Net.Mail.SmtpClient(SMTPServer, SMTPPort);
+            client.UseDefaultCredentials = false;
+            client.Credentials = new System.Net.NetworkCredential(FromEmailAddress, FromEmailPassword);
+            client.EnableSsl = SMTPEnableSSL;
+            client.Timeout = 12000;
+
+            System.Net.Mail.MailMessage mailMessage = new System.Net.Mail.MailMessage(FromEmailAddress, ToEmail);
+            mailMessage.IsBodyHtml = true;
+            mailMessage.Subject = Subject;
+            mailMessage.Body = BodyHTML;
+
+//#if DEBUG
+            // Disable certificate validation (should be for testing only - but Rackspace is only working disabling validation)
+            ServicePointManager.ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
+//#endif
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
+            try
+            {
+                client.Send(mailMessage);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return false;
+            }
+
+        }
+}
 
 }

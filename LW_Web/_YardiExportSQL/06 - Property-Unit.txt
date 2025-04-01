@@ -1,4 +1,7 @@
-﻿SELECT 
+﻿/*  (6) - All Unit and Property Details - placed into tblProperties and tblPropertyUnits
+*/
+
+SELECT 
   u.hMy as yardiUnitRowID, 
   p.hMy as yardiPropertyRowID,
   ltrim(p.scode) as BuildingCode, 

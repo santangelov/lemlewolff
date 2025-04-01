@@ -263,6 +263,8 @@
     <Content Include="Views\Shared\LaborerEdit.cshtml" />
     <Content Include="_YardiExportSQL\06 - Property-Unit.txt" />
     <Content Include="Views\Shared\Dashboard.cshtml" />
+    <Content Include="Views\Shared\ForgotPassword.cshtml" />
+    <Content Include="Views\Shared\ChangePassword.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

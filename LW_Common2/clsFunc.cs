@@ -23,20 +23,31 @@ namespace LW_Common
 
         public static bool CastToBool(object value, bool defaultValue = false)
         {
-            try
-            {
-                bool d = false;
-                if (value == null || value == DBNull.Value || !bool.TryParse(value.ToString(), out d))
-                {
-                    return defaultValue;
-                }
-                else { return bool.Parse(value.ToString()); }
-            }
-            catch (Exception ex)
+            if (value == null || value == DBNull.Value)
             {
                 return defaultValue;
             }
+
+            if (value is bool boolValue)
+            {
+                return boolValue;
+            }
+
+            if (value is int intValue)
+            {
+                return intValue == 1;
+            }
+
+            string strValue = value.ToString().Trim().ToLower();
+            if (strValue == "true" || strValue == "1")
+            {
+                return true;
+            }
+
+            return false;
         }
+
+
 
         public static DateTime CastToDateTime(object value, DateTime defaultValue)
         {

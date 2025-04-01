@@ -6,8 +6,6 @@ namespace LW_Web.Models
 {
     public class LoginModel
     {
-        // jrebuth@lemlewolff.com // jre5925#lemlewolff
-
         public LoginModel() { }
         public string Error_log { get; set; }    // Imports
         public string DevEnv_msg = (clsDataHelper.sqlconn(false).ConnectionString.Contains("_dev;") ? clsWebFormHelper.BasicMsgBoxHTML("DEV DATABASE") : "");
@@ -18,8 +16,8 @@ namespace LW_Web.Models
         [DisplayName("Password")]
         public string Password { get; set; }
 
-        [DisplayName("Remember me")]
-        public bool RememberMe { get; set; }
+        [DisplayName("Confirm Password")]
+        public string Password2 { get; set; }
 
     }
 }

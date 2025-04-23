@@ -4,6 +4,11 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.OleDb;
 using System.IO;
+using System.Net.Http.Headers;
+using System.Net.Http;
+using System.Threading.Tasks;
+using static LW_Data.clsSortlyModels;
+using System.Net.Http.Json; 
 
 namespace LW_Common
 {
@@ -12,6 +17,15 @@ namespace LW_Common
         public string error_message { get; set; }
         public int RowsProcessed { get; set; }
         public string WarningMsg { get; set; }
+        private readonly HttpClient _httpClient;
+        private readonly string _apiToken = "sk_sortly_yUWmE3Hp6ys4hv8UwyAg";
+
+        public clsSortlyHelper()
+        {
+            _httpClient = new HttpClient();
+            _httpClient.BaseAddress = new Uri("https://api.sortly.co/api/v1/");
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Authorization", _apiToken);
+        }
 
         public bool Import_Sortly_File(string FilePathAndName, string WorksheetName)
         {
@@ -101,6 +115,49 @@ namespace LW_Common
             }
             clsUtilities.WriteToCounter("Sortly", "Completed");
             return true;
+        }
+
+        public async Task<List<SortlyItem>> GetAllItemsWithFullPathAsync(int rootFolderId)
+        {
+            var allItems = new List<SortlyItem>();
+            var folderPaths = new Dictionary<int, string>(); // Maps folder IDs to their full paths
+            var queue = new Queue<int>();
+            queue.Enqueue(rootFolderId);
+
+            // Initialize the root folder path
+            folderPaths[rootFolderId] = "Root";
+
+            while (queue.Count > 0)
+            {
+                int currentFolderId = queue.Dequeue();
+                string currentFolderPath = folderPaths[currentFolderId];
+
+                // Fetch items in the current folder
+                HttpResponseMessage response = await _httpClient.GetAsync($"items?folder_id={currentFolderId}&per_page=500");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var result = await response.Content.ReadFromJsonAsync<SortlyResponse<SortlyItem>>();
+
+                    foreach (var item in result.Data)
+                    {
+                        if (item.Type == "folder")
+                        {
+                            // Add folder to the queue and update its path
+                            queue.Enqueue(item.Id);
+                            folderPaths[item.Id] = $"{currentFolderPath}||{item.Name}";
+                        }
+                        else if (item.Type == "item")
+                        {
+                            // Assign the full folder path to the item
+                            item.FolderPath = currentFolderPath;
+                            allItems.Add(item);
+                        }
+                    }
+                }
+            }
+
+            return allItems;
         }
 
     }

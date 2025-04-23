@@ -5,6 +5,8 @@ using LW_Web.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Web.Mvc;
 using System.Web.WebPages;
 
@@ -12,13 +14,24 @@ namespace LW_Web.Controllers
 {
     public class ImportController : BaseController
     {
-        //// GET: Import
-        //[HttpGet]
-        //public ActionResult ImportInventoryFiles(String filetype)
-        //{
 
-        //    return View(new ReportPageModel());
-        //}
+        // POST: Sortly API Calls
+        [HttpPost]
+        public async Task<ActionResult> ImportSortlyWithAPIAsync()
+        {
+            int rootFolderID = 87148239;  // April = 87148239
+            clsSortlyHelper sortly = new clsSortlyHelper();
+            List<clsSortlyModels.SortlyItem> itemsWithPaths = await sortly.GetAllItemsWithFullPathAsync(rootFolderID);
+
+            // Format the result for display
+            var formattedItems = itemsWithPaths.Select(x => $"{x.FolderPath}||{x.Name}, {x.notes}, {x.price ?? -1}, {x.quantity ?? -1}, {x.sid}");
+            DashboardModel mdl = new DashboardModel
+            {
+                ErrorMsg = clsWebFormHelper.SuccessBoxMsgHTML(string.Join("<br>", formattedItems))
+            };
+
+            return View("Dashboard", mdl);
+        }
 
         // GET: Import
         [HttpGet]

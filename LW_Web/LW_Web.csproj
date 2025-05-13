@@ -275,6 +275,7 @@
       <DependentUpon>Web.config</DependentUpon>
     </None>
     <Content Include="_Templates\_Template - VacancyCoverSheet.xlsx" />
+    <Content Include="_PowerShell_Scripts\importSortly.ps1" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\RouteConfig.cs" />
@@ -318,7 +319,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Views\API\" />
+    <Folder Include="_Logs\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LW_Common2\LW_Common.csproj">

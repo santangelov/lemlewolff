@@ -12,6 +12,7 @@ namespace LW_Data
         {
             public int Id { get; set; }
             public string Name { get; set; }
+            public string ParentRootPath { get; set; } // This is the full path of the full parent folders
         }
 
         public class SortlyItem

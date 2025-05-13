@@ -57,7 +57,7 @@
         <div class="col-6">
 
             <div class="card">
-                @using (Html.BeginForm("ImportSortlyWithAPIAsync", "Import", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal" })) { 
+                @using (Html.BeginForm("ImportSortlyWithViewAsync", "Import", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal" })) { 
                     <div class="card-body">
                         <h4 class="header-title">WELCOME!</h4>
                         <p><button type="submit" id="btnSortly" class="btn btn-primary w-100">Initiate Sortly Service</button></p>

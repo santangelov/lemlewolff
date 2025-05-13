@@ -18,7 +18,7 @@ namespace LW_Common
         public int RowsProcessed { get; set; }
         public string WarningMsg { get; set; }
         private readonly HttpClient _httpClient;
-        private readonly string _apiToken = "sk_sortly_yUWmE3Hp6ys4hv8UwyAg";
+        private readonly string _apiToken = "sk_sortly_yUWmE3Hp6ys4hv8UwyAg";  // Bearer ID from Sortly
 
         public clsSortlyHelper()
         {
@@ -78,7 +78,7 @@ namespace LW_Common
                 {
                     rowCount++;
 
-                    /* THe WO Number will be calculated later for Sorty data at this point - 
+                    /* THe WO Number will be calculated later for Sortly data at this point - 
                      * So no WO Number will be imported now. Later we can set the WO Number during the import if we want. 
                      * It is in the Folder columns */
 
@@ -117,48 +117,100 @@ namespace LW_Common
             return true;
         }
 
-        public async Task<List<SortlyItem>> GetAllItemsWithFullPathAsync(int rootFolderId)
+        public async Task<List<SortlyItem>> GetAllItemsWithFullPathAsync(clsSortlyModels.SortlyFolder rootFolder)
         {
             var allItems = new List<SortlyItem>();
-            var folderPaths = new Dictionary<int, string>(); // Maps folder IDs to their full paths
+            var folderPaths = new Dictionary<int, string>();
             var queue = new Queue<int>();
-            queue.Enqueue(rootFolderId);
+            queue.Enqueue(rootFolder.Id);
 
-            // Initialize the root folder path
-            folderPaths[rootFolderId] = "Root";
+            folderPaths[rootFolder.Id] = !string.IsNullOrEmpty(rootFolder.ParentRootPath)
+                ? $"{rootFolder.ParentRootPath}||{rootFolder.Name}"
+                : rootFolder.Name;
 
             while (queue.Count > 0)
             {
                 int currentFolderId = queue.Dequeue();
                 string currentFolderPath = folderPaths[currentFolderId];
 
-                // Fetch items in the current folder
                 HttpResponseMessage response = await _httpClient.GetAsync($"items?folder_id={currentFolderId}&per_page=500");
 
                 if (response.IsSuccessStatusCode)
                 {
                     var result = await response.Content.ReadFromJsonAsync<SortlyResponse<SortlyItem>>();
 
-                    foreach (var item in result.Data)
+                    foreach (SortlyItem item in result.Data)
                     {
-                        if (item.Type == "folder")
+                        string fullFolderPath = $"{currentFolderPath}||{item.Name}";
+                        string[] folderPathParts = fullFolderPath.Split(new string[] { "||" }, StringSplitOptions.None);
+
+                        bool includeItem = false;
+
+                        if (fullFolderPath.StartsWith("1-Inventory"))
                         {
-                            // Add folder to the queue and update its path
-                            queue.Enqueue(item.Id);
-                            folderPaths[item.Id] = $"{currentFolderPath}||{item.Name}";
+                            includeItem = true;
                         }
-                        else if (item.Type == "item")
+                        else if (fullFolderPath.StartsWith("4-Today")) // && folderPathParts.Length > 3)
                         {
-                            // Assign the full folder path to the item
-                            item.FolderPath = currentFolderPath;
-                            allItems.Add(item);
+                            if (folderPathParts.Length > 3)
+                            {
+                                string dateCandidate = $"{folderPathParts[3]}/{folderPathParts[1]}";
+
+                                if (folderPathParts.Length > 3 && DateTime.TryParse(dateCandidate, out DateTime parsedDate))
+                                {
+                                    if (parsedDate > DateTime.Today.AddMonths(-3))
+                                        includeItem = true;
+                                }
+                            }
+                            else
+                            {
+                                includeItem = true;
+                            }
+                        }
+
+                        if (includeItem)
+                        {
+                            if (item.Type == "folder")
+                            {
+                                queue.Enqueue(item.Id);
+                                folderPaths[item.Id] = fullFolderPath;
+                            }
+                            else if (item.Type == "item")
+                            {
+                                item.FolderPath = currentFolderPath;
+                                allItems.Add(item);
+                            }
                         }
                     }
                 }
             }
 
+            // Record the Range Imported
+            clsReportHelper.RecordFileDateRanges("Sortly", null, DateTime.Now);
+
             return allItems;
         }
+
+        //public async Task<List<SortlyItem>> SearchFolderByNameAsync(clsSortlyModels.SortlyFolder rootFolder, string SearchString)
+        //{
+        //    var allItems = new List<SortlyItem>();
+
+        //    // Fetch items in the current folder
+        //    HttpResponseMessage response = await _httpClient.GetAsync($"items/search?type=folder&folder_ids=%5B{rootFolder.Id}%5D&per_page=50");
+
+        //    var result = await response.Content.ReadFromJsonAsync<SortlyResponse<SortlyItem>>();
+
+        //    foreach (var item in result.Data)
+        //    {
+        //        if (item.Type == "folder")
+        //        {
+        //            // Add folder to the queue and update its path
+        //            allItems.Add(item);
+        //        }
+        //    }
+
+        //    return allItems;
+        //}
 
     }
 }

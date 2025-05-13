@@ -5,6 +5,8 @@ using LW_Web.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Web.Mvc;
 using System.Web.WebPages;
 
@@ -12,13 +14,97 @@ namespace LW_Web.Controllers
 {
     public class ImportController : BaseController
     {
-        //// GET: Import
-        //[HttpGet]
-        //public ActionResult ImportInventoryFiles(String filetype)
-        //{
+        [HttpPost]
+        public async Task<ActionResult> ImportSortlyWithAPIAsync()
+        {
+            // API-specific logic
+            var result = await ProcessSortlyImportAsync();
+            return Json(new { success = result.success, message = result.message });  // Force the Labels of success and message
+        }
 
-        //    return View(new ReportPageModel());
-        //}
+        [HttpPost]
+        public async Task<ActionResult> ImportSortlyWithViewAsync()
+        {
+            // Non-API-specific logic
+            var result = await ProcessSortlyImportAsync();
+            var mdl = new DashboardModel
+            {
+                ErrorMsg = result.success
+                    ? clsWebFormHelper.SuccessBoxMsgHTML(result.message)
+                    : clsWebFormHelper.ErrorBoxMsgHTML(result.message)
+            };
+            return View("Dashboard", mdl);
+        }
+
+        // POST: Sortly API Calls - Shared
+        private async Task<(bool success, string message)> ProcessSortlyImportAsync()
+        {
+            clsSortlyHelper sortly = new clsSortlyHelper();
+
+            // Manually create the list of root folder IDs
+            var rootFolderIDs = new List<clsSortlyModels.SortlyFolder>
+            {
+                // Later have this be able to automatically find the folders for the current year and the previous year
+                new clsSortlyModels.SortlyFolder { Name = "1-Inventory", Id = 34069965, ParentRootPath="" },
+                new clsSortlyModels.SortlyFolder { Name = "4-Today's Work Orders", Id = 37330941, ParentRootPath="" }
+            };
+
+            var allItemsWithPaths = new List<clsSortlyModels.SortlyItem>();
+
+            // READ EVERYTHING FROM SORTLY USING THE API 
+            foreach (var rootFolderID in rootFolderIDs)
+            {
+                var itemsWithPaths = await sortly.GetAllItemsWithFullPathAsync(rootFolderID);
+                allItemsWithPaths.AddRange(itemsWithPaths);
+            }
+
+            // Delete data first
+            clsDataHelper dh = new clsDataHelper();
+            dh.cmd.Parameters.AddWithValue("@FileType", "Sortly");
+            dh.ExecuteSPCMD("spImport_Delete", true, true);
+
+            // INSERT RESULTS INTO THE DB: tblImport_Sortly
+            DateTime CreateDate = DateTime.Now;
+            foreach (var item in allItemsWithPaths)
+            {
+                dh.cmd.Parameters.Clear();
+                dh.cmd.Parameters.AddWithValue("@ItemName", item.Name);
+                dh.cmd.Parameters.AddWithValue("@SortlyID", item.sid);
+                dh.cmd.Parameters.AddWithValue("@Quantity", item.quantity ?? 0);
+                dh.cmd.Parameters.AddWithValue("@unitPrice", item.price ?? 0);
+                dh.cmd.Parameters.AddWithValue("@TotalValue", item.price * (item.quantity ?? 0));
+                dh.cmd.Parameters.AddWithValue("@Notes", item.notes ?? "");
+                // Split the FolderPath into an array of up to 5 strings
+                string[] folderPathParts = item.FolderPath.Split(new string[] { "||" }, 5, StringSplitOptions.None);
+                dh.cmd.Parameters.AddWithValue("@PrimaryFolder", folderPathParts[0].ToString().Trim());
+                for (int i = 1; i < folderPathParts.Length; i++)
+                {
+                    dh.cmd.Parameters.AddWithValue("@SubFolderLevel" + i.ToString(), folderPathParts[i].ToString().Trim());
+                }
+                dh.cmd.Parameters.AddWithValue("@CreatedBy", clsSecurity.LoggedInUserFirstName());
+                dh.cmd.Parameters.AddWithValue("@CreateDate", CreateDate);
+                dh.cmd.Parameters.AddWithValue("@NoReturn", true);  // Force it to not return data for speed
+                bool isSuccess = dh.ExecuteSPCMD("spSortlyWorkOrderUpdate", false);
+            }
+
+            // Run the after Stored Procedures to clean up fields
+            clsDataHelper sp = new clsDataHelper();
+            string WarningMsg = ""; 
+            if (!sp.ExecuteSPCMD("spRptBuilder_WOReview_04_SortlyFixes", false)) WarningMsg += " || spRptBuilder_WOReview_04_SortlyFixes: " + sp.data_err_msg;
+
+            if (WarningMsg != "")
+            {
+                return (false, "Warning: " + WarningMsg);
+            }
+            else
+            {
+                return (true, "Success! " + allItemsWithPaths.Count.ToString("#,###") + " row(s) successfully processed. (Sortly)");
+                //mdl.ErrorMsg = clsWebFormHelper.SuccessBoxMsgHTML("Success! " + allItemsWithPaths.Count.ToString("#,###") + " row(s) successfully processed. (Sortly)");
+            }
+            
+        }
+
+
 
         // GET: Import
         [HttpGet]

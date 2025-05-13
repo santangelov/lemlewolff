@@ -57,10 +57,14 @@
         <div class="col-6">
 
             <div class="card">
-                <div class="card-body">
-                    <h4 class="header-title">WELCOME!</h4>
-                    @Html.Raw(Model.ErrorMsg)
-                </div> <!-- end card-body -->
+                @using (Html.BeginForm("ImportSortlyWithViewAsync", "Import", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal" })) { 
+                    <div class="card-body">
+                        <h4 class="header-title">WELCOME!</h4>
+                        <p><button type="submit" id="btnSortly" class="btn btn-primary w-100">Initiate Sortly Service</button></p>
+
+                        @Html.Raw(Model.ErrorMsg)
+                    </div> <!-- end card-body -->
+                }
             </div>  <!-- end card -->
 
         </div>

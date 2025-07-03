@@ -268,6 +268,12 @@
     <Content Include="Views\Shared\Dashboard.cshtml" />
     <Content Include="Views\Shared\ForgotPassword.cshtml" />
     <Content Include="Views\Shared\ChangePassword.cshtml" />
+    <Content Include="_YardiExportSQL\rs_SQL_LW_Portal_Export_01.txt" />
+    <Content Include="_YardiExportSQL\rs_SQL_LW_Portal_Export_02.txt" />
+    <Content Include="_YardiExportSQL\rs_SQL_LW_Portal_Export_03.txt" />
+    <Content Include="_YardiExportSQL\rs_SQL_LW_Portal_Export_04.txt" />
+    <Content Include="_YardiExportSQL\rs_SQL_LW_Portal_Export_05.txt" />
+    <Content Include="_YardiExportSQL\rs_SQL_LW_Portal_Export_06.txt" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

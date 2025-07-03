@@ -1,0 +1,90 @@
+//Notes		
+//End Notes
+
+//Title
+LW Portal Export-File01
+//End Title
+
+//Select
+SELECT
+    RTRIM(wo.sCode) as WONumber,
+	RTRIM(p.sCode) as BuildingNum, 
+	rtrim(u.sCode) as AptNum,
+	wo.sStatus as JobStatus,
+	wo.sCategory as Category,
+	wo.dtCall as CallDate,
+	wo.dtSched as SchedDate,
+    wo.hChgRcd as BatchID,
+    t.sDateCreated as BatchDate,
+	wo.dtWCompl as CompleteDate,
+	ps.ucode as Employee,
+	wo.sBriefDesc as BriefDesc, 
+	isnull(wod.dquan,0) as Quantity,
+	st.sCode as Code,
+	wod.sdesc as FullDesc,
+	isnull(wod.dUnitPrice,0) as UnitPrice,
+	isnull(wod.dPayAmt,0) as PayAmt,
+    b.bDate as woBatchOccuredDate,  
+	CONVERT(char(7), ISNULL(b.PostedMonth, GETDATE()), 120) as PostedMonth,
+	wod.hMy as WODetailRowID,
+	CAST(CAST(DATEADD(month, -14, GETDATE()) AS date) AS datetime) as Date1,
+	CAST(CAST(GETDATE() AS date) AS datetime) as Date2
+FROM 
+	MM2WO wo 
+    left join mm2wodet wod on wo.hmy=wod.hWo
+	left join property p on wo.hProperty = p.hMy
+	left join mm2stock st on wod.hStock = st.hMy
+	left join Person ps on wod.hPerson = ps.hMy
+	left join unit u on wo.hUnit = u.hMy
+	left join mmasset a on wo.hasset = a.hMy
+	left join vendor v on wo.hVendor = v.hMyPerson
+    left join trans t on wo.hChgRcd = t.hMy
+    left join (select HPARENT2, max(SDATEOCCURRED) Bdate, max(upostdate) as PostedMonth
+			   from trans 
+               where HPARENT2 <> 0 and SDATEOCCURRED is not null 
+               group by HPARENT2) b on wo.hchgrcd = b.HPARENT2 and isnull(wo.hchgrcd,0) <> 0   
+WHERE 
+	rtrim(v.ucode) in ('all2')
+	AND ( 
+          (wo.dtCall >= CAST(CAST(DATEADD(month, -14, GETDATE()) AS date) AS datetime) and wo.dtCall < CAST(CAST(GETDATE() AS date) AS datetime))
+      	  OR (t.HPARENT2 in ( 
+                select HPARENT2 FROM trans
+                where SDATEOCCURRED >= CAST(CAST(DATEADD(month, -14, GETDATE()) AS date) AS datetime) and SDATEOCCURRED < CAST(CAST(GETDATE() AS date) AS datetime) and HPARENT2 <> 0 ))
+		  OR (t.sDateCreated >= CAST(CAST(DATEADD(month, -14, GETDATE()) AS date) AS datetime) and t.sDateCreated < CAST(CAST(GETDATE() AS date) AS datetime))   
+          OR (wo.dtWCompl >= CAST(CAST(DATEADD(month, -14, GETDATE()) AS date) AS datetime) and wo.dtWCompl < CAST(CAST(GETDATE() AS date) AS datetime))
+     	)
+		
+//End Select
+
+
+
+//COLUMNS
+//Type, Name,         Head1,        Head2, Head3, Head4, Show, Color, Formula, Drill, Key, Width, Total, Suppress
+T,     WONumber,     WONumber,     ,      ,      ,      Y,    ,       ,       ,     ,   100,   N,      N,
+T,     BuildingNum,  BuildingNum,  ,      ,      ,      Y,    ,       ,       ,     ,   100,   N,      N,
+T,     AptNum,       AptNum,       ,      ,      ,      Y,    ,       ,       ,     ,   80,    N,      N,
+T,     JobStatus,    JobStatus,    ,      ,      ,      Y,    ,       ,       ,     ,   80,    N,      N,
+T,     Category,     Category,     ,      ,      ,      Y,    ,       ,       ,     ,   80,    N,      N,
+T,     CallDate,     CallDate,     ,      ,      ,      Y,    ,       ,       ,     ,   100,   N,      N,
+T,     SchedDate,    SchedDate,    ,      ,      ,      Y,    ,       ,       ,     ,   100,   N,      N,
+T,     BatchID,      BatchID,      ,      ,      ,      Y,    ,       ,       ,     ,   80,    N,      N,
+T,     BatchDate,    BatchDate,    ,      ,      ,      Y,    ,       ,       ,     ,   100,   N,      N,
+T,     CompleteDate, CompleteDate, ,      ,      ,      Y,    ,       ,       ,     ,   100,   N,      N,
+T,     Employee,     Employee,     ,      ,      ,      Y,    ,       ,       ,     ,   100,   N,      N,
+T,     BriefDesc,    BriefDesc,    ,      ,      ,      Y,    ,       ,       ,     ,   200,   N,      N,
+N,     Quantity,     Quantity,     ,      ,      ,      Y,    ,       ,       ,     ,   60,    N,      N,
+T,     Code,         Code,         ,      ,      ,      Y,    ,       ,       ,     ,   80,    N,      N,
+T,     FullDesc,     FullDesc,     ,      ,      ,      Y,    ,       ,       ,     ,   200,   N,      N,
+N,     UnitPrice,    UnitPrice,    ,      ,      ,      Y,    ,       ,       ,     ,   80,    N,      N,
+N,     PayAmt,       PayAmt,       ,      ,      ,      Y,    ,       ,       ,     ,   80,    N,      N,
+T,     woBatchOccuredDate, woBatchOccuredDate, , , ,    Y,    ,       ,       ,     ,   100,   N,      N,
+T,     PostedMonth,   PostedMonth, ,      ,      ,      Y,    ,       ,       ,     ,   100,   N,      N,
+T,     WODetailRowID, WODetailRowID, ,    ,      ,      Y,    ,       ,       ,     ,   60,    N,      N,
+T,     Date1,        Date1,        ,      ,      ,      Y,    ,       ,       ,     ,   100,   N,      N,
+T,     Date2,        Date2,        ,      ,      ,      Y,    ,       ,       ,     ,   100,   N,      N,
+//END COLUMNS
+
+
+//FILTER
+//Type, DataTyp,   Name,          Caption, Key,                                                  List   ,                                Val1,   Val2, Mandatory, Multi-Type,   Title  Title
+//END FILTER

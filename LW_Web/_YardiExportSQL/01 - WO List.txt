@@ -14,7 +14,7 @@ Select
 	wo.sStatus JobStatus,
 	wo.sCategory Category, 
 	wo.dtCall CallDate,
-	wod.dtStart StartDate,
+	--wod.dtStart StartDate,
 	wo.dtSched SchedDate,
     wo.hChgRcd as BatchID,
     t.sDateCreated as BatchDate,
@@ -33,13 +33,13 @@ Select
 	@Date2 as Date2
 From
 	MM2WO wo 
-    left join mm2wodet wod on (wo.hmy=wod.hWo)
-	left join mm2stock st on (wod.hStock = st.hMy)
-	left join Person ps on (wod.hPerson = ps.hMy)
-	left join property p on (wo.hProperty = p.hMy)
-	left join unit u on (wo.hUnit = u.hMy)
-	left join mmasset a on (wo.hasset = a.hMy)
-	left join vendor v on (wo.hVendor = v.hMyPerson)
+    left join mm2wodet wod on wo.hmy=wod.hWo
+	left join mm2stock st on wod.hStock = st.hMy
+	left join Person ps on wod.hPerson = ps.hMy
+	left join property p on wo.hProperty = p.hMy
+	left join unit u on wo.hUnit = u.hMy
+	left join mmasset a on wo.hasset = a.hMy
+	left join vendor v on wo.hVendor = v.hMyPerson
     left join trans t on wo.hChgRcd = t.hMy
     left join (select HPARENT2, max(SDATEOCCURRED) Bdate, max(upostdate) as PostedMonth
 			   from trans 

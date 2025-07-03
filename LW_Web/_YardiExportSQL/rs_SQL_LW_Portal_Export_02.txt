@@ -1,0 +1,84 @@
+//Notes		
+//End Notes
+
+//Title
+LW Portal Export-File02
+//End Title
+
+//Select
+select
+	wo.scode as WONumber,
+    wo.dtCall as CallDate,
+	po.scode as PONumber,
+    v.uCode as VendorCode, 
+    v.uLastName as VendorName,
+    tm.FirstInvoiceDate as InvoiceDate, 
+    acct.sCode as AcctCode,
+    CASE WHEN acct.sCode in ('600100', '711340') THEN 'LABOR' ELSE 'MATERIALS' END as AcctCategory,
+    acct.sDesc as AcctDesc,
+    isnull(podet.dTranTotalCost,0) as IndivPOTotal,
+    isnull(po.DTOTAL,0) as POAmount,
+    isnull(wo.cTotal0, 0) as WOAndInvoiceAmt,
+    NULL as LaborPricingOutside,
+ 	po.SEXPTYPE expensetype,
+	po.SREQUESTEDBY Requested,
+    CONVERT(varchar(10), po.DTORDEREDDATE, 101) as PODate,
+    t.sDateCreated as Batch_Date,
+	podet.hMy as YardiMM2PODetID,
+	CAST(CAST(DATEADD(month, -14, GETDATE()) AS date) AS datetime) as Date1,
+	CAST(CAST(GETDATE() AS date) AS datetime) as Date2
+from mm2wo wo
+	inner join mm2po po on wo.hmy=po.hWo
+    left join mm2podet podet on podet.hPo = po.hmy 
+    left join vendor v on po.hVendor = v.hMyPerson
+    left join acct on podet.hPayAcct = acct.hMy
+    left join trans t on wo.hChgRcd = t.hMy
+	left join (	
+          select d.hPoDet, CONVERT(varchar(10), MIN(tr.SDATEOCCURRED), 101) as FirstInvoiceDate
+          from trans tr 
+      			inner join detail d on tr.hmy = d.hInvOrRec 
+      		where tr.void=0 and tr.itype=3 
+     		group by d.hPoDet
+    )tm on tm.hPoDet=podet.hmy 
+where 
+	((wo.dtCall >= CAST(CAST(DATEADD(month, -14, GETDATE()) AS date) AS datetime) and wo.dtCall < CAST(CAST(GETDATE() AS date) AS datetime))	
+    OR (t.sDateCreated >= CAST(CAST(DATEADD(month, -14, GETDATE()) AS date) AS datetime) and t.sDateCreated < CAST(CAST(GETDATE() AS date) AS datetime)) 
+    OR (wo.dtWCompl >= CAST(CAST(DATEADD(month, -14, GETDATE()) AS date) AS datetime) and wo.dtWCompl < CAST(CAST(GETDATE() AS date) AS datetime))
+	OR (wo.scode in (   
+		select distinct wo.sCode
+		from trans tr inner join MM2WO wo on tr.HPARENT2 = wo.hchgrcd
+		where tr.HPARENT2 <> 0 
+			and tr.SDATEOCCURRED >= CAST(CAST(DATEADD(month, -14, GETDATE()) AS date) AS datetime)
+			and tr.SDATEOCCURRED < CAST(CAST(GETDATE() AS date) AS datetime))
+		))
+		
+//End Select
+
+//COLUMNS
+//Type, Name,             Head1,             Head2, Head3, Head4, Show, Color, Formula, Drill, Key, Width, Total, Suppress
+T,     WONumber,         WONumber,          ,      ,      ,      Y,    ,       ,       ,     ,  100,   N,      N,
+T,     CallDate,         CallDate,          ,      ,      ,      Y,    ,       ,       ,     ,  100,   N,      N,
+T,     PONumber,         PONumber,          ,      ,      ,      Y,    ,       ,       ,     ,  100,   N,      N,
+T,     VendorCode,       VendorCode,        ,      ,      ,      Y,    ,       ,       ,     ,  100,   N,      N,
+T,     VendorName,       VendorName,        ,      ,      ,      Y,    ,       ,       ,     ,  150,   N,      N,
+T,     InvoiceDate,      InvoiceDate,       ,      ,      ,      Y,    ,       ,       ,     ,  100,   N,      N,
+T,     AcctCode,         AcctCode,          ,      ,      ,      Y,    ,       ,       ,     ,   80,   N,      N,
+T,     AcctCategory,     AcctCategory,      ,      ,      ,      Y,    ,       ,       ,     ,  100,   N,      N,
+T,     AcctDesc,         AcctDesc,          ,      ,      ,      Y,    ,       ,       ,     ,  200,   N,      N,
+N,     IndivPOTotal,     IndivPOTotal,      ,      ,      ,      Y,    ,       ,       ,     ,   80,   N,      N,
+N,     POAmount,         POAmount,          ,      ,      ,      Y,    ,       ,       ,     ,   80,   N,      N,
+N,     WOAndInvoiceAmt,  WOAndInvoiceAmt,   ,      ,      ,      Y,    ,       ,       ,     ,   80,   N,      N,
+T,     LaborPricingOutside, LaborPricingOutside, , ,      ,      Y,    ,       ,       ,     ,   80,   N,      N,
+T,     expensetype,      expensetype,       ,      ,      ,      Y,    ,       ,       ,     ,   80,   N,      N,
+T,     Requested,        Requested,         ,      ,      ,      Y,    ,       ,       ,     ,  100,   N,      N,
+T,     PODate,           PODate,            ,      ,      ,      Y,    ,       ,       ,     ,  100,   N,      N,
+T,     Batch_Date,       Batch_Date,        ,      ,      ,      Y,    ,       ,       ,     ,  100,   N,      N,
+T,     YardiMM2PODetID,  YardiMM2PODetID,   ,      ,      ,      Y,    ,       ,       ,     ,   80,   N,      N,
+T,     Date1,            Date1,             ,      ,      ,      Y,    ,       ,       ,     ,  100,   N,      N,
+T,     Date2,            Date2,             ,      ,      ,      Y,    ,       ,       ,     ,  100,   N,      N,
+//END COLUMNS
+
+
+//FILTER
+//Type, DataTyp,   Name,          Caption, Key,                                                  List   ,                                Val1,   Val2, Mandatory, Multi-Type,   Title  Title
+//END FILTER

@@ -1,0 +1,49 @@
+//Notes		
+//End Notes
+
+//Title
+LW Portal Export-File05
+//End Title
+
+//Select
+Select 
+	rtrim(wo.sCode) as WONumber,
+    wo.sStatus as JObStatus,
+    wo.sCategory as Category,
+	wo.dtWCompl as CompleteDate,
+    wo.dtCall as CallDate,
+    wo.dtSched as SchedDate,
+    wo.hChgRcd as BatchID,
+    wo.sBriefDesc as BriefDesc,
+    wo.sExpenseType as ExpenseType,
+    wo.dtDateIn as yardiCreateDate,
+    wo.dtUpdatedt as yardiUpdatedDate,
+	CAST(CAST(DATEADD(month, -14, GETDATE()) AS date) AS datetime) as Date1,
+	getdate() as Date2
+From MM2WO wo
+where wo.hVendor in (select hMyPerson from vendor where rtrim(ucode) in ('all2'))
+	and wo.dtUpdatedt > CAST(CAST(DATEADD(month, -14, GETDATE()) AS date) AS datetime)
+	
+//End Select
+
+//COLUMNS
+//Type, Name,             Head1,             Head2, Head3, Head4, Show, Color, Formula, Drill, Key, Width, Total, Suppress
+T,     WONumber,          WONumber,          ,      ,      ,      Y,    ,       ,       ,     ,  100,   N,      N,
+T,     JObStatus,         JObStatus,         ,      ,      ,      Y,    ,       ,       ,     ,  90,    N,      N,
+T,     Category,          Category,          ,      ,      ,      Y,    ,       ,       ,     ,  90,    N,      N,
+T,     CompleteDate,      CompleteDate,      ,      ,      ,      Y,    ,       ,       ,     ,  100,   N,      N,
+T,     CallDate,          CallDate,          ,      ,      ,      Y,    ,       ,       ,     ,  100,   N,      N,
+T,     SchedDate,         SchedDate,         ,      ,      ,      Y,    ,       ,       ,     ,  100,   N,      N,
+N,     BatchID,           BatchID,           ,      ,      ,      Y,    ,       ,       ,     ,  90,    N,      N,
+T,     BriefDesc,         BriefDesc,         ,      ,      ,      Y,    ,       ,       ,     ,  150,   N,      N,
+T,     ExpenseType,       ExpenseType,       ,      ,      ,      Y,    ,       ,       ,     ,  100,   N,      N,
+T,     yardiCreateDate,   yardiCreateDate,   ,      ,      ,      Y,    ,       ,       ,     ,  100,   N,      N,
+T,     yardiUpdatedDate,  yardiUpdatedDate,  ,      ,      ,      Y,    ,       ,       ,     ,  100,   N,      N,
+T,     Date1,             Date1,             ,      ,      ,      Y,    ,       ,       ,     ,  100,   N,      N,
+T,     Date2,             Date2,             ,      ,      ,      Y,    ,       ,       ,     ,  100,   N,      N,
+//END COLUMNS
+
+
+//FILTER
+//Type, DataTyp,   Name,          Caption, Key,                                                  List   ,                                Val1,   Val2, Mandatory, Multi-Type,   Title  Title
+//END FILTER

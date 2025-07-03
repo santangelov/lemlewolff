@@ -236,7 +236,7 @@ namespace LW_Common
                     dh.cmd.Parameters.AddWithValue("@JobStatus", r["JobStatus"].ToString());
                     dh.cmd.Parameters.AddWithValue("@Category", r["Category"]);
                     dh.cmd.Parameters.AddWithValue("@CallDate", r["CallDate"]);
-                    dh.cmd.Parameters.AddWithValue("@StartDate", r["StartDate"]);
+                    //dh.cmd.Parameters.AddWithValue("@StartDate", r["StartDate"]);
                     dh.cmd.Parameters.AddWithValue("@SchedDate", r["SchedDate"]);
                     dh.cmd.Parameters.AddWithValue("@CompleteDate", r["CompleteDate"]);
                     dh.cmd.Parameters.AddWithValue("@BatchID", r["BatchID"]);

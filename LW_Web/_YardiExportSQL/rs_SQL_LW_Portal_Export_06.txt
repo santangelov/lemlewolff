@@ -1,0 +1,79 @@
+//Notes		
+//End Notes
+
+//Title
+LW Portal Export-File06
+//End Title
+
+//Select
+SELECT 
+  u.hMy as yardiUnitRowID, 
+  p.hMy as yardiPropertyRowID,
+  ltrim(p.scode) as BuildingCode, 
+  isnull(p.saddr1,'') as addr1_Co, 
+  isnull(p.saddr2,'') as addr2, 
+  isnull(p.saddr3,'') as addr3, 
+  isnull(p.saddr4,'') as addr4, 
+  isnull(p.sCity,'') as City, 
+  isnull(p.sState,'') as StateCode, 
+  isnull(ltrim(sZipCode),'') as zipCode,
+  isnull(u.scode,'') as AptNumber,
+  u.srent as Rent,
+  u.sStatus as UnitStatus,
+  isnull(u.ibedrooms,0) as Bedrooms,
+  us.LastMoveInDate,
+  us.LastMoveOutDate,
+  u.DSQFT as SqFt,
+  isnull(p.bInactive,0) as isPropertyInactive,  
+  p.dtInactive as propertyInactiveDate,
+  isnull(u.exclude,0) as isUnitExcluded, 
+  t.LastTenantRent,
+  ut.sDesc as UnitTypeDesc
+from
+  unit u
+  inner join property p on u.hproperty = p.hMy
+  left join (SELECT hUnit, MAX(dtMoveIn) as LastMoveInDate, MAX(dtMoveOut) as LastMoveOutDate FROM unit_status WHERE hUnit > 0 GROUP BY hUnit ) as us on u.hMy = us.hUnit
+  LEFT JOIN (SELECT hUnit, sRent AS LastTenantRent 
+             FROM (
+            	SELECT hUnit, sRent, ROW_NUMBER() OVER (PARTITION BY hUnit ORDER BY dtLeaseFrom DESC) AS rn FROM tenant) AS x
+        	WHERE x.rn = 1) AS t ON u.hMy = t.hUnit
+  left join unittype ut on u.hUnitType=ut.hMy
+where 
+    u.hMy is not null
+    and p.hMy is not null
+    and u.scode is not null 
+    and p.scode is not null
+order by p.scode, u.scode
+	
+//End Select
+
+//COLUMNS
+//Type, Name,               Head1,               Head2, Head3, Head4, Show, Color, Formula, Drill, Key, Width, Total, Suppress
+N,     yardiUnitRowID,      yardiUnitRowID,      ,      ,      ,      Y,    ,       ,       ,     ,  90,    N,      N,
+N,     yardiPropertyRowID,  yardiPropertyRowID,  ,      ,      ,      Y,    ,       ,       ,     ,  90,    N,      N,
+T,     BuildingCode,        BuildingCode,        ,      ,      ,      Y,    ,       ,       ,     ,  90,    N,      N,
+T,     addr1_Co,            addr1_Co,            ,      ,      ,      Y,    ,       ,       ,     ,  220,   N,      N,
+T,     addr2,               addr2,               ,      ,      ,      Y,    ,       ,       ,     ,  220,   N,      N,
+T,     addr3,               addr3,               ,      ,      ,      Y,    ,       ,       ,     ,  220,   N,      N,
+T,     addr4,               addr4,               ,      ,      ,      Y,    ,       ,       ,     ,  220,   N,      N,
+T,     City,                City,                ,      ,      ,      Y,    ,       ,       ,     ,  90,    N,      N,
+T,     StateCode,           StateCode,           ,      ,      ,      Y,    ,       ,       ,     ,  50,    N,      N,
+T,     zipCode,             zipCode,             ,      ,      ,      Y,    ,       ,       ,     ,  70,    N,      N,
+T,     AptNumber,           AptNumber,           ,      ,      ,      Y,    ,       ,       ,     ,  80,    N,      N,
+N,     Rent,                Rent,                ,      ,      ,      Y,    ,       ,       ,     ,  80,    N,      N,
+T,     UnitStatus,          UnitStatus,          ,      ,      ,      Y,    ,       ,       ,     ,  90,    N,      N,
+N,     Bedrooms,            Bedrooms,            ,      ,      ,      Y,    ,       ,       ,     ,  60,    N,      N,
+T,     LastMoveInDate,      LastMoveInDate,      ,      ,      ,      Y,    ,       ,       ,     ,  100,   N,      N,
+T,     LastMoveOutDate,     LastMoveOutDate,     ,      ,      ,      Y,    ,       ,       ,     ,  100,   N,      N,
+N,     SqFt,                SqFt,                ,      ,      ,      Y,    ,       ,       ,     ,  70,    N,      N,
+N,     isPropertyInactive,  isPropertyInactive,  ,      ,      ,      Y,    ,       ,       ,     ,  90,    N,      N,
+T,     propertyInactiveDate,propertyInactiveDate,,      ,      ,      Y,    ,       ,       ,     ,  100,   N,      N,
+N,     isUnitExcluded,      isUnitExcluded,      ,      ,      ,      Y,    ,       ,       ,     ,  90,    N,      N,
+N,     LastTenantRent,      LastTenantRent,      ,      ,      ,      Y,    ,       ,       ,     ,  90,    N,      N,
+T,     UnitTypeDesc,        UnitTypeDesc,        ,      ,      ,      Y,    ,       ,       ,     ,  320,   N,      N,
+//END COLUMNS
+
+
+//FILTER
+//Type, DataTyp,   Name,          Caption, Key,                                                  List   ,                                Val1,   Val2, Mandatory, Multi-Type,   Title  Title
+//END FILTER

@@ -1,0 +1,66 @@
+//Notes		
+//End Notes
+
+//Title
+LW Portal Export-File04
+//End Title
+
+//Select
+Select 
+      pod.hmy as YardiMM2PODetID,
+      po.scode as PONumber, 	
+      wo.scode as WONumber,
+      v.uCode as VendorCode, 
+      v.uLastName as Vendor, 
+      pod.iQtyOrdered as QtyOrdered,
+	  po.SEXPTYPE as ExpenseType,
+      pod.dUnitPrice as UnitPrice,
+      pod.dTotalCost as TotalCost,
+      isnull(po.DTOTAL,0) as POAmount,
+      isnull(wo.cTotal0, 0) as WOAndInvoiceAmt,
+      po.dtordereddate as OrderDate,
+      pod.dtReceivedDate as ReceivedDate,
+      s.scode as ItemCode,
+      pod.sDesc as ItemDesc,
+      rtrim(ltrim(isnull(p.sAddr1,''))) + ', ' + rtrim(ltrim(isnull(p.sAddr2,''))) as Client,
+	  CAST(CAST(DATEADD(month, -14, GETDATE()) AS date) AS datetime)  as Date1,
+	  CAST(CAST(GETDATE() AS date) AS datetime)  as Date2
+from mm2podet pod 
+     left join mm2stock s on (pod.hStock = s.hMy)
+     left join mm2po po   on (pod.hpo = po.hmy)     
+     left join mm2wo wo   on (po.hWo=wo.hmy)
+     left join vendor v   on (po.hVendor = v.hMyPerson)
+     left join property p on (wo.hProperty = p.hMy)
+where  
+     (s.scode like ('material%') or s.scode like ('__-%')) 
+     and ((pod.dtReceivedDate >= CAST(CAST(DATEADD(month, -14, GETDATE()) AS date) AS datetime)  and pod.dtReceivedDate < CAST(CAST(GETDATE() AS date) AS datetime) )
+          or (po.dtordereddate >= CAST(CAST(DATEADD(month, -14, GETDATE()) AS date) AS datetime)  and po.dtordereddate < CAST(CAST(GETDATE() AS date) AS datetime) ))
+		
+//End Select
+
+//COLUMNS
+//Type, Name,             Head1,             Head2, Head3, Head4, Show, Color, Formula, Drill, Key, Width, Total, Suppress
+N,     YardiMM2PODetID,   YardiMM2PODetID,   ,      ,      ,      Y,    ,       ,       ,     ,  90,    N,      N,
+T,     PONumber,          PONumber,          ,      ,      ,      Y,    ,       ,       ,     ,  90,    N,      N,
+T,     WONumber,          WONumber,          ,      ,      ,      Y,    ,       ,       ,     ,  90,    N,      N,
+T,     VendorCode,        VendorCode,        ,      ,      ,      Y,    ,       ,       ,     ,  90,    N,      N,
+T,     Vendor,            Vendor,            ,      ,      ,      Y,    ,       ,       ,     ,  120,   N,      N,
+N,     QtyOrdered,        QtyOrdered,        ,      ,      ,      Y,    ,       ,       ,     ,  75,    N,      N,
+T,     ExpenseType,       ExpenseType,       ,      ,      ,      Y,    ,       ,       ,     ,  100,   N,      N,
+N,     UnitPrice,         UnitPrice,         ,      ,      ,      Y,    ,       ,       ,     ,  75,    N,      N,
+N,     TotalCost,         TotalCost,         ,      ,      ,      Y,    ,       ,       ,     ,  90,    N,      N,
+N,     POAmount,          POAmount,          ,      ,      ,      Y,    ,       ,       ,     ,  90,    N,      N,
+N,     WOAndInvoiceAmt,   WOAndInvoiceAmt,   ,      ,      ,      Y,    ,       ,       ,     ,  100,   N,      N,
+T,     OrderDate,         OrderDate,         ,      ,      ,      Y,    ,       ,       ,     ,  100,   N,      N,
+T,     ReceivedDate,      ReceivedDate,      ,      ,      ,      Y,    ,       ,       ,     ,  100,   N,      N,
+T,     ItemCode,          ItemCode,          ,      ,      ,      Y,    ,       ,       ,     ,  90,    N,      N,
+T,     ItemDesc,          ItemDesc,          ,      ,      ,      Y,    ,       ,       ,     ,  150,   N,      N,
+T,     Client,            Client,            ,      ,      ,      Y,    ,       ,       ,     ,  150,   N,      N,
+T,     Date1,             Date1,             ,      ,      ,      Y,    ,       ,       ,     ,  100,   N,      N,
+T,     Date2,             Date2,             ,      ,      ,      Y,    ,       ,       ,     ,  100,   N,      N,
+//END COLUMNS
+
+
+//FILTER
+//Type, DataTyp,   Name,          Caption, Key,                                                  List   ,                                Val1,   Val2, Mandatory, Multi-Type,   Title  Title
+//END FILTER

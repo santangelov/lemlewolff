@@ -88,7 +88,7 @@ namespace LW_Common
             }
         }
 
-        public static bool SendEmail(string ToEmail, string Subject, string BodyHTML)
+        public static bool SendEmail(string ToEmail, string Subject, string BodyHTML, string CC = "")
         {
             // Set these settings in the web.config file: SMTPServer, SMTPPort, FromEmailAddress, FromEmailPassword
             // Example: <add key="SMTPServer" value="smtp.gmail.com" />
@@ -109,8 +109,9 @@ namespace LW_Common
             mailMessage.IsBodyHtml = true;
             mailMessage.Subject = Subject;
             mailMessage.Body = BodyHTML;
+            if (CC != "") mailMessage.CC.Add(CC);
 
-//#if DEBUG
+            //#if DEBUG
             // Disable certificate validation (should be for testing only - but Rackspace is only working disabling validation)
             ServicePointManager.ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
 //#endif
@@ -123,11 +124,31 @@ namespace LW_Common
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
+                    Console.WriteLine(ex.ToString());
                 return false;
             }
 
         }
-}
 
+        //public static async Task FetchCounterAsync(string fileType)
+        //{
+        //    try
+        //    {
+        //        var response = await fetch("/Counter", new
+        //        {
+        //            method = "POST",
+        //            body = JsonConvert.SerializeObject(new { fileType }),
+        //            headers = new { ContentType = "application/json" }
+        //        });
+
+        //        var data = await response.json();
+        //        // Use data
+        //    }
+        //    catch (Exception err)
+        //    {
+        //        // Handle error
+        //        Console.WriteLine(err.ToString());
+        //    }
+        //}
+    }
 }

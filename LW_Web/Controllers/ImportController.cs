@@ -4,16 +4,51 @@ using LW_Security;
 using LW_Web.Models;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web.Hosting;
 using System.Web.Mvc;
 using System.Web.WebPages;
+using System.Net;
 
 namespace LW_Web.Controllers
 {
     public class ImportController : BaseController
     {
+
+        /// <summary>
+        /// API endpoint to trigger email import, process the latest email, and import all attachments.
+        /// </summary>
+        [HttpPost]
+        public ActionResult ImportLatestEmailAttachments()
+        {
+            EmailImporter EI = new EmailImporter();
+            try
+            {
+                // This function should connect to the IMAP server, find the latest email,
+                // remove the attachments, and process them.
+                bool result = EI.CheckEmailAndImport();
+                if (result)
+                {
+                    return Json(new { success = true, message = "Email import completed.", details = EI.success_msg });
+                }
+                else
+                {
+                    clsUtilities.WriteToCounter("EmailImport", "Email import failed: " + EI.err_msg);
+                    return Json(new { success = false, message = "Email import failed: " + EI.err_msg });
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the exception as 
+                clsUtilities.SendEmail("vinny@pixelmarsala.com", "Error in ImportLatestEmailAttachments", "Error: " + ex.Message + "<br>Details: " + EI.err_msg);
+                return Json(new { success = false, message = "Email import failed: " + ex.Message + "; " + EI.err_msg });
+           }
+        }
+
+
         [HttpPost]
         public async Task<ActionResult> ImportSortlyWithAPIAsync()
         {
@@ -104,8 +139,6 @@ namespace LW_Web.Controllers
             
         }
 
-
-
         // GET: Import
         [HttpGet]
         public ActionResult ImportFile(String filetype)
@@ -141,7 +174,7 @@ namespace LW_Web.Controllers
             if (mdl.UploadedFile.ContentLength > 0)
             {
                 string _FileName = Path.GetFileName(mdl.UploadedFile.FileName);
-                _path = Path.Combine(Server.MapPath("~/_FileUploads"), _FileName);
+                _path = Path.Combine(HostingEnvironment.MapPath(ConfigurationManager.AppSettings["FileUploadFolder"]), _FileName);
                 mdl.UploadedFile.SaveAs(_path);
             }
 

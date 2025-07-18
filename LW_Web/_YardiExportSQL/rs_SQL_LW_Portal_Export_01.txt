@@ -25,7 +25,7 @@ SELECT
 	isnull(wod.dUnitPrice,0) as UnitPrice,
 	isnull(wod.dPayAmt,0) as PayAmt,
     b.bDate as woBatchOccuredDate,  
-	CONVERT(char(7), ISNULL(b.PostedMonth, GETDATE()), 120) as PostedMonth,
+	CONVERT(char(7), b.PostedMonth, 120) AS PostedMonth,
 	wod.hMy as WODetailRowID,
 	CAST(CAST(DATEADD(month, -14, GETDATE()) AS date) AS datetime) as Date1,
 	CAST(CAST(GETDATE() AS date) AS datetime) as Date2

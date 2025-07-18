@@ -53,7 +53,7 @@ namespace LW_Common
                 }
 
                 // Record the Range Imported
-                clsReportHelper.RecordFileDateRanges("PC", null, FileCreateDate);
+                clsReportHelper.RecordFileDateRanges("PC", FileCreateDate);
 
                 // Add rows
                 RowsProcessed = 0;

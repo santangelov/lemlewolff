@@ -67,7 +67,7 @@ namespace LW_Common
                 }
 
                 // Record the Range Imported
-                clsReportHelper.RecordFileDateRanges("Sortly", null, FileCreateDate);
+                clsReportHelper.RecordFileDateRanges("Sortly", FileCreateDate);
 
                 // Add rows
                 RowsProcessed = 0;
@@ -186,7 +186,7 @@ namespace LW_Common
             }
 
             // Record the Range Imported
-            clsReportHelper.RecordFileDateRanges("Sortly", null, DateTime.Now);
+            clsReportHelper.RecordFileDateRanges("Sortly", DateTime.Now);
 
             return allItems;
         }

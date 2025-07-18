@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Text.RegularExpressions;
 
 namespace LW_Common
 {
@@ -15,10 +17,61 @@ namespace LW_Common
                 }
                 else { return i; }
             }
-            catch (Exception ex)
+            catch 
             {
                 return defaultValue;
             }
+        }
+
+        /// <summary>
+        /// Convert Object or String to an Int, rounding the value if it is a double.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static int ToRoundedInt(object value)
+        {
+            if (value == null || string.IsNullOrWhiteSpace(value.ToString()))
+                return 0; // or handle as needed
+
+            double d;
+            if (double.TryParse(value.ToString(), out d))
+                return (int)Math.Round(d);
+
+            return 0; // or handle as needed
+        }
+
+        public static int DeleteMatchingFiles(string folderPath, string RegExFilePattern)
+        {
+            Regex FilePatternReg = new Regex(RegExFilePattern, RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+            if (!Directory.Exists(folderPath))
+            {
+                Console.WriteLine($"Folder not found: {folderPath}");
+                return 0;
+            }
+
+            int deletedCount = 0;
+
+            foreach (var filePath in Directory.GetFiles(folderPath))
+            {
+                string fileName = Path.GetFileName(filePath);
+
+                if (FilePatternReg.IsMatch(fileName))
+                {
+                    try
+                    {
+                        File.Delete(filePath);
+                        Console.WriteLine("Deleted: " + fileName);
+                        deletedCount++;
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Failed to delete {fileName}: {ex.Message}");
+                    }
+                }
+            }
+
+            return deletedCount;
         }
 
         public static bool CastToBool(object value, bool defaultValue = false)
@@ -60,7 +113,7 @@ namespace LW_Common
                 }
                 else { return DateTime.Parse(value.ToString()); }
             }
-            catch (Exception ex)
+            catch 
             {
                 return defaultValue;
             }
@@ -78,7 +131,7 @@ namespace LW_Common
                 }
                 else { return decimal.Parse(value.ToString()); }
             }
-            catch (Exception ex)
+            catch 
             {
                 return defaultValue;
             }
@@ -96,7 +149,7 @@ namespace LW_Common
                 }
                 else { return value.ToString(); }
             }
-            catch (Exception ex)
+            catch 
             {
                 return defaultValue;
             }

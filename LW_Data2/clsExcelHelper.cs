@@ -14,6 +14,37 @@ namespace LW_Data
     {
         public string ErrorMsg = "";
 
+        /// <summary>
+        /// Remove rows 1 and 2, promote row 2 to column headers, and clean up empty rows.
+        /// </summary>
+        /// <param name="sourceTable"></param>
+        public static void PromoteExcelHeaderAndCleanRows(ref DataTable sourceTable)
+        {
+            if (sourceTable == null || sourceTable.Rows.Count < 2)
+                return;
+
+            // Row 0 = Header Row (even though for some reason it shows up in the spreadsheet as row 2)
+            DataRow headerRow = sourceTable.Rows[0];
+            for (int i = 0; i < sourceTable.Columns.Count; i++)
+            {
+                string colName = headerRow[i]?.ToString()?.Trim();
+                if (!string.IsNullOrEmpty(colName))
+                    sourceTable.Columns[i].ColumnName = colName;
+                else
+                    sourceTable.Columns[i].ColumnName = "Col" + (i + 1).ToString();
+            }
+
+            // Delete Excel rows 0-5
+            if (sourceTable.Rows.Count >= 4)
+            {
+                sourceTable.Rows[3].Delete();
+                sourceTable.Rows[2].Delete(); 
+                sourceTable.Rows[1].Delete(); 
+                sourceTable.Rows[0].Delete(); 
+            }
+            sourceTable.AcceptChanges();
+        }
+
         public bool FillExcelRangeFromSP(ref Excel.Workbook xlWorkbook, string StoredProcedure, int WorksheetNumber, int CellStartRow, int CellStartColumn, SqlCommand cmd = null)
         {
             // Read the full datatable
@@ -61,16 +92,6 @@ namespace LW_Data
                     Marshal.ReleaseComObject(xlCell);
                     xlCell = null;
                 }
-
-                //if (xlWorksheet != null)
-                //{
-                //    Marshal.ReleaseComObject(xlWorksheet);
-                //    xlWorksheet = null;
-                //}
-
-                // Force garbage collection (optional, but recommended for COM cleanup)
-                //GC.Collect();
-                //GC.WaitForPendingFinalizers();
             }
         }
 

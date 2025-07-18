@@ -28,7 +28,7 @@
                         <tr><td><strong>(2) Yardi PO: </strong></td><td>@Html.Raw(Model.YardiPODateRangeLoaded)</td><td><strong>(3) Yardi WO Inv: </strong></td><td>@Html.Raw(Model.YardiWO2DateRangeLoaded)</td><td><strong>(4) Yardi PO Inv: </strong></td><td>@Html.Raw(Model.YardiPO2DateRangeLoaded)</td></tr>
                         <tr><td><strong>(5) Yardi WO General: </strong></td><td>@Html.Raw(Model.YardiWOGeneralDateRangeLoaded)</td><td><strong>(6) Yardi Property/Unit: </strong></td><td>@Html.Raw(Model.YardiPropertyAndUnitDateRangeLoaded)</td></tr>
                     </table>
-                    
+
                 </div>
             </div>
         </div>
@@ -57,11 +57,14 @@
         <div class="col-6">
 
             <div class="card">
-                    <div class="card-body">
-                        <h4 class="header-title">WELCOME!</h4>
+                <div class="card-body">
+                    <h4 class="header-title">WELCOME!</h4>
+                    <!-- Email Import Button -->
+                    <button id="btnImportEmail" class="btn btn-warning mb-2" type="button">Import Latest Email Attachments</button>
+                    <div id="emailImportStatus" style="margin-top:10px;"></div>
 
-                        @Html.Raw(Model.ErrorMsg)
-                    </div> <!-- end card-body -->
+                    @Html.Raw(Model.ErrorMsg)
+                </div> <!-- end card-body -->
             </div>  <!-- end card -->
 
         </div>
@@ -69,6 +72,32 @@
     </div>
 </div>
 
+
+@section scripts {
+    <script>$('#btnImportEmail').on('click', function () {
+        var $btn = $(this);
+        $btn.prop('disabled', true).text('Importing...');
+        $('#emailImportStatus').html('Importing latest email attachments...');
+
+        $.ajax({
+            type: "POST",
+            url: "/Import/ImportLatestEmailAttachments",
+            success: function (response) {
+                if (response.success) {
+                    $('#emailImportStatus').html('<span style="color:green;">' + response.message + '</span>');
+                } else {
+                    $('#emailImportStatus').html('<span style="color:red;">' + response.message + '</span>');
+                }
+            },
+            error: function (xhr, status, error) {
+                $('#emailImportStatus').html('<span style="color:red;">Error: ' + error + '</span>');
+            },
+            complete: function () {
+                $btn.prop('disabled', false).text('Import Latest Email Attachments');
+            }
+        });
+    });</script>
+}
 
 
 

@@ -1,4 +1,5 @@
 ﻿using LW_Data;
+using Microsoft.Office.Interop.Excel;
 using System;
 using System.Data;
 using System.Data.OleDb;
@@ -9,20 +10,64 @@ namespace LW_Common
 {
     public class clsYardiHelper
     {
-        public string error_message { get; set; }
+        private string _FormatConnectionStr_CSV = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=""{0}"";Extended Properties=""text;HDR=Yes;FMT=Delimited;ImportMixedTypes=Text;MaxScanRows=0;"";";
+        private string _FormatConnectionStr_XLS = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=""{0}"";Extended Properties=""Excel 12.0 Xml;HDR=Yes;IMEX=1"";";     // Don't set headers yet
+
         public int RowsProcessed { get; set; }
         public string Error_Log { get; set; }
+
+        private System.Data.DataTable ReadCSVorXLSFile(string FilePathAndName)
+        {
+            string FolderOnly = Path.GetDirectoryName(FilePathAndName);
+            string FileNameOnly = Path.GetFileName(FilePathAndName);
+            bool isExcelFile = FileNameOnly.EndsWith(".xlsx", StringComparison.OrdinalIgnoreCase) || FilePathAndName.EndsWith(".xls", StringComparison.OrdinalIgnoreCase);
+
+            string ConnStr = "";
+            string SelectStr = "";
+            if (isExcelFile)
+            {
+                ConnStr = string.Format(_FormatConnectionStr_XLS, FilePathAndName);  // Excel File
+                SelectStr = "SELECT * FROM [Report1$]";
+            }
+            else
+            {
+                ConnStr = string.Format(_FormatConnectionStr_CSV, FolderOnly);  // CSV File
+                SelectStr = "SELECT * FROM [" + FileNameOnly + "]";
+
+            }
+
+            DataSet ds = new DataSet("Temp");
+            using (var conn = new OleDbConnection(ConnStr))
+            {
+                conn.Open();
+                OleDbDataAdapter adapter = new OleDbDataAdapter(SelectStr, conn);
+                adapter.Fill(ds);
+                conn.Close();
+                conn.Dispose();
+            }
+
+            System.Data.DataTable sourceTable = ds.Tables[0];
+            if (isExcelFile) clsExcelHelper.PromoteExcelHeaderAndCleanRows(ref sourceTable);  // Fix headers if this was an Excel report        
+
+            return sourceTable;
+        }
+
+        private bool FirstColumnsBlank(DataRow r)
+        {
+            // Check if the first two columns are blank
+            return (r[0] == DBNull.Value || string.IsNullOrWhiteSpace(r[0].ToString())) &&
+                   (r[1] == DBNull.Value || string.IsNullOrWhiteSpace(r[1].ToString())) &&
+                   (r[2] == DBNull.Value || string.IsNullOrWhiteSpace(r[1].ToString()));
+        }
 
         /// <summary>
         /// Import WOs for the Inventory Report. Used for Importing ySQL Yardi File #3
         /// </summary>
         /// <param name="FilePathAndName"></param>
         /// <returns></returns>
-        public bool Import_YardiWO_InventoryFile(string FilePathAndName)
+        public bool Import_YardiWO_InventoryFile(string FilePathAndName, int limitRows = -1)
         {
             Error_Log = "";
-
-            System.Data.DataTable dtImport = new System.Data.DataTable();
 
             clsUtilities.WriteToCounter("YardiWO2", "Starting...");
 
@@ -31,38 +76,26 @@ namespace LW_Common
             dh1.cmd.Parameters.AddWithValue("@FileType", "InventoryWO");
             dh1.ExecuteSPCMD("spImport_Delete");
 
-            string FolderOnly = Path.GetDirectoryName(FilePathAndName);
-            string FileNameOnly = Path.GetFileName(FilePathAndName);
-            string connectionString = string.Format(@"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=""{0}"";Extended Properties=""text;HDR=Yes;FMT=Delimited;ImportMixedTypes=Text;MaxScanRows=0;"";", FolderOnly);
-
-            DataSet ds = new DataSet("Temp");
-            using (var conn = new OleDbConnection(connectionString))
-            {
-                conn.Open();
-                OleDbDataAdapter adapter = new OleDbDataAdapter("SELECT * FROM [" + FileNameOnly + "]", conn);
-                adapter.Fill(ds);
-                conn.Close();
-                conn.Dispose();
-            }
-
-            System.Data.DataTable sourceTable = ds.Tables[0];
+            System.Data.DataTable sourceTable = ReadCSVorXLSFile(FilePathAndName);  // Read the file into the sourceTable DataTable
 
             RowsProcessed = 0;
             DateTime CreateDate = DateTime.Now;
             int NumToProcess = sourceTable.Rows.Count;
             if (NumToProcess > 0)
             {
-                clsReportHelper.RecordFileDateRanges("YardiWO_Inventory", clsFunc.CastToDateTime(sourceTable.Rows[0]["Date1"], new DateTime(1900, 1, 1)), clsFunc.CastToDateTime(sourceTable.Rows[0]["Date2"], new DateTime(1900, 1, 1)));
+                clsReportHelper.RecordFileDateRanges("YardiWO_Inventory", clsFunc.CastToDateTime(sourceTable.Rows[0]["Date2"], new DateTime(1900, 1, 1)));
 
                 foreach (DataRow r in sourceTable.Rows)
                 {
+                    if (FirstColumnsBlank(r)) continue;  // Skip this row
+
                     clsDataHelper dh = new clsDataHelper();
                     dh.cmd.Parameters.AddWithValue("@WONumber", r["WONumber"].ToString());
                     dh.cmd.Parameters.AddWithValue("@Category", r["Category"]);
                     dh.cmd.Parameters.AddWithValue("@BriefDesc", r["BriefDesc"]);
                     dh.cmd.Parameters.AddWithValue("@ItemCode", r["ItemCode"]);
                     dh.cmd.Parameters.AddWithValue("@ItemDesc", r["ItemDesc"]);
-                    dh.cmd.Parameters.AddWithValue("@Qty", r["Qty"]);
+                    dh.cmd.Parameters.AddWithValue("@Qty", clsFunc.ToRoundedInt(r["Qty"]));
                     dh.cmd.Parameters.AddWithValue("@UnitPrice", r["UnitPrice"]);
                     dh.cmd.Parameters.AddWithValue("@TotalAmt", r["TotalAmt"]);
                     dh.cmd.Parameters.AddWithValue("@CompleteDate", r["CompleteDate"]);
@@ -80,6 +113,7 @@ namespace LW_Common
                     {
                         if (RowsProcessed % 15 == 0) clsUtilities.WriteToCounter("YardiWO2", RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###"));  // only update every 15 records
                     }
+                    if (RowsProcessed >= limitRows && limitRows > 0) break;  // Limit the number of rows to process 
                 }
             }
 
@@ -97,7 +131,7 @@ namespace LW_Common
         /// </summary>
         /// <param name="FilePathAndName"></param>
         /// <returns></returns>
-        public bool Import_YardiPO_InventoryFile(string FilePathAndName)  // Import ySQL File #4 
+        public bool Import_YardiPO_InventoryFile(string FilePathAndName, int limitRows = -1)  // Import ySQL File #4 
         {
             Error_Log = "";
 
@@ -110,31 +144,19 @@ namespace LW_Common
             dh1.cmd.Parameters.AddWithValue("@FileType", "InventoryPO");
             dh1.ExecuteSPCMD("spImport_Delete");
 
-            string FolderOnly = Path.GetDirectoryName(FilePathAndName);
-            string FileNameOnly = Path.GetFileName(FilePathAndName);
-            string connectionString = string.Format(@"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=""{0}"";Extended Properties=""text;HDR=Yes;FMT=Delimited;ImportMixedTypes=Text;MaxScanRows=0;"";", FolderOnly);
-
-            DataSet ds = new DataSet("Temp");
-            using (var conn = new OleDbConnection(connectionString))
-            {
-                conn.Open();
-                OleDbDataAdapter adapter = new OleDbDataAdapter("SELECT * FROM [" + FileNameOnly + "]", conn);
-                adapter.Fill(ds);
-                conn.Close();
-                conn.Dispose();
-            }
-
-            System.Data.DataTable sourceTable = ds.Tables[0];
+            System.Data.DataTable sourceTable = ReadCSVorXLSFile(FilePathAndName);  // Read the file into the sourceTable DataTable
 
             RowsProcessed = 0;
             DateTime CreateDate = DateTime.Now;
             int NumToProcess = sourceTable.Rows.Count;
             if (NumToProcess > 0)
             {
-                clsReportHelper.RecordFileDateRanges("YardiPO_Inventory", clsFunc.CastToDateTime(sourceTable.Rows[0]["Date1"], new DateTime(1900, 1, 1)), clsFunc.CastToDateTime(sourceTable.Rows[0]["Date2"], new DateTime(1900, 1, 1)));
+                clsReportHelper.RecordFileDateRanges("YardiPO_Inventory", clsFunc.CastToDateTime(sourceTable.Rows[0]["Date2"], new DateTime(1900, 1, 1)));
 
                 foreach (DataRow r in sourceTable.Rows)
                 {
+                    if (FirstColumnsBlank(r)) continue;  // Skip this row
+
                     clsDataHelper dh = new clsDataHelper();
                     dh.cmd.Parameters.AddWithValue("@YardiMM2PODetID", r["YardiMM2PODetID"]);
                     dh.cmd.Parameters.AddWithValue("@PONumber", r["PONumber"].ToString());
@@ -171,6 +193,8 @@ namespace LW_Common
                     {
                         if (RowsProcessed % 15 == 0) clsUtilities.WriteToCounter("YardiPO2", RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###"));  // only update every 15 records
                     }
+
+                    if (RowsProcessed >= limitRows && limitRows > 0) break;  // Limit the number of rows to process    
                 }
 
                 if (!clsReportHelper.RunAllReportSQL_Public()) { return false; }  // Run the SQL because it uses the temp tables just loaded
@@ -187,32 +211,16 @@ namespace LW_Common
 
         /// <summary>
         /// Import Yardi Work Orders for WO Analysis reporting (File #1)
+        /// Detects if the file is CSV or XLSX and imports accordingly. Excel files expected to have headers in row 2.
         /// </summary>
         /// <param name="FilePathAndName"></param>
         /// <returns></returns>
-        public bool Import_YardiWO_File(string FilePathAndName)
+        public bool Import_YardiWO_File(string FilePathAndName, int limitRows = -1)
         {
             Error_Log = "";
-
-            System.Data.DataTable dtImport = new System.Data.DataTable();
-
             clsUtilities.WriteToCounter("YardiWO", "Starting...");
 
-            string FolderOnly = Path.GetDirectoryName(FilePathAndName);
-            string FileNameOnly = Path.GetFileName(FilePathAndName);
-            string connectionString = string.Format(@"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=""{0}"";Extended Properties=""text;HDR=Yes;FMT=Delimited;ImportMixedTypes=Text;MaxScanRows=0;"";", FolderOnly);
-
-            DataSet ds = new DataSet("Temp");
-            using (var conn = new OleDbConnection(connectionString))
-            {
-                conn.Open();
-                OleDbDataAdapter adapter = new OleDbDataAdapter("SELECT * FROM [" + FileNameOnly + "]", conn);
-                adapter.Fill(ds);
-                conn.Close();
-                conn.Dispose();
-            }
-
-            System.Data.DataTable sourceTable = ds.Tables[0];
+            System.Data.DataTable sourceTable = ReadCSVorXLSFile(FilePathAndName);  // Read the file into the sourceTable DataTable
 
             RowsProcessed = 0;
             DateTime CreateDate = DateTime.Now;
@@ -225,10 +233,12 @@ namespace LW_Common
 
             if (NumToProcess > 0)
             {
-                clsReportHelper.RecordFileDateRanges("YardiWO_File", clsFunc.CastToDateTime(sourceTable.Rows[0]["Date1"], new DateTime(1900, 1, 1)), clsFunc.CastToDateTime(sourceTable.Rows[0]["Date2"], new DateTime(1900, 1, 1)));
+                clsReportHelper.RecordFileDateRanges("YardiWO_File", clsFunc.CastToDateTime(sourceTable.Rows[0]["Date2"], new DateTime(1900, 1, 1)));
 
                 foreach (DataRow r in sourceTable.Rows)
                 {
+                    if (FirstColumnsBlank(r)) continue;  // Skip this row
+
                     clsDataHelper dh = new clsDataHelper();
                     dh.cmd.Parameters.AddWithValue("@WONumber", r["WONumber"].ToString());
                     dh.cmd.Parameters.AddWithValue("@BuildingNum", r["BuildingNum"].ToString());
@@ -236,7 +246,6 @@ namespace LW_Common
                     dh.cmd.Parameters.AddWithValue("@JobStatus", r["JobStatus"].ToString());
                     dh.cmd.Parameters.AddWithValue("@Category", r["Category"]);
                     dh.cmd.Parameters.AddWithValue("@CallDate", r["CallDate"]);
-                    //dh.cmd.Parameters.AddWithValue("@StartDate", r["StartDate"]);
                     dh.cmd.Parameters.AddWithValue("@SchedDate", r["SchedDate"]);
                     dh.cmd.Parameters.AddWithValue("@CompleteDate", r["CompleteDate"]);
                     dh.cmd.Parameters.AddWithValue("@BatchID", r["BatchID"]);
@@ -267,6 +276,7 @@ namespace LW_Common
                     {
                         if (RowsProcessed % 15 == 0) clsUtilities.WriteToCounter("YardiWO", RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###"));  // only update every 15 records
                     }
+                    if (RowsProcessed >= limitRows && limitRows > 0) break;
                 }
             }
 
@@ -284,39 +294,25 @@ namespace LW_Common
         /// </summary>
         /// <param name="FilePathAndName"></param>
         /// <returns></returns>
-        public bool Import_YardiPO_File(string FilePathAndName)
+        public bool Import_YardiPO_File(string FilePathAndName, int limitRows = -1)
         {
             Error_Log = "";
 
-            System.Data.DataTable dtImport = new System.Data.DataTable();
-
             clsUtilities.WriteToCounter("YardiPO", "Starting...");
 
-            string FolderOnly = Path.GetDirectoryName(FilePathAndName);
-            string FileNameOnly = Path.GetFileName(FilePathAndName);
-            string connectionString = string.Format(@"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=""{0}"";Extended Properties=""text;HDR=Yes;FMT=Delimited;ImportMixedTypes=Text;MaxScanRows=0;"";", FolderOnly);
-
-            DataSet ds = new DataSet("Temp");
-            using (var conn = new OleDbConnection(connectionString))
-            {
-                conn.Open();
-                OleDbDataAdapter adapter = new OleDbDataAdapter("SELECT * FROM [" + FileNameOnly + "]", conn);
-                adapter.Fill(ds);
-                conn.Close();
-                conn.Dispose();
-            }
-
-            System.Data.DataTable sourceTable = ds.Tables[0];
+            System.Data.DataTable sourceTable = ReadCSVorXLSFile(FilePathAndName);  // Read the file into the sourceTable DataTable
 
             RowsProcessed = 0;
             DateTime CreateDate = DateTime.Now;
             int NumToProcess = sourceTable.Rows.Count;
             if (NumToProcess > 0)
             {
-                clsReportHelper.RecordFileDateRanges("YardiPO_File", clsFunc.CastToDateTime(sourceTable.Rows[0]["Date1"], new DateTime(1900, 1, 1)), clsFunc.CastToDateTime(sourceTable.Rows[0]["Date2"], new DateTime(1900, 1, 1)));
+                clsReportHelper.RecordFileDateRanges("YardiPO_File", clsFunc.CastToDateTime(sourceTable.Rows[0]["Date2"], new DateTime(1900, 1, 1)));
 
                 foreach (DataRow r in sourceTable.Rows)
                 {
+                    if (FirstColumnsBlank(r)) continue;  // Skip this row
+
                     clsDataHelper dh = new clsDataHelper();
                     dh.cmd.Parameters.AddWithValue("@WONumber", r["WONumber"].ToString());
                     dh.cmd.Parameters.AddWithValue("@CallDate", r["CallDate"]);
@@ -350,6 +346,7 @@ namespace LW_Common
                     {
                         if (RowsProcessed % 15 == 0) clsUtilities.WriteToCounter("YardiPO", RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###"));  // only update every 15 records
                     }
+                    if (RowsProcessed >= limitRows && limitRows > 0) break;  // Limit the number of rows to process      
                 }
 
                 /* Do some extra processing to update other tables 
@@ -373,39 +370,25 @@ namespace LW_Common
         /// </summary>
         /// <param name="FilePathAndName"></param>
         /// <returns></returns>
-        public bool Import_YardiWO_GeneralFile(string FilePathAndName)
+        public bool Import_YardiWO_GeneralFile(string FilePathAndName, int limitRows = -1)
         {
             Error_Log = "";
 
-            System.Data.DataTable dtImport = new System.Data.DataTable();
-
             clsUtilities.WriteToCounter("YardiWOH", "Starting...");
 
-            string FolderOnly = Path.GetDirectoryName(FilePathAndName);
-            string FileNameOnly = Path.GetFileName(FilePathAndName);
-            string connectionString = string.Format(@"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=""{0}"";Extended Properties=""text;HDR=Yes;FMT=Delimited;ImportMixedTypes=Text;MaxScanRows=0;"";", FolderOnly);
-
-            DataSet ds = new DataSet("Temp");
-            using (var conn = new OleDbConnection(connectionString))
-            {
-                conn.Open();
-                OleDbDataAdapter adapter = new OleDbDataAdapter("SELECT * FROM [" + FileNameOnly + "]", conn);
-                adapter.Fill(ds);
-                conn.Close();
-                conn.Dispose();
-            }
-
-            System.Data.DataTable sourceTable = ds.Tables[0];
+            System.Data.DataTable sourceTable = ReadCSVorXLSFile(FilePathAndName);  // Read the file into the sourceTable DataTable
 
             RowsProcessed = 0;
             int NumToProcess = sourceTable.Rows.Count;
             if (NumToProcess > 0)
             {
-                clsReportHelper.RecordFileDateRanges("YardiWO_GeneralFile", null, DateTime.Now);
+                clsReportHelper.RecordFileDateRanges("YardiWO_GeneralFile", DateTime.Now);
 
                 // We are loading the tblWorkOrders table directly
                 foreach (DataRow r in sourceTable.Rows)
                 {
+                    if (FirstColumnsBlank(r)) continue;  // Skip this row
+
                     clsDataHelper dh = new clsDataHelper();
                     dh.cmd.Parameters.AddWithValue("@WONumber", r["WONumber"].ToString());
                     dh.cmd.Parameters.AddWithValue("@CompleteDate", r["CompleteDate"]);
@@ -430,6 +413,8 @@ namespace LW_Common
                     {
                         if (RowsProcessed % 15 == 0) clsUtilities.WriteToCounter("YardiWOH", RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###"));  // only update every 15 records
                     }
+
+                    if (RowsProcessed >= limitRows && limitRows > 0) break;  // Limit the number of rows to process 
                 }
 
                 if (!clsReportHelper.RunAllReportSQL_Public()) { return false; }  // Run the SQL because it uses the temp tables just loaded
@@ -438,6 +423,7 @@ namespace LW_Common
                 {
                     Error_Log += DateTime.Now.ToString() + ": <span style='color:Orange;'>WARNING: Exactly 5,000 rows were imported. This could indicate that you had filtering on to limit the export to the first 5000 rows. This import was completed, however , please check your export to insure filtering in Yardi allows unlimited rows.</span>\r\n";
                 }
+
             }
             clsUtilities.WriteToCounter("YardiWOH", "Completed");
             return true;
@@ -448,29 +434,13 @@ namespace LW_Common
         /// </summary>
         /// <param name="FilePathAndName"></param>
         /// <returns></returns>
-        public bool Import_YardiProperty_File(string FilePathAndName)
+        public bool Import_YardiProperty_File(string FilePathAndName, int limitRows = -1)
         {
             Error_Log = "";
 
-            System.Data.DataTable dtImport = new System.Data.DataTable();
-
             clsUtilities.WriteToCounter("YardiProp", "Starting...");
 
-            string FolderOnly = Path.GetDirectoryName(FilePathAndName);
-            string FileNameOnly = Path.GetFileName(FilePathAndName);
-            string connectionString = string.Format(@"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=""{0}"";Extended Properties=""text;HDR=Yes;FMT=Delimited;ImportMixedTypes=Text;MaxScanRows=0;"";", FolderOnly);
-
-            DataSet ds = new DataSet("Temp");
-            using (var conn = new OleDbConnection(connectionString))
-            {
-                conn.Open();
-                OleDbDataAdapter adapter = new OleDbDataAdapter("SELECT * FROM [" + FileNameOnly + "]", conn);
-                adapter.Fill(ds);
-                conn.Close();
-                conn.Dispose();
-            }
-
-            System.Data.DataTable sourceTable = ds.Tables[0];
+            System.Data.DataTable sourceTable = ReadCSVorXLSFile(FilePathAndName);  // Read the file into the sourceTable DataTable
 
             // Create DataView and select distinct rows
             DataView view = new DataView(sourceTable);
@@ -485,6 +455,8 @@ namespace LW_Common
                 // We are loading the table directly into tblProperties
                 foreach (DataRow r in filteredTable.Rows)
                 {
+                    if (FirstColumnsBlank(r)) continue;  // Skip this row
+
                     clsDataHelper dh = new clsDataHelper();
                     dh.cmd.Parameters.AddWithValue("@yardiPropertyRowID", r["yardiPropertyRowID"]);
                     dh.cmd.Parameters.AddWithValue("@BuildingCode", r["BuildingCode"]);
@@ -509,6 +481,7 @@ namespace LW_Common
                     {
                         if (RowsProcessed % 15 == 0) clsUtilities.WriteToCounter("YardiProp", "(Pass 1: Properties): " + RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###"));  // only update every 15 records
                     }
+                    if (RowsProcessed >= limitRows && limitRows > 0) break;  // Limit the number of rows to process 
                 }
 
                 //if (!clsReportHelper.RunAllReportSQL_Public()) { return false; }  // Run the SQL because it uses the temp tables just loaded
@@ -519,20 +492,21 @@ namespace LW_Common
             // SECOND LOOP - UNITS
             // NEED TO GO THROUGH ALL ROWS
             //==================================================================
-            System.Data.DataTable unitsTable = ds.Tables[0];
-
+            
             RowsProcessed = 0;
-            NumToProcess = unitsTable.Rows.Count;
+            NumToProcess = sourceTable.Rows.Count;
             if (NumToProcess > 0)
             {
                 // We are loading the table directly into tblUnits
-                foreach (DataRow r in unitsTable.Rows)
+                foreach (DataRow r in sourceTable.Rows)
                 {
+                    if (FirstColumnsBlank(r)) continue;  // Skip this row
+
                     clsDataHelper dh = new clsDataHelper();
                     dh.cmd.Parameters.AddWithValue("@yardiUnitRowID", r["yardiUnitRowID"]);
                     dh.cmd.Parameters.AddWithValue("@yardiPropertyRowID", r["yardiPropertyRowID"]);
                     dh.cmd.Parameters.AddWithValue("@AptNumber", r["AptNumber"]);
-                    dh.cmd.Parameters.AddWithValue("@Bedrooms", r["Bedrooms"]);
+                    dh.cmd.Parameters.AddWithValue("@Bedrooms", clsFunc.ToRoundedInt(r["Bedrooms"]));
                     dh.cmd.Parameters.AddWithValue("@rent", r["rent"]);
                     dh.cmd.Parameters.AddWithValue("@SqFt", r["SqFt"]);
                     dh.cmd.Parameters.AddWithValue("@UnitStatus", r["UnitStatus"]);
@@ -553,6 +527,8 @@ namespace LW_Common
                     {
                         if (RowsProcessed % 15 == 0) clsUtilities.WriteToCounter("YardiUnit", "(Pass 2: Units): " + RowsProcessed.ToString("#,###") + " of " + NumToProcess.ToString("#,###"));  // only update every 15 records
                     }
+
+                    if (RowsProcessed >= limitRows && limitRows > 0) break;  // Limit the number of rows to process 
                 }
 
                 //if (!clsReportHelper.RunAllReportSQL_Public()) { return false; }  // Run the SQL because it uses the temp tables just loaded
@@ -561,11 +537,12 @@ namespace LW_Common
                 {
                     Error_Log += DateTime.Now.ToString() + ": <span style='color:Orange;'>WARNING: Exactly 5,000 rows were imported. This could indicate that you had filtering on to limit the export to the first 5000 rows. This import was completed, however , please check your export to insure filtering in Yardi allows unlimited rows.</span>\r\n";
                 }
+
             }
             clsUtilities.WriteToCounter("YardiProp", "Completed");
             clsUtilities.WriteToCounter("YardiUnit", "Completed");
 
-            clsReportHelper.RecordFileDateRanges("YardiPropertyFile", null, DateTime.Now);
+            clsReportHelper.RecordFileDateRanges("YardiPropertyFile", DateTime.Now);
 
             return true;
         }

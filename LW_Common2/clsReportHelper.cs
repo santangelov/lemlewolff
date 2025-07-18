@@ -22,12 +22,17 @@ namespace LW_Common
         public static string InventoryReportTemplateFileName_Pivot = "_Template - Inventory Daily Pivot_WithDollars.xlsx";
         public static string VacancyCoverSheetFileName = "_Template - VacancyCoverSheet.xlsx";
 
-        public static bool RecordFileDateRanges(string DateKey, DateTime? Date1, DateTime Date2)
+        public static bool RecordFileDateRanges(string DateKey, DateTime Date2)
         {
-            // Grab the Date Range columns for the record
             clsDataHelper H = new clsDataHelper();
             H.cmd.Parameters.AddWithValue("@DateKey", DateKey);
-            if (Date1 != null) { H.cmd.Parameters.AddWithValue("@LatestImportDateRange_Date1", Date1); }
+            H.cmd.Parameters.AddWithValue("@LatestImportDateRange_Date2", Date2);
+            return H.ExecuteSPCMD("spImportDatesUpdate", true, true);
+        }
+        public static bool RecordFileDateRanges(int FileNum, DateTime Date2)
+        {
+            clsDataHelper H = new clsDataHelper();
+            H.cmd.Parameters.AddWithValue("@ExportFileNum", FileNum);
             H.cmd.Parameters.AddWithValue("@LatestImportDateRange_Date2", Date2);
             return H.ExecuteSPCMD("spImportDatesUpdate", true, true);
         }
@@ -35,9 +40,22 @@ namespace LW_Common
         public class clsImportDateRange
         {
             public string DateKey { get; set; } = "";
+            public int? ExportFileNum { get; set; }
             public string Date1 { get; set; } = "";
             public string Date2 { get; set; } = "";
             public string DateRangeAsString { get; set; } = "";
+        }
+
+        public static DateTime GetLastImportTimestamp(int FileNum)
+        {
+            if (FileNum < 0) return DateTime.MinValue; // Invalid file number
+
+            // Grab the Date Range columns for the record
+            clsDataHelper H = new clsDataHelper();
+            H.cmd.Parameters.AddWithValue("@ExportFileNum", FileNum);
+            DataRow r = H.GetDataRow("spImportDates");
+
+            return DateTime.TryParse(r["LatestImportDateRage_Date2"].ToString(), out DateTime lastImport) ? lastImport : DateTime.MinValue;
         }
 
         public static clsImportDateRange GetFileDateRangeValues(string DateKey)
@@ -51,10 +69,10 @@ namespace LW_Common
             retObj.DateKey = DateKey;
             if (r is null) { retObj.DateRangeAsString = "No record."; return retObj; }
 
-            if (r["LatestImportDateRange_Date1"] != null) { retObj.Date1 = clsFunc.CastToStr(r["LatestImportDateRange_Date1"]); }
             retObj.Date2 = clsFunc.CastToStr(r["LatestImportDateRange_Date2"]);
 
             retObj.DateRangeAsString = clsFunc.CastToDateTime(r["LatestImportDateRange_Date2"], new DateTime(1900, 1, 1)).ToString("M/d/yy");
+            retObj.ExportFileNum = clsFunc.CastToInt(r["ExportFileNum"], -1);
 
             return retObj;
         }

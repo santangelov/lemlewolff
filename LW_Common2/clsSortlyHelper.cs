@@ -191,26 +191,5 @@ namespace LW_Common
             return allItems;
         }
 
-        //public async Task<List<SortlyItem>> SearchFolderByNameAsync(clsSortlyModels.SortlyFolder rootFolder, string SearchString)
-        //{
-        //    var allItems = new List<SortlyItem>();
-
-        //    // Fetch items in the current folder
-        //    HttpResponseMessage response = await _httpClient.GetAsync($"items/search?type=folder&folder_ids=%5B{rootFolder.Id}%5D&per_page=50");
-
-        //    var result = await response.Content.ReadFromJsonAsync<SortlyResponse<SortlyItem>>();
-
-        //    foreach (var item in result.Data)
-        //    {
-        //        if (item.Type == "folder")
-        //        {
-        //            // Add folder to the queue and update its path
-        //            allItems.Add(item);
-        //        }
-        //    }
-
-        //    return allItems;
-        //}
-
     }
 }

@@ -114,8 +114,6 @@ namespace LW_Common
             string archiveFolder = Path.Combine(_saveDirectory, "_Archive");
             Directory.CreateDirectory(archiveFolder);
 
-            string emailLog = "";
-
             foreach (var filePath in files)
             {
                 string fileName = Path.GetFileName(filePath);
@@ -131,18 +129,23 @@ namespace LW_Common
                 switch (fileNum)
                 {
                     case 1:
+                        clsGeneralImportHelper.ClearTempImportTable(clsGeneralImportHelper.TableCodes.YardiWO);
                         if (!Y.Import_YardiWO_File(filePath, limitRowsForDebugging)) { err_msg += "FILE #1: " + Y.Error_Log; retVal = false; } else { success_msg += "FILE #1: " + fileName + ";" + Y.RowsProcessed.ToString() + " rows imported successfully.\n"; }
                         break;
                     case 2:
+                        clsGeneralImportHelper.ClearTempImportTable(clsGeneralImportHelper.TableCodes.YardiPO);
                         if (!Y.Import_YardiPO_File(filePath, limitRowsForDebugging)) { err_msg += "FILE #2: " + Y.Error_Log; retVal = false; } else { success_msg += "FILE #2: " + fileName + ";" + Y.RowsProcessed.ToString() + " rows imported successfully.\n"; }
                         break;
                     case 3:
+                        clsGeneralImportHelper.ClearTempImportTable(clsGeneralImportHelper.TableCodes.InventoryWO);
                         if (!Y.Import_YardiWO_InventoryFile(filePath, limitRowsForDebugging)) { err_msg += "FILE #3: " + Y.Error_Log; retVal = false; } else { success_msg += "FILE #3: " + fileName + ";" + Y.RowsProcessed.ToString() + " rows imported successfully.\n"; }
                         break;
                     case 4:
+                        clsGeneralImportHelper.ClearTempImportTable(clsGeneralImportHelper.TableCodes.InventoryPO);
                         if (!Y.Import_YardiPO_InventoryFile(filePath, limitRowsForDebugging)) { err_msg += "FILE #4: " + Y.Error_Log; retVal = false; } else { success_msg += "FILE #4: " + fileName + ";" + Y.RowsProcessed.ToString() + " rows imported successfully.\n"; }
                         break;
                     case 5:
+                        clsGeneralImportHelper.ClearTempImportTable(clsGeneralImportHelper.TableCodes.YardiWO2);
                         if (!Y.Import_YardiWO_GeneralFile(filePath, limitRowsForDebugging)) { err_msg += "FILE #5: " + Y.Error_Log; retVal = false; } else { success_msg += "FILE #5: " + fileName + ";" + Y.RowsProcessed.ToString() + " rows imported successfully.\n"; }
                         break;
                     case 6:

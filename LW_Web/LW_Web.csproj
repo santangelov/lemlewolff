@@ -282,6 +282,7 @@
     </None>
     <Content Include="_Templates\_Template - VacancyCoverSheet.xlsx" />
     <Content Include="_PowerShell_Scripts\importSortly.ps1" />
+    <Content Include="_PowerShell_Scripts\importYardiCheck.ps1" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\RouteConfig.cs" />

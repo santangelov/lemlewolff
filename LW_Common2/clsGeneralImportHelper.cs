@@ -82,5 +82,48 @@ namespace LW_Common
             return true;
         }
 
+        public enum TableCodes
+        {
+            Sortly,
+            YardiWO,
+            YardiPO,
+            YardiWO2,    // Geeral Full list of Work Orders (File #5)
+            InventoryWO,
+            InventoryPO
+        }
+
+        public static bool ClearTempImportTable(TableCodes TableCode)
+        {
+            String CodeStr = "";
+            switch (TableCode)
+            {
+                case TableCodes.Sortly:
+                    CodeStr = "Sortly";
+                    break;
+                case TableCodes.YardiWO:
+                    CodeStr = "YardiWO";
+                    break;
+                case TableCodes.YardiPO:
+                    CodeStr = "YardiPO";
+                    break;
+                case TableCodes.YardiWO2:
+                    CodeStr = "YardiWO2";
+                    break;
+                case TableCodes.InventoryWO:
+                    CodeStr = "InventoryWO";
+                    break;
+                case TableCodes.InventoryPO:
+                    CodeStr = "InventoryPO";
+                    break;
+                default:
+                    return false;
+            }
+
+            clsDataHelper dh = new clsDataHelper();
+            dh.cmd.Parameters.AddWithValue("@FileType", CodeStr);
+            bool isSuccess = dh.ExecuteSPCMD("spImport_Delete");
+
+            return isSuccess;
+        }
     }
 }

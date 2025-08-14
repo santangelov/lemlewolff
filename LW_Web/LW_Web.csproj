@@ -299,6 +299,7 @@
     <Compile Include="Controllers\ImportController.cs" />
     <Compile Include="Controllers\LoginController.cs" />
     <Compile Include="Controllers\ReportsController.cs" />
+    <Compile Include="Controllers\ExternalAppsController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -323,6 +324,7 @@
     <Content Include="Views\Shared\VendorEdit.cshtml" />
     <Content Include="Views\Shared\PhysicalInvEdit.cshtml" />
     <Content Include="Views\Shared\PhysicalInvAdd.cshtml" />
+    <Content Include="Views\Shared\ExternalApps.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -175,6 +175,7 @@
     <Compile Include="LWDbContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="clsSortlyModels.cs" />
+    <Compile Include="clsAdminAppRecord.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

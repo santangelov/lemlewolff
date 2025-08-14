@@ -88,7 +88,7 @@ namespace LW_Common
             }
         }
 
-        public static bool SendEmail(string ToEmail, string Subject, string BodyHTML, string CC = "")
+        public static bool SendEmail(string ToEmail, string Subject, string BodyHTML, string CC = "", string CC2="", string CC3="")
         {
             // Set these settings in the web.config file: SMTPServer, SMTPPort, FromEmailAddress, FromEmailPassword
             // Example: <add key="SMTPServer" value="smtp.gmail.com" />
@@ -110,6 +110,8 @@ namespace LW_Common
             mailMessage.Subject = Subject;
             mailMessage.Body = BodyHTML;
             if (CC != "") mailMessage.CC.Add(CC);
+            if (CC2 != "") mailMessage.CC.Add(CC2);
+            if (CC3 != "") mailMessage.CC.Add(CC3);
 
             //#if DEBUG
             // Disable certificate validation (should be for testing only - but Rackspace is only working disabling validation)

@@ -18,6 +18,11 @@ namespace LW_Web.Controllers
     public class ImportController : BaseController
     {
 
+        private readonly string _EmailResults_TO = ConfigurationManager.AppSettings["EmailAddress_YardiImportConfirmationEmil"];
+        private readonly string _EmailResults_CC = ConfigurationManager.AppSettings["EmailAddressCC1_YardiImportConfirmationEmil"];
+        private readonly string _EmailResults_CC2 = ConfigurationManager.AppSettings["EmailAddressCC2_YardiImportConfirmationEmil"];
+        private readonly string _EmailResults_CC3 = ConfigurationManager.AppSettings["EmailAddressCC3_YardiImportConfirmationEmil"];
+
         /// <summary>
         /// API endpoint to trigger email import, process the latest email, and import all attachments.
         /// </summary>
@@ -43,7 +48,7 @@ namespace LW_Web.Controllers
             catch (Exception ex)
             {
                 // Log the exception as 
-                clsUtilities.SendEmail("vinny@pixelmarsala.com", "Error in ImportLatestEmailAttachments", "Error: " + ex.Message + "<br>Details: " + EI.err_msg);
+                clsUtilities.SendEmail(_EmailResults_TO, "Error in ImportLatestEmailAttachments", "Error: " + ex.Message + "<br>Details: " + EI.err_msg, _EmailResults_CC, _EmailResults_CC2, _EmailResults_CC3);
                 return Json(new { success = false, message = "Email import failed: " + ex.Message + "; " + EI.err_msg });
            }
         }

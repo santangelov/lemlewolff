@@ -35,6 +35,12 @@ namespace LW_Common
         private readonly string _YardiEmailAddress = ConfigurationManager.AppSettings["YardiEmailAddress"];
         private readonly string _saveDirectory = HostingEnvironment.MapPath(ConfigurationManager.AppSettings["FileUploadFolder"]);
         private readonly string _RegexFileNamePattern = ConfigurationManager.AppSettings["Import_ExportRegexFilePattern"];
+        private readonly string _LogFile = @"F:\inetpub\wwwroot\lemlewolff.net\_Logs\YardiImportLog.txt";
+
+        private readonly string _EmailResults_TO = ConfigurationManager.AppSettings["EmailAddress_YardiImportConfirmationEmil"];
+        private readonly string _EmailResults_CC = ConfigurationManager.AppSettings["EmailAddressCC1_YardiImportConfirmationEmil"];
+        private readonly string _EmailResults_CC2 = ConfigurationManager.AppSettings["EmailAddressCC2_YardiImportConfirmationEmil"];
+        private readonly string _EmailResults_CC3 = ConfigurationManager.AppSettings["EmailAddressCC3_YardiImportConfirmationEmil"];
 
         public bool CheckEmailAndImport()
         {
@@ -98,8 +104,8 @@ namespace LW_Common
                 } 
                 else 
                 {                     
-                    err_msg = "No emails found with subject 'Scheduler Reports'.";
-                    clsUtilities.SendEmail("vinny@pixelmarsala.com", "LW Data Load Completed [NO FILES]", "<strong>ERRORS:<br></strong>" + @err_msg + "<br><br><strong>SUCCESS:</strong><br>" + success_msg.Replace("successfully.", "successfully.<br>"));
+                    err_msg = DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss") + ": Check Email (Yardi imports): No emails found with subject 'Scheduler Reports'.\n";
+                    System.IO.File.AppendAllText(_LogFile, err_msg, System.Text.Encoding.Unicode);
                     return true;
                 }
 
@@ -130,26 +136,26 @@ namespace LW_Common
                 {
                     case 1:
                         clsGeneralImportHelper.ClearTempImportTable(clsGeneralImportHelper.TableCodes.YardiWO);
-                        if (!Y.Import_YardiWO_File(filePath, limitRowsForDebugging)) { err_msg += "FILE #1: " + Y.Error_Log; retVal = false; } else { success_msg += "FILE #1: " + fileName + ";" + Y.RowsProcessed.ToString() + " rows imported successfully.\n"; }
+                        if (!Y.Import_YardiWO_File(filePath, limitRowsForDebugging)) { err_msg += "<span style=\"color: red;\">FILE #1: </span>" + Y.Error_Log; retVal = false; } else { success_msg += "<span style=\"color: green;\">FILE #1: </span>" + fileName + ";" + Y.RowsProcessed.ToString() + " rows imported successfully.\n"; }
                         break;
                     case 2:
                         clsGeneralImportHelper.ClearTempImportTable(clsGeneralImportHelper.TableCodes.YardiPO);
-                        if (!Y.Import_YardiPO_File(filePath, limitRowsForDebugging)) { err_msg += "FILE #2: " + Y.Error_Log; retVal = false; } else { success_msg += "FILE #2: " + fileName + ";" + Y.RowsProcessed.ToString() + " rows imported successfully.\n"; }
+                        if (!Y.Import_YardiPO_File(filePath, limitRowsForDebugging)) { err_msg += "<span style=\"color: red;\">FILE #2: </span>" + Y.Error_Log; retVal = false; } else { success_msg += "<span style=\"color: green;\">FILE #2: </span>" + fileName + ";" + Y.RowsProcessed.ToString() + " rows imported successfully.\n"; }
                         break;
                     case 3:
                         clsGeneralImportHelper.ClearTempImportTable(clsGeneralImportHelper.TableCodes.InventoryWO);
-                        if (!Y.Import_YardiWO_InventoryFile(filePath, limitRowsForDebugging)) { err_msg += "FILE #3: " + Y.Error_Log; retVal = false; } else { success_msg += "FILE #3: " + fileName + ";" + Y.RowsProcessed.ToString() + " rows imported successfully.\n"; }
+                        if (!Y.Import_YardiWO_InventoryFile(filePath, limitRowsForDebugging)) { err_msg += "<span style=\"color: red;\">FILE #3: </span>" + Y.Error_Log; retVal = false; } else { success_msg += "<span style=\"color: green;\">FILE #3: </span>" + fileName + ";" + Y.RowsProcessed.ToString() + " rows imported successfully.\n"; }
                         break;
                     case 4:
                         clsGeneralImportHelper.ClearTempImportTable(clsGeneralImportHelper.TableCodes.InventoryPO);
-                        if (!Y.Import_YardiPO_InventoryFile(filePath, limitRowsForDebugging)) { err_msg += "FILE #4: " + Y.Error_Log; retVal = false; } else { success_msg += "FILE #4: " + fileName + ";" + Y.RowsProcessed.ToString() + " rows imported successfully.\n"; }
+                        if (!Y.Import_YardiPO_InventoryFile(filePath, limitRowsForDebugging)) { err_msg += "<span style=\"color: red;\">FILE #4: </span>" + Y.Error_Log; retVal = false; } else { success_msg += "<span style=\"color: green;\">FILE #4: </span>" + fileName + ";" + Y.RowsProcessed.ToString() + " rows imported successfully.\n"; }
                         break;
                     case 5:
                         clsGeneralImportHelper.ClearTempImportTable(clsGeneralImportHelper.TableCodes.YardiWO2);
-                        if (!Y.Import_YardiWO_GeneralFile(filePath, limitRowsForDebugging)) { err_msg += "FILE #5: " + Y.Error_Log; retVal = false; } else { success_msg += "FILE #5: " + fileName + ";" + Y.RowsProcessed.ToString() + " rows imported successfully.\n"; }
+                        if (!Y.Import_YardiWO_GeneralFile(filePath, limitRowsForDebugging)) { err_msg += "<span style=\"color: red;\">FILE #5: </span>" + Y.Error_Log; retVal = false; } else { success_msg += "<span style=\"color: green;\">FILE #5: </span>" + fileName + ";" + Y.RowsProcessed.ToString() + " rows imported successfully.\n"; }
                         break;
                     case 6:
-                        if (!Y.Import_YardiProperty_File(filePath, limitRowsForDebugging)) { err_msg += "FILE #6: " + Y.Error_Log; retVal = false; } else { success_msg += "FILE #6: " + fileName + ";" + Y.RowsProcessed.ToString() + " rows imported successfully.\n"; }
+                        if (!Y.Import_YardiProperty_File(filePath, limitRowsForDebugging)) { err_msg += "<span style=\"color: red;\">FILE #6: </span>" + Y.Error_Log; retVal = false; } else { success_msg += "<span style=\"color: green;\">FILE #6: </span>" + fileName + ";" + Y.RowsProcessed.ToString() + " rows imported successfully.\n"; }
                         break;
                     default:
                         continue;
@@ -178,12 +184,17 @@ namespace LW_Common
                 success_msg = "No files processed.";
             }
 
-            // Send email with results to me and John
-            string body = "<strong>ERRORS:<br></strong>" + @err_msg + "<br><br><strong>SUCCESS:</strong><br>" + success_msg.Replace("successfully.", "successfully.<br>");
-            clsUtilities.SendEmail("vinny@pixelmarsala.com", "LW Data Load Completed", body, "jrebuth@lemlewolff.com");
+            // Send email with results - Set recipients in Web.Config
+            string body = "<p>Hello Team,</p><p>This automated message reports the results of the Yardi data import completed at " + DateTime.Now.ToString("MM/dd/yyyy h:mm tt") + ".</p><p><strong>ERRORS:<br></strong>" + @err_msg + "<br><br><strong>SUCCESS:</strong><br>" + success_msg.Replace("successfully.", "successfully.<br>") + "</p>";
+            string signature = "<p><br>LemleWolff Online Portal<br>\r\nonlineportal@lemlewolff.net<br>\r\nportal.lemlewolff.net</p>";
+            string footerMsg = "<p><br><br><center><i style=\"color:#666;\">This is an automated email from the Lemle & Wolff Yardi Importer.</i></center></p>";
+            clsUtilities.SendEmail(_EmailResults_TO, "LW Data Load Completed", body + signature + footerMsg, _EmailResults_CC, _EmailResults_CC2, _EmailResults_CC3);
+            System.IO.File.AppendAllText(_LogFile, DateTime.Now.ToString("yyyy/MM/dd hh:mm") + ": " + body, System.Text.Encoding.Unicode);
+            System.IO.File.AppendAllText(_LogFile, DateTime.Now.ToString("yyyy/MM/dd hh:mm") + ": Done.", System.Text.Encoding.Unicode);
+
             return retVal;
         }
-
+        
         private static int ExtractFileNumber(string fileName)
         {
             // Define the capturing group around File0[1-6]

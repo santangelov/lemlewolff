@@ -1,3 +1,4 @@
+
 using LW_Data;
 using LW_Security;
 using System.Linq;
@@ -7,6 +8,12 @@ namespace LW_Web.Controllers
 {
     public class ExternalAppsController : Controller
     {
+
+        // GET: ExternalApps
+//        public ActionResult Index()
+//        {
+//            return View("ExternalApps");
+//}
         private readonly LWDbContext _context;
 
         public ExternalAppsController()
@@ -36,6 +43,7 @@ namespace LW_Web.Controllers
                 _context.Dispose();
             }
             base.Dispose(disposing);
+
         }
     }
 }

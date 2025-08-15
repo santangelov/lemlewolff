@@ -250,6 +250,7 @@
     <Content Include="assets\fonts\unicons.woff" />
     <Content Include="assets\fonts\unicons.woff2" />
     <Content Include="Web.config" />
+    <Content Include="_cm\vacancytracker.png" />
     <Content Include="_Downloads\placeholder.txt" />
     <Content Include="_FileUploads\placeholder.txt" />
     <Content Include="_YardiExportSQL\01 - WO List.txt" />
@@ -274,6 +275,7 @@
     <Content Include="_YardiExportSQL\rs_SQL_LW_Portal_Export_04.txt" />
     <Content Include="_YardiExportSQL\rs_SQL_LW_Portal_Export_05.txt" />
     <Content Include="_YardiExportSQL\rs_SQL_LW_Portal_Export_06.txt" />
+    <Content Include="Views\ExternalApps\Index.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

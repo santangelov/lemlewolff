@@ -10,10 +10,10 @@ namespace LW_Web.Controllers
     {
 
         // GET: ExternalApps
-        public ActionResult Index()
-        {
-            return View("ExternalApps");
-}
+//        public ActionResult Index()
+//        {
+//            return View("ExternalApps");
+//}
         private readonly LWDbContext _context;
 
         public ExternalAppsController()

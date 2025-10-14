@@ -1,0 +1,28 @@
+/* (07) Tenants changed in the last 3 days
+   Maps to Portal: tblStg_Tenants
+*/
+
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+
+WITH Cutoff AS (
+  SELECT CAST(DATEADD(MONTH, -6, GETDATE()) AS date) AS d
+)
+SELECT
+    t.HMYPERSON      AS yardiPersonRowID,
+    t.SCODE          AS tenantCode,
+    t.HPROPERTY      AS yardiPropertyRowID,
+    t.HUNIT          AS yardiUnitRowID,
+    t.SFIRSTNAME     AS firstName,
+    t.SLASTNAME      AS lastName,
+    ts.STATUS        AS status,
+    t.DTMOVEIN       AS moveInDate,
+    t.DTMOVEOUT      AS moveOutDate,
+    t.SEMAIL         AS email
+FROM tenant t
+left join tenStatus ts on t.iStatus = ts.iStatus
+CROSS JOIN Cutoff c
+WHERE
+      (t.dtLastModified IS NOT NULL AND CAST(t.dtLastModified AS date) >= c.d)
+   OR (t.DTMOVEIN       IS NOT NULL AND CAST(t.DTMOVEIN       AS date) >= c.d)
+   OR (t.DTMOVEOUT      IS NOT NULL AND CAST(t.DTMOVEOUT      AS date) >= c.d)
+ORDER BY t.HMYPERSON;

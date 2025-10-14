@@ -23,6 +23,9 @@ namespace LW_Web.Controllers
         private readonly string _EmailResults_CC2 = ConfigurationManager.AppSettings["EmailAddressCC2_YardiImportConfirmationEmil"];
         private readonly string _EmailResults_CC3 = ConfigurationManager.AppSettings["EmailAddressCC3_YardiImportConfirmationEmil"];
 
+        // Counting errors so we only send error reports on 3 failures in a row
+        private static int errorCount = 0;
+
         /// <summary>
         /// API endpoint to trigger email import, process the latest email, and import all attachments.
         /// </summary>
@@ -35,8 +38,10 @@ namespace LW_Web.Controllers
                 // This function should connect to the IMAP server, find the latest email,
                 // remove the attachments, and process them.
                 bool result = EI.CheckEmailAndImport();
+
                 if (result)
                 {
+                    errorCount = 0; // Reset error count on success
                     return Json(new { success = true, message = "Email import completed.", details = EI.success_msg });
                 }
                 else
@@ -47,8 +52,13 @@ namespace LW_Web.Controllers
             }
             catch (Exception ex)
             {
-                // Log the exception as 
-                clsUtilities.SendEmail(_EmailResults_TO, "Error in ImportLatestEmailAttachments", "Error: " + ex.Message + "<br>Details: " + EI.err_msg, _EmailResults_CC, _EmailResults_CC2, _EmailResults_CC3);
+                errorCount++;
+                if (errorCount >= 3)
+                {
+                    // Send email notification on 3 consecutive failures
+                    clsUtilities.SendEmail(_EmailResults_TO, "Error in ImportLatestEmailAttachments", "Error (3rd Failure in a row): " + ex.Message + "<br>Details: " + EI.err_msg, _EmailResults_CC, _EmailResults_CC2, _EmailResults_CC3);
+                    errorCount = 0; // Reset after sending email
+                }
                 return Json(new { success = false, message = "Email import failed: " + ex.Message + "; " + EI.err_msg });
            }
         }

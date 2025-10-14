@@ -3,6 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.OleDb;
+using System.Data.SqlClient;
+using System.Data.SqlTypes;
+using System.Diagnostics;
 
 namespace LW_Common
 {
@@ -37,9 +40,51 @@ namespace LW_Common
                 conn.Close();
                 conn.Dispose();
             }
-
             DataTable sourceTable = ds.Tables[0];
 
+            // ========================
+            // Prepare a Table-Valued Parameter (TVP) for the deletions stored procedure
+            //
+            // TVP schema must match dbo.TT_ADPImportKeys exactly
+            // ========================
+            var tvp = new DataTable();
+            tvp.Columns.Add("PayrollName", typeof(string));
+            tvp.Columns.Add("PayDate", typeof(DateTime));
+            tvp.Columns.Add("WONumber", typeof(string));
+
+            foreach (DataRow r in sourceTable.Rows)
+            {
+                var woRaw = Convert.ToString((r["Timecard Work W#O#"].ToString() == "") ? r["Timecard Work W#O"] : r["Timecard Work W#O#"])?.Trim();
+                if (string.IsNullOrWhiteSpace(woRaw)) continue;
+
+                var wo = woRaw.Length > 10 ? woRaw.Substring(0, 10) : woRaw;
+
+                var payrollName = Convert.ToString(r["Payroll Name"])?.Replace("\t", " ").Trim();
+                if (string.IsNullOrWhiteSpace(payrollName)) continue;
+
+                if (!DateTime.TryParse(Convert.ToString(r["Payroll Pay Date"]), out var payDate)) continue;
+                payDate = payDate.Date;
+
+                try
+                {
+                    tvp.Rows.Add(payrollName, payDate, wo);
+                }
+                catch (Exception ex)
+                {
+                    Debug.Print("Error adding to TVP: " + payrollName + "; " + payDate.ToString("yyyy-MM-dd") + "; " + wo + " | " + ex.Message); 
+                }
+            }
+
+            clsDataHelper dh2 = new clsDataHelper();
+            dh2.cmd.Parameters.AddWithValue("@Keys", tvp);
+            bool success = dh2.ExecuteSPCMD("spADP_DeletionsBeforeImport", true);
+            // ========================
+            // End of TVP preparation and execution
+            // ========================
+
+
+            // Now process each row
+            // ========================
             RowsProcessed = 0;
             int NumToProcess = sourceTable.Rows.Count;
             DateTime createDate = DateTime.Now;
@@ -105,6 +150,10 @@ namespace LW_Common
                     }
                 }
             }
+            // Run Pre-Processing of data
+            clsUtilities.WriteToCounter("ADP", "Processing ADP/Laborer data...");
+            if (!clsReportHelper.RunAllReportSQL_Public()) { return false; }
+
             clsUtilities.WriteToCounter("ADP", "Completed");
             return true;
         }

@@ -1,5 +1,6 @@
 using System.Web.Mvc;
 using System.Web.Routing;
+using System.Data.Entity;
 
 namespace LW_Web
 {
@@ -9,6 +10,7 @@ namespace LW_Web
         {
             AreaRegistration.RegisterAllAreas();
             RouteConfig.RegisterRoutes(RouteTable.Routes);
+            Database.SetInitializer<LW_Data.LWDbContext>(null);
         }
     }
 }

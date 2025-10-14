@@ -1,0 +1,41 @@
+/* ==========================================================
+   09 - LegalCaseHeaders (final export section)
+   Purpose:
+     • Include ALL OPEN cases
+     • Include CLOSED cases if they had activity within the lookback window
+     • Allow the combined display ("legalDisplay") to be literally 'Closed'
+   Inputs / Assumptions:
+     • Legal            (Yardi Legal header)
+     • LegalLookup      (keyed by hMy, pHmy for status/flash/combined)
+     • LegalActions     (Yardi legal actions table)  -- adjust name if different
+     • UnpaidAR_ByTenant view/CTE may be replaced with your AR seed if needed
+   ========================================================== */
+
+DECLARE @MonthsBack int  = 6;  -- << change as needed
+DECLARE @AsOfDate   date = EOMONTH(DATEADD(MONTH, -1, CAST(GETDATE() AS date)));
+DECLARE @CutoffDate date = DATEADD(MONTH, -@MonthsBack, @AsOfDate);
+
+SELECT
+    l.hMy            AS yardiLegalRowID,
+    l.hTenant        AS yardiPersonRowID,
+    ls.sDisplay      AS legalStatusDesc,
+    lf.sDisplay      AS legalFlash,
+    ll.sDisplay      AS legalDisplay,   -- allows 'Closed'
+    CASE WHEN ls.sDisplay = 'Closed' THEN CAST(1 AS bit) ELSE CAST(0 AS bit) END AS isClosed,
+    CAST(0.00 AS decimal(12,2)) AS unpaidCharges,
+    l.dtCreated      AS createdDate,
+    l.dtLastModified AS modifiedDate
+FROM dbo.Legal AS l
+LEFT JOIN dbo.LegalLookup AS ls ON ls.hMy  = l.hStat
+LEFT JOIN dbo.LegalLookup AS lf ON lf.hMy  = l.hFlash
+LEFT JOIN dbo.LegalLookup AS ll ON ll.pHmy = l.hStat AND ll.hMy = l.hFlash
+WHERE
+  COALESCE(ls.sDisplay,'(unknown)') <> 'Closed'     -- all OPEN (and lookup-missing)
+  OR EXISTS (
+       SELECT 1
+       FROM dbo.LegalAction AS la
+       WHERE la.hLegal = l.hMy
+         AND TRY_CONVERT(date, COALESCE(la.dtLastModified, la.dtCreated, la.dtBegin, la.dtDue)) >= @CutoffDate
+     )
+ORDER BY l.hMy;
+

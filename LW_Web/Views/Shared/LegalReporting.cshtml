@@ -1,0 +1,78 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_LayoutPage.cshtml";
+}
+
+@model LW_Web.Models.LegalReportingPageModel
+
+
+<!-- Start Content-->
+<div class="container-fluid">
+
+    <!-- start page title -->
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box">
+                <h4 class="page-title" style="color:chocolate;">REPORTS</h4>
+                <p>@Html.Raw(Model.LoadedRangeText)</p>
+            </div>
+        </div>
+    </div>
+    <!-- end page title -->
+
+    <div class="row">
+
+        <!-- TENNANT ARREARS REPORT -->
+        <!--========================-->
+        <div class="col-6">
+
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="header-title">Tenant Arrears Report</h4>
+                    @using (Html.BeginForm("GetTenantArrearsReport", "Reports", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal" }))
+                    {
+                        <div class="row mb">
+                            <div class="col-10">
+                                @Html.LabelFor(m => m.ArrearsReportDate)
+                                @Html.TextBox("ReportDate", Model.ArrearsReportDate, new { @class = "form-control" })
+                            </div>
+                        </div>
+
+                        <div class="row mb">
+                            <div class="col-10">
+                                @Html.LabelFor(model => model.Properties, "Select Property")
+                                @Html.DropDownListFor(model => model.selectedBuildingCode,
+                                    Model.Properties ?? new List<SelectListItem>(),
+                                    "-- Select Property --",
+                                    new { @class = "form-control", id = "propertyDropdown", name = "propertyDropdown" })
+                            </div>
+                        </div>
+
+                        <div class="row mb" style="margin-top:20px;">
+                            <div class="col-10">
+                                <button type="submit" id="btnTenantArrearsReport" class="btn btn-primary w-100">Download Analysis Report</button>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <span id="DownloadReportMsgA"></span>
+                            </div>
+                        </div>
+                    }
+
+                    @Html.Raw(ViewBag.Message)
+
+                    @Html.Raw(Model.Error_log)
+
+                </div> <!-- end card-body -->
+            </div>  <!-- end card -->
+
+        </div>
+
+    </div>
+
+
+
+
+

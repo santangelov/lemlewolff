@@ -32,6 +32,10 @@ namespace LW_Security
         {
             return clsFunc.CastToBool(HttpContext.Current.Session["IsLoggedIn"], false);
         }
+        public static bool isLegalTeam()
+        {
+            return clsFunc.CastToBool(HttpContext.Current.Session["isLegalTeam"], false);
+        }
         public static bool isProjectManager()
         {
             return clsFunc.CastToBool(HttpContext.Current.Session["isProjectManager"], false);
@@ -69,6 +73,7 @@ namespace LW_Security
         public bool LogOutUser()
         {
             HttpContext.Current.Session["IsProjectManagerLoggedIn"] = null;
+            HttpContext.Current.Session["IsLegalTeamLoggedIn"] = null;
             HttpContext.Current.Session["IsAdminLoggedIn"] = null;
             HttpContext.Current.Session["IsSuperAdminLoggedIn"] = null;
             HttpContext.Current.Session["IsLoggedIn"] = false;
@@ -120,6 +125,7 @@ namespace LW_Security
                     MatchedOnTempPW = clsFunc.CastToBool(r["MatchedOnTempPW"], false);
 
                     HttpContext.Current.Session["IsProjectManagerLoggedIn"] = r["isProjectManager"];
+                    HttpContext.Current.Session["IsLegalTeamLoggedIn"] = r["isLegalTeam"];
                     HttpContext.Current.Session["IsAdminLoggedIn"] = r["isAdmin"];
                     HttpContext.Current.Session["IsSuperAdminLoggedIn"] = r["isSuperAdmin"];
                     HttpContext.Current.Session["IsLoggedIn"] = true;

@@ -23,6 +23,12 @@ namespace LW_Common
             }
         }
 
+        public static DateTime GetEndOfMonth(DateTime? startDate)
+        {
+            var basis = (startDate ?? DateTime.Today).Date; // if null, use current month
+            return new DateTime(basis.Year, basis.Month, DateTime.DaysInMonth(basis.Year, basis.Month));
+        }
+
         /// <summary>
         /// Convert Object or String to an Int, rounding the value if it is a double.
         /// </summary>

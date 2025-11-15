@@ -276,7 +276,7 @@
     <Content Include="_YardiExportSQL\rs_SQL_LW_Portal_Export_05.txt" />
     <Content Include="_YardiExportSQL\rs_SQL_LW_Portal_Export_06.txt" />
     <Content Include="Views\ExternalApps\Index.cshtml" />
-    <Content Include="Views\Shared\LegalReporting.cshtml" />
+    <Content Include="Views\Shared\LegalReportingPage.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

@@ -13,7 +13,7 @@
     <div class="row">
         <div class="col-12">
             <div class="page-title-box">
-                <h4 class="page-title" style="color:chocolate;">REPORTS</h4>
+                <h4 class="page-title" style="color:chocolate;">LEGAL REPORTING</h4>
                 <p>@Html.Raw(Model.LoadedRangeText)</p>
             </div>
         </div>
@@ -29,12 +29,13 @@
             <div class="card">
                 <div class="card-body">
                     <h4 class="header-title">Tenant Arrears Report</h4>
-                    @using (Html.BeginForm("GetTenantArrearsReport", "Reports", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal" }))
+                    @using (Html.BeginForm("GetTenantArrearsReport", "LegalReporting", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal" }))
                     {
                         <div class="row mb">
                             <div class="col-10">
+                                LegalReporting
                                 @Html.LabelFor(m => m.ArrearsReportDate)
-                                @Html.TextBox("ReportDate", Model.ArrearsReportDate, new { @class = "form-control" })
+                                @Html.TextBoxFor(m => m.ArrearsReportDate, new { @class = "form-control" })
                             </div>
                         </div>
 

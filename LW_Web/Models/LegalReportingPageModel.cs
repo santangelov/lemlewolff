@@ -23,7 +23,7 @@ namespace LW_Web.Models
         [DisplayName("Range Loaded: ")]
         public string LoadedRangeText { get; set; }
 
-        [DisplayName("Tenant Arrears Reporting Month")]
+        [DisplayName("Reporting Date (mm/dd/yyyy - will be rounded to month end)")]
         public string ArrearsReportDate { get; set; }    // will end up being rounded to month end
 
         [DisplayName("Property")]

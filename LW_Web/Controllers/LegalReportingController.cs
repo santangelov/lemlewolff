@@ -4,6 +4,7 @@ using LW_Web.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Web.Mvc;
 
 namespace LW_Web.Controllers
@@ -33,8 +34,7 @@ namespace LW_Web.Controllers
                 .ToList();
 
             mdl.selectedBuildingCode = null;
-
-            return View("LegalReportingPage", mdl); 
+            return View("LegalReportingPage", mdl);
         }
 
         [HttpPost]
@@ -48,8 +48,8 @@ namespace LW_Web.Controllers
             if (string.IsNullOrEmpty(ReportDate))
             {
                 ViewBag.Message = R.error_message;
-                model.Error_log = "<div class=\"alert alert-danger\"><strong>*</strong> Choose a Reporting Date (it will be rounded up to month end).</div>";
-                return View("LegalReporting", model);
+                model.Error_log = "<div class=\"alert alert-danger\"><strong>*</strong> Enter a Reporting Date (it will be rounded up to month end).</div>";
+                return View("LegalReportingPage", model);
             }
 
             DateTime ReportDateDTTM = DateTime.Parse(ReportDate);
@@ -65,7 +65,7 @@ namespace LW_Web.Controllers
             {
                 ViewBag.Message = R.error_message;
                 model.Error_log = "<div class=\"alert alert-danger\"><strong>Error!</strong> Error creating download file.</div>";
-                return View("LegalReporting", model);
+                return View("LegalReportingPage", model);
             }
 
         }

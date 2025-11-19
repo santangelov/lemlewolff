@@ -6,6 +6,7 @@ namespace LW_Common
     using LW_Data;
     using System.Data;
     using System.Data.SqlClient;
+    using System.Runtime.InteropServices.ComTypes;
     using System.Web.Hosting;
     using DataTable = DataTable;
     using Excel = Microsoft.Office.Interop.Excel;
@@ -21,6 +22,7 @@ namespace LW_Common
         public static string POInventoryItemReviewReportTemplateFileName = "_Template - InvItemReview.xlsx";
         public static string InventoryReportTemplateFileName_Pivot = "_Template - Inventory Daily Pivot_WithDollars.xlsx";
         public static string VacancyCoverSheetFileName = "_Template - VacancyCoverSheet.xlsx";
+        public static string TenantArrearsFileName = "_Template - Tenant_Arrears.xlsx";
 
         public static bool RecordFileDateRanges(string DateKey, DateTime Date2)
         {
@@ -77,6 +79,39 @@ namespace LW_Common
             return retObj;
         }
 
+        public bool FillExcel_TenantArrearsReport(string NewFileName, DateTime? AsOfDate = null, string BuildingCode = "")
+        {
+            string TargetPathAndFileName = WOAnalysisReportDownloadPath + "\\" + NewFileName;
+            AsOfDate = clsFunc.GetEndOfMonth(AsOfDate);   // Default to end of current month if not provided
+
+            // Delete any existing file of the same name
+            try
+            {
+                System.IO.File.Delete(TargetPathAndFileName);
+            }
+            catch (Exception) { }
+
+            // Copy the Template file first to the new file name
+            System.IO.File.Copy(TemplatePath + "\\" + TenantArrearsFileName, TargetPathAndFileName, true);   // Default to overwrite = true
+
+            Excel.Application xlApp = new Excel.Application();
+            xlApp.Visible = false;
+            xlApp.UserControl = false;
+            Excel.Workbook xlWorkbook = xlApp.Workbooks.Open(TargetPathAndFileName);
+
+            clsExcelHelper E = new clsExcelHelper();
+            SqlCommand cmd = new SqlCommand();
+            if (BuildingCode != "") cmd.Parameters.AddWithValue("@buildingCode", BuildingCode);
+            cmd.Parameters.AddWithValue("@AsOfDate", AsOfDate);
+
+            //  PAGE 1. Fill in the full report
+            E.FillExcelRangeFromSP(ref xlWorkbook, "spReport_ArrearsTracker", 1, 13, 1, cmd);
+
+            // Close Excel Session
+            E.CleanUpExcelSession(ref xlApp, ref xlWorkbook, TargetPathAndFileName);
+
+            return true;
+        }
 
         public bool FillExcel_POInventoryItemReviewReport(string NewFileName, string StartDate, string EndDate)
         {
@@ -165,7 +200,7 @@ namespace LW_Common
             DataTable dt = ds.Tables[0];
             E.FillExcelRangeFromDT(ref xlWorkbook, ref dt, 7, 2, 1);
             dt = ds.Tables[1];
-            E.FillExcelRangeFromDT(ref xlWorkbook, ref dt, 7, 2, 10);
+            E.FillExcelRangeFromDT(ref xlWorkbook, ref dt, 7, 2, 11);
 
             // Close Excel Session
             E.CleanUpExcelSession(ref xlApp, ref xlWorkbook, TargetPathAndFileName);

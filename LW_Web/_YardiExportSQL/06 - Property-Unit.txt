@@ -1,44 +1,100 @@
 ﻿/*  (6) - All Unit and Property Details - placed into tblProperties and tblPropertyUnits
+    UPDATED: Now includes LeaseStartDate and LeaseEndDate from current tenant
 */
-
 SELECT 
-  u.hMy as yardiUnitRowID, 
-  p.hMy as yardiPropertyRowID,
-  ltrim(p.scode) as BuildingCode, 
-  isnull(p.saddr1,'') as addr1_Co, 
-  isnull(p.saddr2,'') as addr2, 
-  isnull(p.saddr3,'') as addr3, 
-  isnull(p.saddr4,'') as addr4, 
-  isnull(p.sCity,'') as City, 
-  isnull(p.sState,'') as StateCode, 
-  isnull(ltrim(sZipCode),'') as zipCode,
-  isnull(u.scode,'') as AptNumber,
-  u.srent as Rent,
-  u.sStatus as UnitStatus,
-  isnull(u.ibedrooms,0) as Bedrooms,
-  us.LastMoveInDate,
-  us.LastMoveOutDate,
-  u.DSQFT as SqFt,
-  isnull(p.bInactive,0) as isPropertyInactive,  --  -1 = True/Inactive
-  p.dtInactive as propertyInactiveDate,
-  isnull(u.exclude,0) as isUnitExcluded, -- -1 = True/Excluded
-  t.LastTenantRent,
-  ut.sDesc as UnitTypeDesc
-from
-  unit u
-  inner join property p on u.hproperty = p.hMy
-  left join (SELECT hUnit, MAX(dtMoveIn) as LastMoveInDate, MAX(dtMoveOut) as LastMoveOutDate FROM unit_status WHERE hUnit > 0 GROUP BY hUnit ) as us on u.hMy = us.hUnit
-  LEFT JOIN (SELECT hUnit, sRent AS LastTenantRent 
-             FROM (
-            	SELECT hUnit, sRent, ROW_NUMBER() OVER (PARTITION BY hUnit ORDER BY dtLeaseFrom DESC) AS rn FROM tenant) AS x
-        	WHERE x.rn = 1) AS t ON u.hMy = t.hUnit
-  left join unittype ut on u.hUnitType=ut.hMy
-where 
-    u.hMy is not null
-    and p.hMy is not null
-    and u.scode is not null 
-    and p.scode is not null
-    --and p.scode='3655'
-    --and u.scode='3658-2B'
-order by
-  p.scode, u.scode
+    u.hMy as yardiUnitRowID, 
+    p.hMy as yardiPropertyRowID,
+    LTRIM(p.scode) as BuildingCode, 
+    ISNULL(p.saddr1,'') as addr1_Co, 
+    ISNULL(p.saddr2,'') as addr2, 
+    ISNULL(p.saddr3,'') as addr3, 
+    ISNULL(p.saddr4,'') as addr4, 
+    ISNULL(p.sCity,'') as City, 
+    ISNULL(p.sState,'') as StateCode, 
+    ISNULL(LTRIM(sZipCode),'') as zipCode,
+    ISNULL(u.scode,'') as AptNumber,
+    u.srent as Rent,
+    u.sStatus as UnitStatus,
+    ISNULL(u.ibedrooms,0) as Bedrooms,
+    us.LastMoveInDate,
+    us.LastMoveOutDate,
+    u.DSQFT as SqFt,
+    ISNULL(p.bInactive,0) as isPropertyInactive,  -- -1 = True/Inactive
+    p.dtInactive as propertyInactiveDate,
+    ISNULL(u.exclude,0) as isUnitExcluded,        -- -1 = True/Excluded
+    t.LastTenantRent,
+    ut.sDesc as UnitTypeDesc,
+    
+    -- Safe check for Posting list using hardcoded SCODE = 'Posting' (HPROPLIST = 1881)
+    CASE WHEN EXISTS (
+        SELECT 1 
+        FROM LISTPROP lst
+        JOIN PROPERTY prop ON prop.HMY = lst.HPROPLIST
+        WHERE prop.SCODE = 'Posting' 
+          AND lst.HPROPERTY = p.hMy
+      ) THEN 1 ELSE 0 END AS isInList_Posting,
+
+    ct.LeaseStartDate,
+    ct.LeaseEndDate,
+    ct.CurrentTenantID as CurrentTenantYardiID 
+ 	
+FROM unit u
+    INNER JOIN property p ON u.hproperty = p.hMy
+    
+    -- Last move in/out per unit
+    LEFT JOIN (
+        SELECT hUnit, 
+               MAX(dtMoveIn)  AS LastMoveInDate, 
+               MAX(dtMoveOut) AS LastMoveOutDate 
+        FROM unit_status 
+        WHERE hUnit > 0 
+        GROUP BY hUnit
+    ) AS us ON u.hMy = us.hUnit
+    
+    -- Last tenant rent per unit
+    LEFT JOIN (
+        SELECT hUnit, sRent AS LastTenantRent
+        FROM (
+            SELECT hUnit, sRent,
+                   ROW_NUMBER() OVER (PARTITION BY hUnit ORDER BY dtLeaseFrom DESC) AS rn
+            FROM tenant
+        ) AS x
+        WHERE x.rn = 1
+    ) AS t ON u.hMy = t.hUnit
+    
+    -- NEW: Current tenant's lease dates
+    LEFT JOIN (
+        SELECT 
+            hUnit,
+            dtLeaseFrom AS LeaseStartDate,
+            dtLeaseTo AS LeaseEndDate,
+            hMyPerson AS CurrentTenantID
+        FROM (
+            SELECT 
+                hUnit,
+                dtLeaseFrom,
+                dtLeaseTo,
+                hMyPerson,
+                ROW_NUMBER() OVER (
+                    PARTITION BY hUnit 
+                    ORDER BY 
+                        CASE WHEN iStatus < 6 THEN 0 ELSE 1 END,  -- Active tenants first
+                        dtLeaseFrom DESC,  -- Most recent lease
+                        hMyPerson DESC      -- Tie-breaker
+                ) AS rn
+            FROM tenant
+            WHERE iStatus < 6  -- Exclude denied and higher status codes
+              AND (dtMoveOut IS NULL OR dtMoveOut >= GETDATE())  -- Not moved out yet
+        ) AS ActiveTenants
+        WHERE rn = 1
+    ) AS ct ON u.hMy = ct.hUnit
+    
+    LEFT JOIN unittype ut ON u.hUnitType = ut.hMy
+    
+WHERE 
+    u.hMy IS NOT NULL
+    AND p.hMy IS NOT NULL
+    AND u.scode IS NOT NULL 
+    AND p.scode IS NOT NULL
+	
+ORDER BY p.scode, u.scode

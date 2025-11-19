@@ -22,7 +22,7 @@ namespace LW_Data
         //public string zipCode { get; set; }
         public bool isInactive { get; set; }
         public string fullAddress_calc { get; set; }  // calculated field in database
-
+        public bool isInList_Posting { get; set; }  
     }
 
 

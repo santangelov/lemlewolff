@@ -24,62 +24,79 @@ SELECT
     us.LastMoveInDate,
     us.LastMoveOutDate,
     u.DSQFT as SqFt,
-    ISNULL(p.bInactive,0) as isPropertyInactive,  --  -1 = True/Inactive
+    ISNULL(p.bInactive,0) as isPropertyInactive,  
     p.dtInactive as propertyInactiveDate,
-    ISNULL(u.exclude,0) as isUnitExcluded,        -- -1 = True/Excluded
+    ISNULL(u.exclude,0) as isUnitExcluded,   
     t.LastTenantRent,
     ut.sDesc as UnitTypeDesc,
-	CASE WHEN postProps.HPROPERTY IS NOT NULL THEN 1 ELSE 0 END AS isInList_Posting
-
+    CASE WHEN EXISTS (
+        SELECT 1 
+        FROM LISTPROP lst
+        JOIN PROPERTY prop ON prop.HMY = lst.HPROPLIST
+        WHERE prop.SCODE = 'Posting' 
+          AND lst.HPROPERTY = p.hMy
+      ) THEN 1 ELSE 0 END AS isInList_Posting,
+    ct.LeaseStartDate,
+    ct.LeaseEndDate,
+    ct.CurrentTenantID as CurrentTenantYardiID 
+ 	
 FROM unit u
-	INNER JOIN property p ON u.hproperty = p.hMy
-
-	-- Last move in/out per unit
-	LEFT JOIN (
-		SELECT hUnit, 
-			   MAX(dtMoveIn)  AS LastMoveInDate, 
-			   MAX(dtMoveOut) AS LastMoveOutDate 
-		FROM unit_status 
-		WHERE hUnit > 0 
-		GROUP BY hUnit
-	) AS us 
-		ON u.hMy = us.hUnit
-
-	-- Last tenant rent per unit
-	LEFT JOIN (
-		SELECT hUnit, sRent AS LastTenantRent
-		FROM (
-			SELECT hUnit, sRent,
-				   ROW_NUMBER() OVER (PARTITION BY hUnit ORDER BY dtLeaseFrom DESC) AS rn
-			FROM tenant
-		) AS x
-		WHERE x.rn = 1
-	) AS t 
-		ON u.hMy = t.hUnit
-
-	LEFT JOIN unittype ut 
-		ON u.hUnitType = ut.hMy
-
-	-- Prefiltered set of properties that are in the 'Posting' list
-	LEFT JOIN (
-		SELECT DISTINCT lp.HPROPERTY
-		FROM LISTPROP lp
-		JOIN PROPERTY pl 
-			ON pl.HMY = lp.HPROPLIST
-		WHERE pl.SCODE = 'Posting'
-	) AS postProps
-		ON postProps.HPROPERTY = p.HMY
-
+    INNER JOIN property p ON u.hproperty = p.hMy
+    
+    LEFT JOIN (
+        SELECT hUnit, 
+               MAX(dtMoveIn)  AS LastMoveInDate, 
+               MAX(dtMoveOut) AS LastMoveOutDate 
+        FROM unit_status 
+        WHERE hUnit > 0 
+        GROUP BY hUnit
+    ) AS us ON u.hMy = us.hUnit
+    
+    LEFT JOIN (
+        SELECT hUnit, sRent AS LastTenantRent
+        FROM (
+            SELECT hUnit, sRent,
+                   ROW_NUMBER() OVER (PARTITION BY hUnit ORDER BY dtLeaseFrom DESC) AS rn
+            FROM tenant
+        ) AS x
+        WHERE x.rn = 1
+    ) AS t ON u.hMy = t.hUnit
+    
+    LEFT JOIN (
+        SELECT 
+            hUnit,
+            dtLeaseFrom AS LeaseStartDate,
+            dtLeaseTo AS LeaseEndDate,
+            hMyPerson AS CurrentTenantID
+        FROM (
+            SELECT 
+                hUnit,
+                dtLeaseFrom,
+                dtLeaseTo,
+                hMyPerson,
+                ROW_NUMBER() OVER (
+                    PARTITION BY hUnit 
+                    ORDER BY 
+                        CASE WHEN iStatus < 6 THEN 0 ELSE 1 END,  
+                        dtLeaseFrom DESC,  
+                        hMyPerson DESC      
+                ) AS rn
+            FROM tenant
+            WHERE iStatus < 6  
+              AND (dtMoveOut IS NULL OR dtMoveOut >= GETDATE())  
+        ) AS ActiveTenants
+        WHERE rn = 1
+    ) AS ct ON u.hMy = ct.hUnit
+    
+    LEFT JOIN unittype ut ON u.hUnitType = ut.hMy
+    
 WHERE 
     u.hMy IS NOT NULL
     AND p.hMy IS NOT NULL
     AND u.scode IS NOT NULL 
     AND p.scode IS NOT NULL
-    --AND p.scode='3655'
-    --AND u.scode='3658-2B'
-
-ORDER BY
-    p.scode, u.scode
+	
+ORDER BY p.scode, u.scode
 	
 //End Select
 
@@ -108,6 +125,9 @@ N,     isUnitExcluded,      isUnitExcluded,      ,      ,      ,      Y,    ,   
 N,     LastTenantRent,      LastTenantRent,      ,      ,      ,      Y,    ,       ,       ,     ,  90,    N,      N,
 T,     UnitTypeDesc,        UnitTypeDesc,        ,      ,      ,      Y,    ,       ,       ,     ,  320,   N,      N,
 N,     isInList_Posting,    isInList_Posting,    ,      ,      ,      Y,    ,       ,       ,     ,  90,    N,      N,
+T,     LeaseStartDate,      LeaseStartDate,      ,      ,      ,      Y,    ,       ,       ,     ,  100,   N,      N,
+T,     LeaseEndDate,        LeaseEndDate,        ,      ,      ,      Y,    ,       ,       ,     ,  100,   N,      N,
+N,     CurrentTenantYardiID,CurrentTenantYardiID,,      ,      ,      Y,    ,       ,       ,     ,  90,    N,      N,
 //END COLUMNS
 
 

@@ -446,7 +446,7 @@ namespace LW_Common
             DataView view = new DataView(sourceTable);
             System.Data.DataTable filteredTable = view.ToTable(true,
                 "yardiPropertyRowID", "BuildingCode", "addr1_Co", "addr2", "addr3", "addr4", "City", "StateCode", "ZipCode",
-                "isPropertyInactive", "propertyInactiveDate");
+                "isPropertyInactive", "propertyInactiveDate", "isInList_Posting", "LeaseStartDate", "LeaseEndDate", "CurrentTenantYardiID");
 
             RowsProcessed = 0;
             int NumToProcess = filteredTable.Rows.Count;
@@ -469,6 +469,7 @@ namespace LW_Common
                     dh.cmd.Parameters.AddWithValue("@ZipCode", r["ZipCode"]);
                     dh.cmd.Parameters.AddWithValue("@isInactive", r["isPropertyInactive"]);
                     dh.cmd.Parameters.AddWithValue("@inactiveDate", r["PropertyInactiveDate"]);
+                    dh.cmd.Parameters.AddWithValue("@isInList_Posting", r["isInList_Posting"]);
 
                     bool isSuccess = dh.ExecuteSPCMD("spPropertyUpdate", false);
                     RowsProcessed++;
@@ -515,6 +516,9 @@ namespace LW_Common
                     dh.cmd.Parameters.AddWithValue("@isExcluded", r["isUnitExcluded"]);
                     dh.cmd.Parameters.AddWithValue("@LastTenantRent", r["LastTenantRent"]);
                     dh.cmd.Parameters.AddWithValue("@unitTypeDesc", r["unitTypeDesc"]);
+                    dh.cmd.Parameters.AddWithValue("@LeaseStartDate", r["LeaseStartDate"]);
+                    dh.cmd.Parameters.AddWithValue("@LeaseEndDate", r["LeaseEndDate"]);
+                    dh.cmd.Parameters.AddWithValue("@CurrentTenantYardiID", r["CurrentTenantYardiID"]);
 
                     bool isSuccess = dh.ExecuteSPCMD("spPropertyUnitUpdate", false);
                     RowsProcessed++;

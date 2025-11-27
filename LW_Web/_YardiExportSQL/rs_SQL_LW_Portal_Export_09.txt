@@ -1,0 +1,53 @@
+//Notes
+//End Notes
+
+//Title
+LW Portal Export-File09
+//End Title
+
+//Select
+DECLARE @MonthsBack int  = 3;
+DECLARE @AsOfDate   date = EOMONTH(DATEADD(MONTH, -1, CAST(GETDATE() AS date)));
+DECLARE @CutoffDate date = DATEADD(MONTH, -@MonthsBack, @AsOfDate);
+
+SELECT
+    l.hMy            AS yardiLegalRowID,
+    l.hTenant        AS yardiPersonRowID,
+    ls.sDisplay      AS legalStatusDesc,
+    lf.sDisplay      AS legalFlash,
+    ll.sDisplay      AS legalDisplay,
+    CASE WHEN ls.sDisplay = 'Closed' THEN 1 ELSE 0 END AS isClosed,
+    CAST(0.00 AS decimal(10,2)) AS unpaidCharges,
+    l.dtCreated      AS createdDate,
+    l.dtLastModified AS modifiedDate
+FROM dbo.Legal AS l
+LEFT JOIN dbo.LegalLookup AS ls ON ls.hMy  = l.hStat
+LEFT JOIN dbo.LegalLookup AS lf ON lf.hMy  = l.hFlash
+LEFT JOIN dbo.LegalLookup AS ll ON ll.pHmy = l.hStat AND ll.hMy = l.hFlash
+WHERE
+      COALESCE(ls.sDisplay,'(unknown)') <> 'Closed'
+   OR EXISTS (
+        SELECT 1
+        FROM dbo.LegalAction AS la
+        WHERE la.hLegal = l.hMy
+          AND TRY_CONVERT(date, COALESCE(la.dtLastModified, la.dtCreated, la.dtBegin, la.dtDue)) >= @CutoffDate
+      )
+ORDER BY l.hMy;
+//End Select
+
+//COLUMNS
+//Type, Name,               Head1,              Head2, Head3, Head4, Show, Color, Formula, Drill, Key,  Width, Total, Suppress
+N,     yardiLegalRowID,    yardiLegalRowID,    ,      ,      ,      Y,    ,      ,        ,      ,    90,    N,     N,
+N,     yardiPersonRowID,   yardiPersonRowID,   ,      ,      ,      Y,    ,      ,        ,      ,    90,    N,     N,
+T,     legalStatusDesc,    legalStatusDesc,    ,      ,      ,      Y,    ,      ,        ,      ,    140,   N,     N,
+T,     legalFlash,         legalFlash,         ,      ,      ,      Y,    ,      ,        ,      ,    120,   N,     N,
+T,     legalDisplay,       legalDisplay,       ,      ,      ,      Y,    ,      ,        ,      ,    140,   N,     N,
+N,     isClosed,           isClosed,           ,      ,      ,      Y,    ,      ,        ,      ,    80,    N,     N,
+N,     unpaidCharges,      unpaidCharges,      ,      ,      ,      Y,    ,      ,        ,      ,    120,   N,     N,
+T,     createdDate,        createdDate,        ,      ,      ,      Y,    ,      ,        ,      ,    110,   N,     N,
+T,     modifiedDate,       modifiedDate,       ,      ,      ,      Y,    ,      ,        ,      ,    110,   N,     N,
+//End Columns
+
+//FILTER
+//Type, DataTyp,   Name,          Caption,     Key,   List,    Val1,   Val2, Mandatory, Multi-Type, Title, Title
+//End Filter

@@ -1,0 +1,48 @@
+//Notes
+//End Notes
+
+//Title
+LW Portal Export-File07
+//End Title
+
+//Select
+SELECT
+    t.HMYPERSON      AS yardiPersonRowID,
+    t.SCODE          AS tenantCode,
+    t.HPROPERTY      AS yardiPropertyRowID,
+    t.HUNIT          AS yardiUnitRowID,
+    t.SFIRSTNAME     AS firstName,
+    t.SLASTNAME      AS lastName,
+    ts.STATUS        AS status,
+    t.DTMOVEIN       AS moveInDate,
+    t.DTMOVEOUT      AS moveOutDate,
+    t.SEMAIL         AS email
+FROM tenant t
+LEFT JOIN tenStatus ts ON t.iStatus = ts.iStatus
+CROSS JOIN (
+    SELECT CAST(DATEADD(MONTH, -3, GETDATE()) AS date) AS d
+) AS c
+WHERE
+      (t.dtLastModified IS NOT NULL AND CAST(t.dtLastModified AS date) >= c.d)
+   OR (t.DTMOVEIN       IS NOT NULL AND CAST(t.DTMOVEIN       AS date) >= c.d)
+   OR (t.DTMOVEOUT      IS NOT NULL AND CAST(t.DTMOVEOUT      AS date) >= c.d)
+ORDER BY t.HMYPERSON;
+//End Select
+
+//COLUMNS
+//Type, Name,               Head1,              Head2, Head3, Head4, Show, Color, Formula, Drill, Key,  Width, Total, Suppress
+N,     yardiPersonRowID,   yardiPersonRowID,   ,      ,      ,      Y,    ,      ,        ,      ,    90,    N,     N,
+T,     tenantCode,         tenantCode,         ,      ,      ,      Y,    ,      ,        ,      ,    120,   N,     N,
+N,     yardiPropertyRowID, yardiPropertyRowID, ,      ,      ,      Y,    ,      ,        ,      ,    90,    N,     N,
+N,     yardiUnitRowID,     yardiUnitRowID,     ,      ,      ,      Y,    ,      ,        ,      ,    90,    N,     N,
+T,     firstName,          firstName,          ,      ,      ,      Y,    ,      ,        ,      ,    120,   N,     N,
+T,     lastName,           lastName,           ,      ,      ,      Y,    ,      ,        ,      ,    120,   N,     N,
+T,     status,             status,             ,      ,      ,      Y,    ,      ,        ,      ,    100,   N,     N,
+T,     moveInDate,         moveInDate,         ,      ,      ,      Y,    ,      ,        ,      ,    110,   N,     N,
+T,     moveOutDate,        moveOutDate,        ,      ,      ,      Y,    ,      ,        ,      ,    110,   N,     N,
+T,     email,              email,              ,      ,      ,      Y,    ,      ,        ,      ,    200,   N,     N,
+//End Columns
+
+//FILTER
+//Type, DataTyp,   Name,          Caption,     Key,  List,  Val1,   Val2, Mandatory, Multi-Type, Title, Title
+//End Filter

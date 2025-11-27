@@ -35,7 +35,12 @@ namespace LW_Common
         private readonly string _YardiEmailAddress = ConfigurationManager.AppSettings["YardiEmailAddress"];
         private readonly string _saveDirectory = HostingEnvironment.MapPath(ConfigurationManager.AppSettings["FileUploadFolder"]);
         private readonly string _RegexFileNamePattern = ConfigurationManager.AppSettings["Import_ExportRegexFilePattern"];
+
+#if DEBUG
+        private readonly string _LogFile = @"C:\Users\Vincent\Documents\BUSINESS\Lemle And Wolff\LOADS\WEEKLY LOADS\YardiImportLog.txt";
+#else 
         private readonly string _LogFile = @"F:\inetpub\wwwroot\lemlewolff.net\_Logs\YardiImportLog.txt";
+#endif
 
         private readonly string _EmailResults_TO = ConfigurationManager.AppSettings["EmailAddress_YardiImportConfirmationEmil"];
         private readonly string _EmailResults_CC = ConfigurationManager.AppSettings["EmailAddressCC1_YardiImportConfirmationEmil"];
@@ -157,6 +162,22 @@ namespace LW_Common
                     case 6:
                         if (!Y.Import_YardiProperty_File(filePath, limitRowsForDebugging)) { err_msg += "<span style=\"color: red;\">FILE #6: </span>" + Y.Error_Log; retVal = false; } else { success_msg += "<span style=\"color: green;\">FILE #6: </span>" + fileName + ";" + Y.RowsProcessed.ToString() + " rows imported successfully.\n"; }
                         break;
+                    case 7:
+                        clsGeneralImportHelper.ClearTempImportTable(clsGeneralImportHelper.TableCodes.Tenants07);
+                        if (!Y.Import_Staging_Tenants(filePath, limitRowsForDebugging)) { err_msg += "<span style=\"color: red;\">FILE #7: </span>" + Y.Error_Log; retVal = false; } else { success_msg += "<span style=\"color: green;\">FILE #7: </span>" + fileName + ";" + Y.RowsProcessed.ToString() + " rows imported successfully.\n"; }
+                        break;
+                    case 8:
+                        clsGeneralImportHelper.ClearTempImportTable(clsGeneralImportHelper.TableCodes.CaseActions08);
+                        if (!Y.Import_Staging_LegalCaseActions(filePath, limitRowsForDebugging)) { err_msg += "<span style=\"color: red;\">FILE #8: </span>" + Y.Error_Log; retVal = false; } else { success_msg += "<span style=\"color: green;\">FILE #8: </span>" + fileName + ";" + Y.RowsProcessed.ToString() + " rows imported successfully.\n"; }
+                        break;
+                    case 9:
+                        clsGeneralImportHelper.ClearTempImportTable(clsGeneralImportHelper.TableCodes.CaseHeaders09);
+                        if (!Y.Import_Staging_LegalCaseHeaders(filePath, limitRowsForDebugging)) { err_msg += "<span style=\"color: red;\">FILE #9: </span>" + Y.Error_Log; retVal = false; } else { success_msg += "<span style=\"color: green;\">FILE #9: </span>" + fileName + ";" + Y.RowsProcessed.ToString() + " rows imported successfully.\n"; }
+                        break;
+                    case 10:
+                        clsGeneralImportHelper.ClearTempImportTable(clsGeneralImportHelper.TableCodes.DailyARbyTenant10);
+                        if (!Y.Import_Staging_TenantARSummary(filePath, limitRowsForDebugging)) { err_msg += "<span style=\"color: red;\">FILE #10: </span>" + Y.Error_Log; retVal = false; } else { success_msg += "<span style=\"color: green;\">FILE #10: </span>" + fileName + ";" + Y.RowsProcessed.ToString() + " rows imported successfully.\n"; }
+                        break;
                     default:
                         continue;
                 }
@@ -198,7 +219,7 @@ namespace LW_Common
         private static int ExtractFileNumber(string fileName)
         {
             // Define the capturing group around File0[1-6]
-            // -- LW_Portal_Export-File01_amc.xlsx
+            // -- LW_Portal_Export-File01_amc.xlsx,   LW_Portal_Export-File10_amc.xlsx
             string pattern = @"File(\d{2})_";
 
             Match match = Regex.Match(fileName, pattern);

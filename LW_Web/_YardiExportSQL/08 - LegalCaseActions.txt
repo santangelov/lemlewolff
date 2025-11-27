@@ -2,24 +2,16 @@
    Maps to Portal: dbo.tblStg_LegalCasesActions
 */
 
-SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+DECLARE @LookbackMonths int = 3;
+DECLARE @CutoffDate date = CAST(DATEADD(MONTH, -@LookbackMonths, GETDATE()) AS date);
 
-DECLARE @LookbackMonths int = 6;
-
-WITH Cutoff AS (
-  SELECT CAST(DATEADD(MONTH, -@LookbackMonths, GETDATE()) AS date) AS d
-)
 SELECT
-    la.hMy        AS legalActionRowID,
-    la.hLegal     AS yardiLegalRowID,
+    la.hMy            AS legalActionRowID,
+    la.hLegal         AS yardiLegalRowID,
     la.dtBegin,
     la.dtDue,
-
-    -- Descriptions by numeric keys (robust across datasets)
-    t.sDisplay    AS ActionTypeDesc,   -- la.hType  -> LegalLookup.hMy
-    e.sDisplay    AS EventDesc,        -- la.hEvent -> LegalLookup.hMy
-
-    -- Passthrough
+    t.sDisplay        AS ActionTypeDesc,
+    e.sDisplay        AS EventDesc,
     la.sCheck,
     la.fAmount,
     la.sNote,
@@ -29,10 +21,9 @@ SELECT
 FROM legalaction la
 LEFT JOIN LegalLookup t ON t.hMy = la.hType
 LEFT JOIN LegalLookup e ON e.hMy = la.hEvent
-CROSS JOIN Cutoff c
 WHERE
-      (la.dtLastModified IS NOT NULL AND CAST(la.dtLastModified AS date) >= c.d)
-   OR (la.dtCreated      IS NOT NULL AND CAST(la.dtCreated      AS date) >= c.d)
-   OR (la.dtBegin        IS NOT NULL AND CAST(la.dtBegin        AS date) >= c.d)
-   OR (la.dtDue          IS NOT NULL AND CAST(la.dtDue          AS date) >= c.d)
+      (la.dtLastModified IS NOT NULL AND CAST(la.dtLastModified AS date) >= @CutoffDate)
+   OR (la.dtCreated      IS NOT NULL AND CAST(la.dtCreated      AS date) >= @CutoffDate)
+   OR (la.dtBegin        IS NOT NULL AND CAST(la.dtBegin        AS date) >= @CutoffDate)
+   OR (la.dtDue          IS NOT NULL AND CAST(la.dtDue          AS date) >= @CutoffDate)
 ORDER BY la.hMy;

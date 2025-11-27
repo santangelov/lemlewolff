@@ -3,6 +3,7 @@ using Microsoft.Office.Interop.Excel;
 using System;
 using System.Data;
 using System.Data.OleDb;
+using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 
@@ -551,6 +552,260 @@ namespace LW_Common
             return true;
         }
 
+        /// <summary>
+        /// Import File #07
+        /// </summary>
+        /// <param name="FilePathAndName"></param>
+        /// <param name="limitRows"></param>
+        /// <returns></returns>
+        public bool Import_Staging_Tenants(string FilePathAndName, int limitRows = -1)
+        {
+            Error_Log = "";
+            clsUtilities.WriteToCounter("TenantsStg", "Starting...");
+
+            System.Data.DataTable sourceTable = ReadCSVorXLSFile(FilePathAndName);  // Read the file into the sourceTable DataTable
+
+            try
+            {
+                if (sourceTable == null || sourceTable.Rows.Count == 0)
+                    return true;
+
+                RowsProcessed = 0;
+                int totalRows = sourceTable.Rows.Count;
+
+
+                using (SqlConnection conn = clsDataHelper.sqlconn(true))
+                {
+                    conn.Open();
+
+                    using (SqlBulkCopy bulk = new SqlBulkCopy(conn))
+                    {
+                        bulk.DestinationTableName = "dbo.tblStg_Tenants";
+                        bulk.BatchSize = 1000;
+                        bulk.BulkCopyTimeout = 0; // unlimited
+                        bulk.NotifyAfter = 500;
+
+                        bulk.SqlRowsCopied += (sender, args) =>
+                        {
+                            RowsProcessed = (int)args.RowsCopied;
+                        };
+
+                        bulk.ColumnMappings.Add("yardiPersonRowID", "yardiPersonRowID");
+                        bulk.ColumnMappings.Add("tenantCode", "tenantCode");
+                        bulk.ColumnMappings.Add("yardiPropertyRowID", "yardiPropertyRowID");
+                        bulk.ColumnMappings.Add("yardiUnitRowID", "yardiUnitRowID");
+                        bulk.ColumnMappings.Add("firstName", "firstName");
+                        bulk.ColumnMappings.Add("lastName", "lastName");
+                        bulk.ColumnMappings.Add("status", "status");
+                        bulk.ColumnMappings.Add("moveInDate", "moveInDate");
+                        bulk.ColumnMappings.Add("moveOutDate", "moveOutDate");
+                        bulk.ColumnMappings.Add("email", "email");
+
+                        bulk.WriteToServer(sourceTable);
+                    }
+                }
+
+                clsUtilities.WriteToCounter("TenantsStg", "Completed");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Error_Log += $"{DateTime.Now}: {ex.Message}\r\n";
+                clsUtilities.WriteToCounter("TenantsStg", "Error occurred");
+                return false;
+            }
+        }
+
+
+        /// <summary>
+        /// Import File #08
+        /// </summary>
+        /// <param name="FilePathAndName"></param>
+        /// <param name="limitRows"></param>
+        /// <returns></returns>
+        public bool Import_Staging_LegalCaseActions(string FilePathAndName, int limitRows = -1)
+        {
+            Error_Log = "";
+            clsUtilities.WriteToCounter("LegalCaseActions", "Starting...");
+
+            System.Data.DataTable sourceTable = ReadCSVorXLSFile(FilePathAndName);  // Read the file into the sourceTable DataTable
+
+            try
+            {
+                if (sourceTable == null || sourceTable.Rows.Count == 0)
+                    return true;
+
+                RowsProcessed = 0;
+                int totalRows = sourceTable.Rows.Count;
+
+                using (SqlConnection conn = clsDataHelper.sqlconn(true))
+                {
+                    conn.Open();
+
+                    using (SqlBulkCopy bulk = new SqlBulkCopy(conn))
+                    {
+                        bulk.DestinationTableName = "dbo.tblStg_LegalCasesActions";
+                        bulk.BatchSize = 1000;
+                        bulk.BulkCopyTimeout = 0; // unlimited
+                        bulk.NotifyAfter = 500;
+
+                        bulk.SqlRowsCopied += (sender, args) =>
+                        {
+                            RowsProcessed = (int)args.RowsCopied;
+                        };
+
+                        bulk.ColumnMappings.Add("legalActionRowID", "legalActionRowID");
+                        bulk.ColumnMappings.Add("yardiLegalRowID", "yardiLegalRowID");
+                        bulk.ColumnMappings.Add("dtBegin", "dtBegin");
+                        bulk.ColumnMappings.Add("dtDue", "dtDue");
+                        bulk.ColumnMappings.Add("ActionTypeDesc", "ActionTypeDesc");
+                        bulk.ColumnMappings.Add("EventDesc", "EventDesc");
+                        bulk.ColumnMappings.Add("sCheck", "sCheck");
+                        bulk.ColumnMappings.Add("fAmount", "fAmount");
+                        bulk.ColumnMappings.Add("sNote", "sNote");
+                        bulk.ColumnMappings.Add("dAttourneyFee", "dAttourneyFee");
+                        bulk.ColumnMappings.Add("dtCreated", "dtCreated");
+                        bulk.ColumnMappings.Add("dtLastModified", "dtLastModified");
+
+                        bulk.WriteToServer(sourceTable);
+                    }
+                }
+
+                clsUtilities.WriteToCounter("LegalCaseActions", "Completed");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Error_Log += $"{DateTime.Now}: {ex.Message}\r\n";
+                clsUtilities.WriteToCounter("LegalCaseActions", "Error occurred");
+                return false;
+            }
+        }
+
+
+        /// <summary>
+        /// Import File #09
+        /// </summary>
+        /// <param name="FilePathAndName"></param>
+        /// <param name="limitRows"></param>
+        /// <returns></returns>
+        public bool Import_Staging_LegalCaseHeaders(string FilePathAndName, int limitRows = -1)
+        {
+            Error_Log = "";
+            clsUtilities.WriteToCounter("LegalCaseHeaders", "Starting...");
+
+            System.Data.DataTable sourceTable = ReadCSVorXLSFile(FilePathAndName);  // Read the file into the sourceTable DataTable
+
+            try
+            {
+                if (sourceTable == null || sourceTable.Rows.Count == 0)
+                    return true;
+
+                RowsProcessed = 0;
+                int totalRows = sourceTable.Rows.Count;
+
+                using (SqlConnection conn = clsDataHelper.sqlconn(true))
+                {
+                    conn.Open();
+
+                    using (SqlBulkCopy bulk = new SqlBulkCopy(conn))
+                    {
+                        bulk.DestinationTableName = "dbo.tblStg_LegalCases";
+                        bulk.BatchSize = 1000;
+                        bulk.BulkCopyTimeout = 0; // unlimited
+                        bulk.NotifyAfter = 500;
+
+                        bulk.SqlRowsCopied += (sender, args) =>
+                        {
+                            RowsProcessed = (int)args.RowsCopied;
+                        };
+
+                        bulk.ColumnMappings.Add("yardiLegalRowID", "yardiLegalRowID");
+                        bulk.ColumnMappings.Add("yardiPersonRowID", "yardiPersonRowID");
+                        bulk.ColumnMappings.Add("legalStatusDesc", "legalStatusDesc");
+                        bulk.ColumnMappings.Add("legalFlash", "legalFlash");
+                        bulk.ColumnMappings.Add("legalDisplay", "legalDisplay");
+                        bulk.ColumnMappings.Add("isClosed", "isClosed");
+                        bulk.ColumnMappings.Add("unpaidCharges", "unpaidCharges");
+                        bulk.ColumnMappings.Add("createdDate", "createdDate");
+                        bulk.ColumnMappings.Add("modifiedDate", "modifiedDate");
+
+                        bulk.WriteToServer(sourceTable);
+                    }
+                }
+
+                clsUtilities.WriteToCounter("LegalCaseHeaders", "Completed");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Error_Log += $"{DateTime.Now}: {ex.Message}\r\n";
+                clsUtilities.WriteToCounter("LegalCaseHeaders", "Error occurred");
+                return false;
+            }
+        }
+
+
+        /// <summary>
+        /// Import File #10
+        /// </summary>
+        /// <param name="FilePathAndName"></param>
+        /// <param name="limitRows"></param>
+        /// <returns></returns>
+        public bool Import_Staging_TenantARSummary(string FilePathAndName, int limitRows = -1)
+        {
+            Error_Log = "";
+            clsUtilities.WriteToCounter("TenantARSummary", "Starting...");
+
+            System.Data.DataTable sourceTable = ReadCSVorXLSFile(FilePathAndName);  // Read the file into the sourceTable DataTable
+
+            try
+            {
+                if (sourceTable == null || sourceTable.Rows.Count == 0)
+                    return true;
+
+                RowsProcessed = 0;
+                int totalRows = sourceTable.Rows.Count;
+
+                using (SqlConnection conn = clsDataHelper.sqlconn(true))
+                {
+                    conn.Open();
+
+                    using (SqlBulkCopy bulk = new SqlBulkCopy(conn))
+                    {
+                        bulk.DestinationTableName = "dbo.tblStg_TenantARSummary";
+                        bulk.BatchSize = 1000;
+                        bulk.BulkCopyTimeout = 0; // unlimited
+                        bulk.NotifyAfter = 500;
+
+                        bulk.SqlRowsCopied += (sender, args) =>
+                        {
+                            RowsProcessed = (int)args.RowsCopied;
+                        };
+
+                        bulk.ColumnMappings.Add("AsOfDate", "AsOfDate");
+                        bulk.ColumnMappings.Add("yardiPersonRowID", "yardiPersonRowID");
+                        bulk.ColumnMappings.Add("yardiPropertyRowID", "yardiPropertyRowID");
+                        bulk.ColumnMappings.Add("yardiUnitRowID", "yardiUnitRowID");
+                        bulk.ColumnMappings.Add("balanceFwd", "balanceFwd");
+                        bulk.ColumnMappings.Add("charges", "charges");
+                        bulk.ColumnMappings.Add("receipts", "receipts");
+                        bulk.ColumnMappings.Add("endingBalance", "endingBalance");
+
+                        bulk.WriteToServer(sourceTable);
+                    }
+                }
+
+                clsUtilities.WriteToCounter("TenantARSummary", "Completed");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Error_Log += $"{DateTime.Now}: {ex.Message}\r\n";
+                clsUtilities.WriteToCounter("TenantARSummary", "Error occurred");
+                return false;
+            }
+        }
 
     }
 }

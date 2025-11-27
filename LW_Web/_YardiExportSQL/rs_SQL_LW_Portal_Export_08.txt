@@ -1,0 +1,54 @@
+//Notes
+//End Notes
+
+//Title
+LW Portal Export-File08
+//End Title
+
+//Select
+DECLARE @LookbackMonths int = 3;
+DECLARE @CutoffDate date = CAST(DATEADD(MONTH, -@LookbackMonths, GETDATE()) AS date);
+
+SELECT
+    la.hMy            AS legalActionRowID,
+    la.hLegal         AS yardiLegalRowID,
+    la.dtBegin,
+    la.dtDue,
+    t.sDisplay        AS ActionTypeDesc,
+    e.sDisplay        AS EventDesc,
+    la.sCheck,
+    la.fAmount,
+    la.sNote,
+    la.dAttourneyFee,
+    la.dtCreated,
+    la.dtLastModified
+FROM legalaction la
+LEFT JOIN LegalLookup t ON t.hMy = la.hType
+LEFT JOIN LegalLookup e ON e.hMy = la.hEvent
+WHERE
+      (la.dtLastModified IS NOT NULL AND CAST(la.dtLastModified AS date) >= @CutoffDate)
+   OR (la.dtCreated      IS NOT NULL AND CAST(la.dtCreated      AS date) >= @CutoffDate)
+   OR (la.dtBegin        IS NOT NULL AND CAST(la.dtBegin        AS date) >= @CutoffDate)
+   OR (la.dtDue          IS NOT NULL AND CAST(la.dtDue          AS date) >= @CutoffDate)
+ORDER BY la.hMy;
+//End Select
+
+//COLUMNS
+//Type, Name,               Head1,              Head2, Head3, Head4, Show, Color, Formula, Drill, Key,  Width, Total, Suppress
+N,     legalActionRowID,   legalActionRowID,   ,      ,      ,      Y,    ,      ,        ,      ,    90,    N,     N,
+N,     yardiLegalRowID,    yardiLegalRowID,    ,      ,      ,      Y,    ,      ,        ,      ,    90,    N,     N,
+T,     dtBegin,            dtBegin,            ,      ,      ,      Y,    ,      ,        ,      ,    110,   N,     N,
+T,     dtDue,              dtDue,              ,      ,      ,      Y,    ,      ,        ,      ,    110,   N,     N,
+T,     ActionTypeDesc,     ActionTypeDesc,     ,      ,      ,      Y,    ,      ,        ,      ,    140,   N,     N,
+T,     EventDesc,          EventDesc,          ,      ,      ,      Y,    ,      ,        ,      ,    140,   N,     N,
+T,     sCheck,             sCheck,             ,      ,      ,      Y,    ,      ,        ,      ,    120,   N,     N,
+N,     fAmount,            fAmount,            ,      ,      ,      Y,    ,      ,        ,      ,    120,   N,     N,
+T,     sNote,              sNote,              ,      ,      ,      Y,    ,      ,        ,      ,    200,   N,     N,
+N,     dAttourneyFee,      dAttourneyFee,      ,      ,      ,      Y,    ,      ,        ,      ,    120,   N,     N,
+T,     dtCreated,          dtCreated,          ,      ,      ,      Y,    ,      ,        ,      ,    110,   N,     N,
+T,     dtLastModified,     dtLastModified,     ,      ,      ,      Y,    ,      ,        ,      ,    110,   N,     N,
+//End Columns
+
+//FILTER
+//Type, DataTyp,   Name,          Caption,     Key,   List,    Val1,   Val2, Mandatory, Multi-Type, Title, Title
+//End Filter

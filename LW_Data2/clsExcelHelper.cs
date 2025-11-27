@@ -7,6 +7,7 @@ namespace LW_Data
 {
     using System.Data;
     using System.Data.SqlClient;
+    using System.Linq;
     using System.Security.RightsManagement;
     using Excel = Microsoft.Office.Interop.Excel;
 
@@ -18,32 +19,37 @@ namespace LW_Data
         /// Remove rows 1 and 2, promote row 2 to column headers, and clean up empty rows.
         /// </summary>
         /// <param name="sourceTable"></param>
-        public static void PromoteExcelHeaderAndCleanRows(ref DataTable sourceTable)
+        public static void PromoteExcelHeaderAndCleanRows(ref DataTable dt)
         {
-            if (sourceTable == null || sourceTable.Rows.Count < 2)
+            if (dt == null || dt.Rows.Count < 2)
                 return;
 
-            // Row 0 = Header Row (even though for some reason it shows up in the spreadsheet as row 2)
-            DataRow headerRow = sourceTable.Rows[0];
-            for (int i = 0; i < sourceTable.Columns.Count; i++)
+            // Always use row 0 as header because Excel driver collapses merged rows
+            DataRow header = dt.Rows[0];
+
+            for (int c = 0; c < dt.Columns.Count; c++)
             {
-                string colName = headerRow[i]?.ToString()?.Trim();
-                if (!string.IsNullOrEmpty(colName))
-                    sourceTable.Columns[i].ColumnName = colName;
-                else
-                    sourceTable.Columns[i].ColumnName = "Col" + (i + 1).ToString();
+                string name = header[c]?.ToString()?.Trim();
+                dt.Columns[c].ColumnName = string.IsNullOrWhiteSpace(name) ? $"Col{c + 1}" : name;
             }
 
-            // Delete Excel rows 0-5
-            if (sourceTable.Rows.Count >= 4)
+            // Remove header and the next 2 blank rows (because Excel merged-row behavior makes them be present)
+            int rowsToDelete = Math.Min(4, dt.Rows.Count);
+            for (int i = rowsToDelete - 1; i >= 0; i--)
+                dt.Rows[i].Delete();
+
+            dt.AcceptChanges();
+
+            // Now remove any fully blank rows anywhere
+            foreach (DataRow r in dt.Rows.Cast<DataRow>().ToList())
             {
-                sourceTable.Rows[3].Delete();
-                sourceTable.Rows[2].Delete(); 
-                sourceTable.Rows[1].Delete(); 
-                sourceTable.Rows[0].Delete(); 
+                if (r.ItemArray.All(x => x == null || x == DBNull.Value || string.IsNullOrWhiteSpace(x.ToString())))
+                    r.Delete();
             }
-            sourceTable.AcceptChanges();
+
+            dt.AcceptChanges();
         }
+
 
         public bool FillExcelRangeFromSP(ref Excel.Workbook xlWorkbook, string StoredProcedure, int WorksheetNumber, int CellStartRow, int CellStartColumn, SqlCommand cmd = null)
         {

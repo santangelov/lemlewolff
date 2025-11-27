@@ -380,28 +380,20 @@ namespace LW_Common
 
             clsDataHelper dh = new clsDataHelper();
 
-            // INVENTORY REPORT FOCUSED
-            //clsUtilities.WriteToCounter("MaintenanceMsg", "1: Importing Any Inventory Data...");
             if (isSuccess) isSuccess = dh.ExecuteSPCMD("spRptBuilder_Inventory_01_Import", true);
-
-            // WO ANALYTICS REPORT FOCUSED
-            //clsUtilities.WriteToCounter("MaintenanceMsg", "1: Processing WOs...");
             if (isSuccess) isSuccess = dh.ExecuteSPCMD("spRptBuilder_WOReview_01_WOs", true, true);
-
-            //clsUtilities.WriteToCounter("MaintenanceMsg", "2: Processing POs...");
             if (isSuccess) isSuccess = dh.ExecuteSPCMD("spRptBuilder_WOReview_02_POs", true, true);
-
-            //clsUtilities.WriteToCounter("MaintenanceMsg", "3: Processing Labor...");
             if (isSuccess) isSuccess = dh.ExecuteSPCMD("spRptBuilder_WOReview_03_Labor", true, true);
-
-            //clsUtilities.WriteToCounter("MaintenanceMsg", "4: Processing Sortly Fixes...");
             if (isSuccess) isSuccess = dh.ExecuteSPCMD("spRptBuilder_WOReview_04_SortlyFixes", true, true);
-
-            //clsUtilities.WriteToCounter("MaintenanceMsg", "5: Processing Materials...");
             if (isSuccess) isSuccess = dh.ExecuteSPCMD("spRptBuilder_WOReview_05_Materials", true, true);
-
-            //clsUtilities.WriteToCounter("MaintenanceMsg", "6: Processing Final Calcs...");
             if (isSuccess) isSuccess = dh.ExecuteSPCMD("spRptBuilder_WOReview_06_Calcs", true, true);
+
+            // Stored procedures for Arrears Report
+            if (isSuccess) isSuccess = dh.ExecuteSPCMD("sp_Load_Tenants_FromStaging", true, true);
+            if (isSuccess) isSuccess = dh.ExecuteSPCMD("sp_Load_LegalCases_FromStaging", true, true);
+            if (isSuccess) isSuccess = dh.ExecuteSPCMD("sp_Load_LegalActions_FromStaging", true, true);
+            if (isSuccess) isSuccess = dh.ExecuteSPCMD("sp_Snapshot_Tenants_SCD_Range", true, true);
+            if (isSuccess) isSuccess = dh.ExecuteSPCMD("sp_AttorneyAssignments_LoadFromStg", true, true);   // -- run occasionally after loading up tblStg_Attornys
 
             return isSuccess;
         }

@@ -1,13 +1,11 @@
-/* (10) Month-End A/R by Tenant — SLICED, READ-ONLY
-   Mapping (proven with Y9/Y10):
-     CHARGES  = iType 7  (amount = Trans.sTotalAmount; HAP via Trans.sNotes)
-     RECEIPTS = iType 6  (amount = Trans.sTotalAmount; HAP via Trans.sUserDefined2)
-   BFWD = CHARGES_before_month − RECEIPTS_before_month
-   Carry-in = net (charges − receipts) before the slice’s FIRST month start
-   Output columns (match dbo.tblStg_TenantARSummary):
-     AsOfDate, yardiPersonRowID, yardiPropertyRowID, yardiUnitRowID, balanceFwd, charges, receipts, endingBalance
-*/
+//Notes
+//End Notes
 
+//Title
+LW Portal Export-File10
+//End Title
+
+//Select
 DECLARE @MonthsBack int = 3;
 DECLARE @SliceSize  int = 3;
 DECLARE @SliceIndex int = 1;
@@ -199,3 +197,21 @@ ORDER BY
     r.yardiPropertyRowID,
     r.yardiUnitRowID,
     r.yardiPersonRowID;
+
+//End Select
+
+//COLUMNS
+//Type, Name,               Head1,              Head2, Head3, Head4, Show, Color, Formula, Drill, Key,  Width, Total, Suppress
+T,     AsOfDate,           AsOfDate,           ,      ,      ,      Y,    ,      ,        ,      ,    110,   N,     N,
+N,     yardiPersonRowID,   yardiPersonRowID,   ,      ,      ,      Y,    ,      ,        ,      ,    90,    N,     N,
+N,     yardiPropertyRowID, yardiPropertyRowID, ,      ,      ,      Y,    ,      ,        ,      ,    90,    N,     N,
+N,     yardiUnitRowID,     yardiUnitRowID,     ,      ,      ,      Y,    ,      ,        ,      ,    90,    N,     N,
+N,     balanceFwd,         balanceFwd,         ,      ,      ,      Y,    ,      ,        ,      ,    120,   N,     N,
+N,     charges,            charges,            ,      ,      ,      Y,    ,      ,        ,      ,    120,   N,     N,
+N,     receipts,           receipts,           ,      ,      ,      Y,    ,      ,        ,      ,    120,   N,     N,
+N,     endingBalance,      endingBalance,      ,      ,      ,      Y,    ,      ,        ,      ,    120,   N,     N,
+//End Columns
+
+//FILTER
+//Type, DataTyp,   Name,          Caption,     Key,   List,    Val1,   Val2, Mandatory, Multi-Type, Title, Title
+//End Filter

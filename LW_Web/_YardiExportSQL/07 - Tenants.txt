@@ -2,11 +2,6 @@
    Maps to Portal: tblStg_Tenants
 */
 
-SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
-
-WITH Cutoff AS (
-  SELECT CAST(DATEADD(MONTH, -6, GETDATE()) AS date) AS d
-)
 SELECT
     t.HMYPERSON      AS yardiPersonRowID,
     t.SCODE          AS tenantCode,
@@ -19,8 +14,10 @@ SELECT
     t.DTMOVEOUT      AS moveOutDate,
     t.SEMAIL         AS email
 FROM tenant t
-left join tenStatus ts on t.iStatus = ts.iStatus
-CROSS JOIN Cutoff c
+LEFT JOIN tenStatus ts ON t.iStatus = ts.iStatus
+CROSS JOIN (
+    SELECT CAST(DATEADD(MONTH, -3, GETDATE()) AS date) AS d
+) AS c
 WHERE
       (t.dtLastModified IS NOT NULL AND CAST(t.dtLastModified AS date) >= c.d)
    OR (t.DTMOVEIN       IS NOT NULL AND CAST(t.DTMOVEIN       AS date) >= c.d)

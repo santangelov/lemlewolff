@@ -33,7 +33,9 @@ namespace LW_Web.Controllers
                 })
                 .ToList();
 
-            mdl.selectedBuildingCode = null;
+            mdl.Properties.Insert(0, new SelectListItem { Value = "", Text = "All Properties" });   
+
+            mdl.selectedBuildingCode = "";
             return View("LegalReportingPage", mdl);
         }
 

@@ -87,9 +87,13 @@ namespace LW_Common
             Sortly,
             YardiWO,
             YardiPO,
-            YardiWO2,    // Geeral Full list of Work Orders (File #5)
+            YardiWO2,               // Geeral Full list of Work Orders (File #5)
             InventoryWO,
-            InventoryPO
+            InventoryPO,
+            Tenants07,              // 07-10:  Tenant Arrears Report imports (Legal)  // --> tblStg_Tenants
+            CaseActions08,          // --> tblStg_LegalCasesActions
+            CaseHeaders09,          // --> tblStg_LegalCaseHeaders
+            DailyARbyTenant10       // --> tblStg_TenantARSummary
         }
 
         public static bool ClearTempImportTable(TableCodes TableCode)
@@ -114,6 +118,18 @@ namespace LW_Common
                     break;
                 case TableCodes.InventoryPO:
                     CodeStr = "InventoryPO";
+                    break;
+                case TableCodes.Tenants07:
+                    CodeStr = "Tenants";
+                    break;
+                case TableCodes.CaseActions08:
+                    CodeStr = "LegalCasesActions";
+                    break;
+                case TableCodes.CaseHeaders09:
+                    CodeStr = "LegalCaseHeaders";
+                    break;
+                case TableCodes.DailyARbyTenant10:
+                    CodeStr = "TenantARSummary";
                     break;
                 default:
                     return false;

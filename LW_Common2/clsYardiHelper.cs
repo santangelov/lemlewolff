@@ -367,7 +367,7 @@ namespace LW_Common
         }
 
         /// <summary>
-        /// Work Order File #5
+        /// Work Order File #05
         /// </summary>
         /// <param name="FilePathAndName"></param>
         /// <returns></returns>
@@ -431,7 +431,7 @@ namespace LW_Common
         }
 
         /// <summary>
-        /// Work Order File #5
+        /// Work Order File #06
         /// </summary>
         /// <param name="FilePathAndName"></param>
         /// <returns></returns>
@@ -567,12 +567,24 @@ namespace LW_Common
 
             try
             {
-                if (sourceTable == null || sourceTable.Rows.Count == 0)
-                    return true;
+                if (sourceTable == null || sourceTable.Rows.Count == 0) return true;
 
                 RowsProcessed = 0;
-                int totalRows = sourceTable.Rows.Count;
 
+                // Determine how many rows we are actually going to import
+                int totalRowsInFile = sourceTable.Rows.Count;
+                int rowsToImport = (limitRows > 0 && limitRows < totalRowsInFile)
+                    ? limitRows
+                    : totalRowsInFile;
+
+                // If limitRows is used, create a trimmed table
+                System.Data.DataTable tableToImport = sourceTable;
+                if (rowsToImport != totalRowsInFile)
+                {
+                    tableToImport = sourceTable.AsEnumerable()
+                                               .Take(rowsToImport)
+                                               .CopyToDataTable();
+                }
 
                 using (SqlConnection conn = clsDataHelper.sqlconn(true))
                 {
@@ -587,6 +599,7 @@ namespace LW_Common
 
                         bulk.SqlRowsCopied += (sender, args) =>
                         {
+                            // This is for progress updates only
                             RowsProcessed = (int)args.RowsCopied;
                         };
 
@@ -601,11 +614,14 @@ namespace LW_Common
                         bulk.ColumnMappings.Add("moveOutDate", "moveOutDate");
                         bulk.ColumnMappings.Add("email", "email");
 
-                        bulk.WriteToServer(sourceTable);
+                        bulk.WriteToServer(tableToImport);
+
+                        // IMPORTANT: force the final count after a successful bulk copy
+                        RowsProcessed = rowsToImport;
                     }
                 }
 
-                clsUtilities.WriteToCounter("TenantsStg", "Completed");
+                clsUtilities.WriteToCounter("TenantsStg", $"Completed. Rows imported: {RowsProcessed}");
                 return true;
             }
             catch (Exception ex)
@@ -632,11 +648,23 @@ namespace LW_Common
 
             try
             {
-                if (sourceTable == null || sourceTable.Rows.Count == 0)
-                    return true;
+                if (sourceTable == null || sourceTable.Rows.Count == 0) return true;
 
                 RowsProcessed = 0;
-                int totalRows = sourceTable.Rows.Count;
+                // Determine how many rows we are actually going to import
+                int totalRowsInFile = sourceTable.Rows.Count;
+                int rowsToImport = (limitRows > 0 && limitRows < totalRowsInFile)
+                    ? limitRows
+                    : totalRowsInFile;
+
+                // If limitRows is used, create a trimmed table
+                System.Data.DataTable tableToImport = sourceTable;
+                if (rowsToImport != totalRowsInFile)
+                {
+                    tableToImport = sourceTable.AsEnumerable()
+                                               .Take(rowsToImport)
+                                               .CopyToDataTable();
+                }
 
                 using (SqlConnection conn = clsDataHelper.sqlconn(true))
                 {
@@ -668,6 +696,9 @@ namespace LW_Common
                         bulk.ColumnMappings.Add("dtLastModified", "dtLastModified");
 
                         bulk.WriteToServer(sourceTable);
+
+                        // IMPORTANT: force the final count after a successful bulk copy
+                        RowsProcessed = rowsToImport;
                     }
                 }
 
@@ -702,7 +733,20 @@ namespace LW_Common
                     return true;
 
                 RowsProcessed = 0;
-                int totalRows = sourceTable.Rows.Count;
+                // Determine how many rows we are actually going to import
+                int totalRowsInFile = sourceTable.Rows.Count;
+                int rowsToImport = (limitRows > 0 && limitRows < totalRowsInFile)
+                    ? limitRows
+                    : totalRowsInFile;
+
+                // If limitRows is used, create a trimmed table
+                System.Data.DataTable tableToImport = sourceTable;
+                if (rowsToImport != totalRowsInFile)
+                {
+                    tableToImport = sourceTable.AsEnumerable()
+                                               .Take(rowsToImport)
+                                               .CopyToDataTable();
+                }
 
                 using (SqlConnection conn = clsDataHelper.sqlconn(true))
                 {
@@ -731,6 +775,9 @@ namespace LW_Common
                         bulk.ColumnMappings.Add("modifiedDate", "modifiedDate");
 
                         bulk.WriteToServer(sourceTable);
+
+                        // IMPORTANT: force the final count after a successful bulk copy
+                        RowsProcessed = rowsToImport;
                     }
                 }
 
@@ -765,7 +812,20 @@ namespace LW_Common
                     return true;
 
                 RowsProcessed = 0;
-                int totalRows = sourceTable.Rows.Count;
+                // Determine how many rows we are actually going to import
+                int totalRowsInFile = sourceTable.Rows.Count;
+                int rowsToImport = (limitRows > 0 && limitRows < totalRowsInFile)
+                    ? limitRows
+                    : totalRowsInFile;
+
+                // If limitRows is used, create a trimmed table
+                System.Data.DataTable tableToImport = sourceTable;
+                if (rowsToImport != totalRowsInFile)
+                {
+                    tableToImport = sourceTable.AsEnumerable()
+                                               .Take(rowsToImport)
+                                               .CopyToDataTable();
+                }
 
                 using (SqlConnection conn = clsDataHelper.sqlconn(true))
                 {
@@ -793,6 +853,9 @@ namespace LW_Common
                         bulk.ColumnMappings.Add("endingBalance", "endingBalance");
 
                         bulk.WriteToServer(sourceTable);
+
+                        // IMPORTANT: force the final count after a successful bulk copy
+                        RowsProcessed = rowsToImport;
                     }
                 }
 

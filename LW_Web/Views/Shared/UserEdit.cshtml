@@ -36,6 +36,12 @@
             <h5>Options</h5>
             <div class="ms-4" disabled>
                 <div class="form-check">
+                    @Html.CheckBoxFor(m => Model.isLegalTeam, clsSecurity.isSuperAdmin()
+                        ? (object)new { @class = "form-check-input", id = "isLegalTeam" }
+                        : (object)new { @class = "form-check-input", id = "isLegalTeam", disabled = "true" })
+                    <label class="form-check-label" for="isLegalTeam">Legal Team</label>
+                </div>
+                <div class="form-check">
                     @Html.CheckBoxFor(m => Model.isProjectManager, clsSecurity.isSuperAdmin()
                         ? (object)new { @class = "form-check-input", id = "isProjectManager" }
                         : (object)new { @class = "form-check-input", id = "isProjectManager", disabled = "true" })

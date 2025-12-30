@@ -100,6 +100,7 @@ namespace LW_Web.Controllers
                         if (clsSecurity.isSuperAdmin())  // Update them, otherwise they stay the same
                         {
                             record.isProjectManager = updatedRecord.isProjectManager;
+                            record.isLegalTeam = updatedRecord.isLegalTeam;
                             record.isAdmin = updatedRecord.isAdmin;
                             record.isSuperAdmin = updatedRecord.isSuperAdmin;
                             record.isDisabled = updatedRecord.isDisabled;

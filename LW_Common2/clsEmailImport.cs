@@ -141,42 +141,42 @@ namespace LW_Common
                 {
                     case 1:
                         clsGeneralImportHelper.ClearTempImportTable(clsGeneralImportHelper.TableCodes.YardiWO);
-                        if (!Y.Import_YardiWO_File(filePath, limitRowsForDebugging)) { err_msg += "<span style=\"color: red;\">FILE #1: </span>" + Y.Error_Log; retVal = false; } else { success_msg += "<span style=\"color: green;\">FILE #1: </span>" + fileName + ";" + Y.RowsProcessed.ToString() + " rows imported successfully.\n"; }
+                        if (!Y.Import_YardiWO_File(filePath, limitRowsForDebugging)) { err_msg += "<span style=\"color: red;\">FILE #1: </span>" + Y.Error_Log; retVal = false; } else { success_msg += "<span style=\"color: green;\">FILE #1: </span>" + fileName + "; &nbsp;" + Y.RowsProcessed.ToString("#,##0") + " rows imported successfully.\n"; }
                         break;
                     case 2:
                         clsGeneralImportHelper.ClearTempImportTable(clsGeneralImportHelper.TableCodes.YardiPO);
-                        if (!Y.Import_YardiPO_File(filePath, limitRowsForDebugging)) { err_msg += "<span style=\"color: red;\">FILE #2: </span>" + Y.Error_Log; retVal = false; } else { success_msg += "<span style=\"color: green;\">FILE #2: </span>" + fileName + ";" + Y.RowsProcessed.ToString() + " rows imported successfully.\n"; }
+                        if (!Y.Import_YardiPO_File(filePath, limitRowsForDebugging)) { err_msg += "<span style=\"color: red;\">FILE #2: </span>" + Y.Error_Log; retVal = false; } else { success_msg += "<span style=\"color: green;\">FILE #2: </span>" + fileName + "; &nbsp;" + Y.RowsProcessed.ToString("#,##0") + " rows imported successfully.\n"; }
                         break;
                     case 3:
                         clsGeneralImportHelper.ClearTempImportTable(clsGeneralImportHelper.TableCodes.InventoryWO);
-                        if (!Y.Import_YardiWO_InventoryFile(filePath, limitRowsForDebugging)) { err_msg += "<span style=\"color: red;\">FILE #3: </span>" + Y.Error_Log; retVal = false; } else { success_msg += "<span style=\"color: green;\">FILE #3: </span>" + fileName + ";" + Y.RowsProcessed.ToString() + " rows imported successfully.\n"; }
+                        if (!Y.Import_YardiWO_InventoryFile(filePath, limitRowsForDebugging)) { err_msg += "<span style=\"color: red;\">FILE #3: </span>" + Y.Error_Log; retVal = false; } else { success_msg += "<span style=\"color: green;\">FILE #3: </span>" + fileName + "; &nbsp;" + Y.RowsProcessed.ToString("#,##0") + " rows imported successfully.\n"; }
                         break;
                     case 4:
                         clsGeneralImportHelper.ClearTempImportTable(clsGeneralImportHelper.TableCodes.InventoryPO);
-                        if (!Y.Import_YardiPO_InventoryFile(filePath, limitRowsForDebugging)) { err_msg += "<span style=\"color: red;\">FILE #4: </span>" + Y.Error_Log; retVal = false; } else { success_msg += "<span style=\"color: green;\">FILE #4: </span>" + fileName + ";" + Y.RowsProcessed.ToString() + " rows imported successfully.\n"; }
+                        if (!Y.Import_YardiPO_InventoryFile(filePath, limitRowsForDebugging)) { err_msg += "<span style=\"color: red;\">FILE #4: </span>" + Y.Error_Log; retVal = false; } else { success_msg += "<span style=\"color: green;\">FILE #4: </span>" + fileName + "; &nbsp;" + Y.RowsProcessed.ToString("#,##0") + " rows imported successfully.\n"; }
                         break;
                     case 5:
                         clsGeneralImportHelper.ClearTempImportTable(clsGeneralImportHelper.TableCodes.YardiWO2);
-                        if (!Y.Import_YardiWO_GeneralFile(filePath, limitRowsForDebugging)) { err_msg += "<span style=\"color: red;\">FILE #5: </span>" + Y.Error_Log; retVal = false; } else { success_msg += "<span style=\"color: green;\">FILE #5: </span>" + fileName + ";" + Y.RowsProcessed.ToString() + " rows imported successfully.\n"; }
+                        if (!Y.Import_YardiWO_GeneralFile(filePath, limitRowsForDebugging)) { err_msg += "<span style=\"color: red;\">FILE #5: </span>" + Y.Error_Log; retVal = false; } else { success_msg += "<span style=\"color: green;\">FILE #5: </span>" + fileName + "; &nbsp;" + Y.RowsProcessed.ToString("#,##0") + " rows imported successfully.\n"; }
                         break;
                     case 6:
-                        if (!Y.Import_YardiProperty_File(filePath, limitRowsForDebugging)) { err_msg += "<span style=\"color: red;\">FILE #6: </span>" + Y.Error_Log; retVal = false; } else { success_msg += "<span style=\"color: green;\">FILE #6: </span>" + fileName + ";" + Y.RowsProcessed.ToString() + " rows imported successfully.\n"; }
+                        if (!Y.Import_YardiProperty_File(filePath, limitRowsForDebugging)) { err_msg += "<span style=\"color: red;\">FILE #6: </span>" + Y.Error_Log; retVal = false; } else { success_msg += "<span style=\"color: green;\">FILE #6: </span>" + fileName + "; &nbsp;" + Y.RowsProcessed.ToString("#,##0") + " rows imported successfully.\n"; }
                         break;
                     case 7:
                         clsGeneralImportHelper.ClearTempImportTable(clsGeneralImportHelper.TableCodes.Tenants07);
-                        if (!Y.Import_Staging_Tenants(filePath, limitRowsForDebugging)) { err_msg += "<span style=\"color: red;\">FILE #7: </span>" + Y.Error_Log; retVal = false; } else { success_msg += "<span style=\"color: green;\">FILE #7: </span>" + fileName + ";" + Y.RowsProcessed.ToString() + " rows imported successfully.\n"; }
+                        if (!Y.Import_Staging_Tenants(filePath, limitRowsForDebugging)) { err_msg += "<span style=\"color: red;\">FILE #7: </span>" + Y.Error_Log; retVal = false; } else { success_msg += "<span style=\"color: green;\">FILE #7: </span>" + fileName + "; &nbsp;" + Y.RowsProcessed.ToString("#,##0") + " rows imported successfully.\n"; }
                         break;
                     case 8:
                         clsGeneralImportHelper.ClearTempImportTable(clsGeneralImportHelper.TableCodes.CaseActions08);
-                        if (!Y.Import_Staging_LegalCaseActions(filePath, limitRowsForDebugging)) { err_msg += "<span style=\"color: red;\">FILE #8: </span>" + Y.Error_Log; retVal = false; } else { success_msg += "<span style=\"color: green;\">FILE #8: </span>" + fileName + ";" + Y.RowsProcessed.ToString() + " rows imported successfully.\n"; }
+                        if (!Y.Import_Staging_LegalCaseActions(filePath, limitRowsForDebugging)) { err_msg += "<span style=\"color: red;\">FILE #8: </span>" + Y.Error_Log; retVal = false; } else { success_msg += "<span style=\"color: green;\">FILE #8: </span>" + fileName + "; &nbsp;" + Y.RowsProcessed.ToString("#,##0") + " rows imported successfully.\n"; }
                         break;
                     case 9:
                         clsGeneralImportHelper.ClearTempImportTable(clsGeneralImportHelper.TableCodes.CaseHeaders09);
-                        if (!Y.Import_Staging_LegalCaseHeaders(filePath, limitRowsForDebugging)) { err_msg += "<span style=\"color: red;\">FILE #9: </span>" + Y.Error_Log; retVal = false; } else { success_msg += "<span style=\"color: green;\">FILE #9: </span>" + fileName + ";" + Y.RowsProcessed.ToString() + " rows imported successfully.\n"; }
+                        if (!Y.Import_Staging_LegalCaseHeaders(filePath, limitRowsForDebugging)) { err_msg += "<span style=\"color: red;\">FILE #9: </span>" + Y.Error_Log; retVal = false; } else { success_msg += "<span style=\"color: green;\">FILE #9: </span>" + fileName + "; &nbsp;" + Y.RowsProcessed.ToString("#,##0") + " rows imported successfully.\n"; }
                         break;
                     case 10:
                         clsGeneralImportHelper.ClearTempImportTable(clsGeneralImportHelper.TableCodes.DailyARbyTenant10);
-                        if (!Y.Import_Staging_TenantARSummary(filePath, limitRowsForDebugging)) { err_msg += "<span style=\"color: red;\">FILE #10: </span>" + Y.Error_Log; retVal = false; } else { success_msg += "<span style=\"color: green;\">FILE #10: </span>" + fileName + ";" + Y.RowsProcessed.ToString() + " rows imported successfully.\n"; }
+                        if (!Y.Import_Staging_TenantARSummary(filePath, limitRowsForDebugging)) { err_msg += "<span style=\"color: red;\">FILE #10: </span>" + Y.Error_Log; retVal = false; } else { success_msg += "<span style=\"color: green;\">FILE #10: </span>" + fileName + "; &nbsp;" + Y.RowsProcessed.ToString("#,##0") + " rows imported successfully.\n"; }
                         break;
                     default:
                         continue;

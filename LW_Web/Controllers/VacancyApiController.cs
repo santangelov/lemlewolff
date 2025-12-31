@@ -16,7 +16,7 @@ namespace LW_Web.Controllers
             _password = ConfigurationManager.AppSettings["VacancyApiPassword"];
         }
 
-        [HttpGet]
+        [AcceptVerbs(HttpVerbs.Get | HttpVerbs.Post)]
         public ActionResult VacancyCoverSheet(string selectedBuildingCode, string selectedAptNumber)
         {
             if (!IsAuthorized(Request.Headers["Authorization"]))

@@ -72,10 +72,16 @@ namespace LW_Web.Controllers
             }
             catch (FormatException)
             {
-                return false;
+                decodedCredentials = encodedCredentials;
             }
 
             string[] parts = decodedCredentials.Split(new[] { ':' }, 2);
+
+            if (parts.Length != 2 && encodedCredentials.Contains(":"))
+            {
+                parts = encodedCredentials.Split(new[] { ':' }, 2);
+            }
+
             if (parts.Length != 2)
             {
                 return false;

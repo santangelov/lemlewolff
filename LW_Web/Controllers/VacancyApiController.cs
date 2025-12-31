@@ -17,10 +17,11 @@ namespace LW_Web.Controllers
         }
 
         [HttpGet]
-        public ActionResult VacancyCoverSheet(string accountId, string password, string selectedBuildingCode, string selectedAptNumber)
+        public ActionResult VacancyCoverSheet(string selectedBuildingCode, string selectedAptNumber)
         {
-            if (!IsAuthorized(accountId, password))
+            if (!IsAuthorized(Request.Headers["Authorization"]))
             {
+                Response.AddHeader("WWW-Authenticate", "Basic realm=\"VacancyAPI\"");
                 return new HttpStatusCodeResult(401, "Unauthorized");
             }
 
@@ -44,12 +45,49 @@ namespace LW_Web.Controllers
             return new HttpStatusCodeResult(500, "Error creating download file.");
         }
 
-        private bool IsAuthorized(string accountId, string password)
+        private bool IsAuthorized(string authorizationHeader)
         {
-            return !string.IsNullOrEmpty(accountId)
-                && !string.IsNullOrEmpty(password)
-                && string.Equals(accountId, _accountId)
-                && string.Equals(password, _password);
+            if (string.IsNullOrWhiteSpace(authorizationHeader))
+            {
+                return false;
+            }
+
+            const string basicPrefix = "Basic ";
+            if (!authorizationHeader.StartsWith(basicPrefix, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            string encodedCredentials = authorizationHeader.Substring(basicPrefix.Length).Trim();
+            if (string.IsNullOrWhiteSpace(encodedCredentials))
+            {
+                return false;
+            }
+
+            string decodedCredentials;
+            try
+            {
+                byte[] credentialBytes = Convert.FromBase64String(encodedCredentials);
+                decodedCredentials = System.Text.Encoding.UTF8.GetString(credentialBytes);
+            }
+            catch (FormatException)
+            {
+                return false;
+            }
+
+            string[] parts = decodedCredentials.Split(new[] { ':' }, 2);
+            if (parts.Length != 2)
+            {
+                return false;
+            }
+
+            string providedAccountId = parts[0];
+            string providedPassword = parts[1];
+
+            return !string.IsNullOrEmpty(providedAccountId)
+                && !string.IsNullOrEmpty(providedPassword)
+                && string.Equals(providedAccountId, _accountId)
+                && string.Equals(providedPassword, _password);
         }
     }
 }

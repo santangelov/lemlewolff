@@ -6,18 +6,20 @@ The **VacancyAPI** provides a lightweight HTTP GET endpoint to generate and down
 `GET /VacancyApi/VacancyCoverSheet`
 
 ## Required query parameters
-- `accountId` — credential identifier. Use the configured value in `Web.config` (`VacancyApiAccountId`).
-- `password` — credential secret. Use the configured value in `Web.config` (`VacancyApiPassword`).
 - `selectedBuildingCode` — property/building code to include in the report.
 - `selectedAptNumber` — apartment/unit number to include in the report.
 
+## Required header
+- `Authorization: Basic <base64(accountId:password)>` using the configured values in `Web.config` (`VacancyApiAccountId` and `VacancyApiPassword`).
+
 ## Example request
 ```
-GET https://<your-domain>/VacancyApi/VacancyCoverSheet?accountId=20251230454&password=qF9!mZ2@L7#RkA8$Vx&selectedBuildingCode=ABC123&selectedAptNumber=1A
+GET https://<your-domain>/VacancyApi/VacancyCoverSheet?selectedBuildingCode=ABC123&selectedAptNumber=1A
+Authorization: Basic MjAyNTEyMzA0NTQ6cUY5IW1aMkBMNyNSa0E4JFZ4
 ```
 
 ## Behavior
-- Returns HTTP 401 when `accountId` or `password` do not match the configured values.
+- Returns HTTP 401 (with `WWW-Authenticate: Basic realm="VacancyAPI"`) when the Basic authorization header is missing or does not match the configured values.
 - Returns HTTP 400 when either `selectedBuildingCode` or `selectedAptNumber` is missing.
 - On success, returns the generated Excel file (`application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`) for download.
 - Returns HTTP 500 if the report helper cannot create the Excel file.

@@ -277,6 +277,7 @@
     <Content Include="_YardiExportSQL\rs_SQL_LW_Portal_Export_06.txt" />
     <Content Include="Views\ExternalApps\Index.cshtml" />
     <Content Include="Views\Shared\LegalReportingPage.cshtml" />
+    <Content Include="bin\roslyn\csc.rsp" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -305,6 +306,7 @@
     <Compile Include="Controllers\LoginController.cs" />
     <Compile Include="Controllers\ReportsController.cs" />
     <Compile Include="Controllers\ExternalAppsController.cs" />
+    <Compile Include="Controllers\VacancyApiController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

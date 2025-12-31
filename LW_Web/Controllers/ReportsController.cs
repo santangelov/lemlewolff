@@ -143,7 +143,6 @@ namespace LW_Web.Controllers
 
             if (R.FillExcel_VacancyCoverSheet(NewFileName, BuildingCode, AptNumber))
             {
-                //ViewBag.MessageVAC = "<div class=\"alert alert-success\"><strong><a href=\"\\_Downloads\\" + NewFileName + "\" target='_blank'>Download " + NewFileName + "</a></strong></div>";
                 model.Error_logVAC = "";
                 return File(fileNameAndPath, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", NewFileName);
             }

@@ -217,7 +217,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="SQL scripts\FULL Portal Database Script Backup.sql" />
+    <Folder Include="SQL scripts\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

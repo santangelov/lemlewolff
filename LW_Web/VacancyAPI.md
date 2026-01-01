@@ -14,21 +14,21 @@ The **VacancyAPI** provides a lightweight HTTP GET endpoint to generate and down
 
 ## Example request
 ``` 
-GET https://<your-domain>/VacancyApi/VacancyCoverSheet?selectedBuildingCode=ABC123&selectedAptNumber=1A
+GET https://portal.lemlewolff.net/VacancyApi/VacancyCoverSheet?selectedBuildingCode=ABC123&selectedAptNumber=1A
 Authorization: Basic MjAyNTEyMzA0NTQ6cUY5IW1aMkBMNyNSa0E4JFZ4
 ```
 
 Plain-text credentials can also be supplied (they are still sent under the `Basic` scheme):
 
 ```
-GET https://<your-domain>/VacancyApi/VacancyCoverSheet?selectedBuildingCode=ABC123&selectedAptNumber=1A
+GET https://portal.lemlewolff.net/VacancyApi/VacancyCoverSheet?selectedBuildingCode=ABC123&selectedAptNumber=1A
 Authorization: Basic 20251230454:qF9!mZ2@L7#RkA8$Vx
 ```
 
 You can also POST to the same endpoint with form or query parameters:
 
 ```
-POST https://<your-domain>/VacancyApi/VacancyCoverSheet
+POST https://portal.lemlewolff.net/VacancyApi/VacancyCoverSheet
 Authorization: Basic 20251230454:qF9!mZ2@L7#RkA8$Vx
 
 selectedBuildingCode=ABC123&selectedAptNumber=1A

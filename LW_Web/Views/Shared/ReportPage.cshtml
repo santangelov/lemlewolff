@@ -192,9 +192,16 @@
                             </div>
                         </div>
 
+                        <div class="row mb m-2">
+                            <div class="col-10">
+                                <button type="button" id="btnVacancyApiTest" class="btn btn-outline-primary w-100" @(Model.DisableVacancyCoverSheets ? "disabled" : "")>API Version (Testing)</button>
+                            </div>
+                        </div>
+
                         <div class="row mb-3">
                             <div class="col-12">
                                 <span id="DownloadReportMsgVAC"></span>
+                                <span id="DownloadReportMsgVACApi" class="d-block"></span>
                             </div>
                         </div>
                     }
@@ -213,6 +220,9 @@
     <script>
         $(document).ready(function () {
             console.log("Document Ready!");
+
+            const vacancyApiAccountId = '@System.Configuration.ConfigurationManager.AppSettings["VacancyApiAccountId"]';
+            const vacancyApiPassword = '@System.Configuration.ConfigurationManager.AppSettings["VacancyApiPassword"]';
 
             $("#propertyDropdown").change(function () {
                 console.log("Property dropdown changed!");
@@ -245,6 +255,61 @@
                 } else {
                     apartmentDropdown.empty().append('<option value="">-- Select Apartment --</option>');
                 }
+            });
+
+            $("#btnVacancyApiTest").click(function (event) {
+                event.preventDefault();
+
+                const buildingCode = $("#propertyDropdown").val();
+                const apartmentNumber = $("#apartmentDropdown").val();
+                const messageTarget = $("#DownloadReportMsgVACApi");
+
+                messageTarget.text("");
+
+                if (!buildingCode || !apartmentNumber) {
+                    messageTarget.text("Select a property and apartment before testing the VacancyAPI.");
+                    return;
+                }
+
+                const apiUrl = `${window.location.origin}/VacancyApi/VacancyCoverSheet?selectedBuildingCode=${encodeURIComponent(buildingCode)}&selectedAptNumber=${encodeURIComponent(apartmentNumber)}`;
+                const basicAuth = `Basic ${btoa(`${vacancyApiAccountId}:${vacancyApiPassword}`)}`;
+
+                fetch(apiUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': basicAuth
+                    }
+                }).then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Request failed (${response.status}): ${response.statusText}`);
+                    }
+
+                    const disposition = response.headers.get('Content-Disposition');
+                    return response.blob().then(blob => ({ blob, disposition }));
+                }).then(({ blob, disposition }) => {
+                    const downloadUrl = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    let fileName = 'VacancyCoverSheet.xlsx';
+
+                    if (disposition) {
+                        const fileNameMatch = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition);
+                        if (fileNameMatch && fileNameMatch[1]) {
+                            fileName = fileNameMatch[1].replace(/['"]/g, '');
+                        }
+                    }
+
+                    link.href = downloadUrl;
+                    link.download = fileName;
+                    document.body.appendChild(link);
+                    link.click();
+                    link.remove();
+                    window.URL.revokeObjectURL(downloadUrl);
+
+                    messageTarget.text("VacancyAPI download started.");
+                }).catch(error => {
+                    console.error("VacancyAPI test error:", error);
+                    messageTarget.text(`VacancyAPI error: ${error.message}`);
+                });
             });
         });
     </script>

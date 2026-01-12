@@ -152,7 +152,10 @@ namespace LW_Common
             }
             // Run Pre-Processing of data
             clsUtilities.WriteToCounter("ADP", "Processing ADP/Laborer data...");
-            if (!clsReportHelper.RunAllReportSQL_Public()) { return false; }
+            string errMsgOut = "";
+
+            // Run Pre-Processing of data
+            if (!clsReportHelper.RunAllReportSQL_Public(out errMsgOut)) { error_message = errMsgOut; return false; }
 
             clsUtilities.WriteToCounter("ADP", "Completed");
             return true;

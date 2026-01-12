@@ -1,6 +1,12 @@
 ﻿<!DOCTYPE html>
-<html lang="en" data-theme="light" data-sidenav-color="dark" data-topbar-color="dark" data-sidenav-size="default" 
-      data-sidenav-user="false" data-layout-mode="fluid" data-layout-position="scrollable"  >
+<html lang="en"
+      data-theme="light"
+      data-topbar-color="dark"
+      data-sidenav-color="dark"
+      data-sidenav-size="default"
+      data-sidenav-user="false"
+      data-layout-mode="fluid"
+      data-layout-position="scrollable">
 
 <head>
     <meta charset="utf-8" />
@@ -11,7 +17,7 @@
     <link rel="shortcut icon" href="~/assets/images/favicon.ico">
     <link rel="stylesheet" href="~/assets/css/icons.min.css" type="text/css" />
     <link rel="stylesheet" href="~/assets/css/app-modern.min.css" type="text/css" id="app-style" />
-    <link rel="stylesheet" href="~/assets/css/lw-custom.css" type="text/css" id="app-style" />
+    <link rel="stylesheet" href="~/assets/css/lw-custom.css?ver=1" type="text/css" />
 
     <script type="text/javascript" src="~/assets/jquery/jquery-3.6.0.min.js"></script>
 
@@ -189,7 +195,7 @@
                 <!--- Side-menu -->
                 <ul class="side-nav">
 
-                    <li class="side-nav-title side-nav-item">Work Order P&amp;L Review</li>
+                    <li class="side-nav-title side-nav-item">LW PORTAL</li>
 
                     <li class="side-nav-item">
                         <a href="~/Dashboard" class="side-nav-link">
@@ -294,6 +300,13 @@
     <!-- END wrapper -->
     <!-- Vendor js -->
     <script src="~/assets/js/vendor.min.js"></script>
+    <script src="~/assets/js/hyper-config.js?ver=2"></script>
+
+    <script>
+        // Force HTML -> defaultConfig -> config every page load
+        sessionStorage.removeItem("__HYPER_CONFIG__");
+        window.config = JSON.parse(JSON.stringify(window.defaultConfig));
+    </script>
 
     <!-- App js -->
     <script src="~/assets/js/app.min.js"></script>

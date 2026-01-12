@@ -6,6 +6,7 @@ namespace LW_Common
     using LW_Data;
     using System.Data;
     using System.Data.SqlClient;
+    using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices.ComTypes;
     using System.Web.Hosting;
     using DataTable = DataTable;
@@ -79,8 +80,10 @@ namespace LW_Common
             return retObj;
         }
 
-        public bool FillExcel_TenantArrearsReport(string NewFileName, DateTime? AsOfDate = null, string BuildingCode = "")
+        public bool FillExcel_TenantArrearsReport(string NewFileName, DateTime? AsOfDate = null, string BuildingOrListCode = "")
         {
+            if (BuildingOrListCode == "") return false;   // Building Code is required. "": no longer valid as an option
+
             string TargetPathAndFileName = WOAnalysisReportDownloadPath + "\\" + NewFileName;
             AsOfDate = clsFunc.GetEndOfMonth(AsOfDate);   // Default to end of current month if not provided
 
@@ -101,7 +104,23 @@ namespace LW_Common
 
             clsExcelHelper E = new clsExcelHelper();
             SqlCommand cmd = new SqlCommand();
-            if (BuildingCode != "") cmd.Parameters.AddWithValue("@buildingCode", BuildingCode);
+
+            if (BuildingOrListCode.StartsWith("List-"))
+            {
+                String ListName = BuildingOrListCode.Substring(5);
+                switch (ListName)   
+                {
+                    case "Posting":
+                        cmd.Parameters.AddWithValue("@FilterIsList_Posting", 1);
+                        break;
+                    case "Aquinas":
+                        cmd.Parameters.AddWithValue("@FilterIsList_Aquinas", 1);
+                        break;
+                    default:
+                        cmd.Parameters.AddWithValue("@buildingCode", BuildingOrListCode);
+                        break;
+                }
+            }
             cmd.Parameters.AddWithValue("@AsOfDate", AsOfDate);
 
             //  PAGE 1. Fill in the full report
@@ -115,8 +134,10 @@ namespace LW_Common
 
         public bool FillExcel_POInventoryItemReviewReport(string NewFileName, string StartDate, string EndDate)
         {
+            string errMsgOut = "";
+
             // Run Pre-Processing of data
-            if (!RunAllReportSQL()) { return false; }
+            if (!RunAllReportSQL(out errMsgOut)) { error_message = errMsgOut; return false; }
 
             string TargetPathAndFileName = WOAnalysisReportDownloadPath + "\\" + NewFileName;
 
@@ -151,8 +172,10 @@ namespace LW_Common
 
         public bool FillExcel_WOAnalysisReport(string NewFileName, string StartDate, string EndDate)
         {
+            string errMsgOut = "";
+
             // Run Pre-Processing of data
-            if (!RunAllReportSQL()) { return false; }
+            if (!RunAllReportSQL(out errMsgOut)) { error_message = errMsgOut; return false; }
 
             string TargetPathAndFileName = WOAnalysisReportDownloadPath + "\\" + NewFileName;
 
@@ -211,7 +234,10 @@ namespace LW_Common
         public bool FillExcel_InventoryDailyPivotReport(string NewFileName, string StartDate, string EndDate)
         {
             // Run the pre-processing of data
-            if (!RunAllReportSQL()) { return false; }
+            string errMsgOut = "";
+
+            // Run Pre-Processing of data
+            if (!RunAllReportSQL(out errMsgOut)) { error_message = errMsgOut; return false; }
 
             string TargetPathAndFileName = WOAnalysisReportDownloadPath + "\\" + NewFileName;
 
@@ -310,9 +336,6 @@ namespace LW_Common
 
         public bool FillExcel_VacancyCoverSheet(string NewFileName, string BuildingCode, string AptNumber)
         {
-            //// Run Pre-Processing of data
-            //if (!RunAllReportSQL()) { return false; }
-
             string TargetPathAndFileName = WOAnalysisReportDownloadPath + "\\" + NewFileName;
 
             // Delete any existing file of the same name
@@ -369,12 +392,16 @@ namespace LW_Common
         }
 
 
-        public static bool RunAllReportSQL_Public()
+        public static bool RunAllReportSQL_Public(out string DataErrorMsg)
         {
-            return RunAllReportSQL();
+            string errMsg = "";
+            bool retBool = RunAllReportSQL(out errMsg);
+
+            DataErrorMsg = errMsg;
+            return retBool;
         }
 
-        private static bool RunAllReportSQL()
+        private static bool RunAllReportSQL(out string returnErrMsg)
         {
             bool isSuccess = true;
 
@@ -394,6 +421,8 @@ namespace LW_Common
             if (isSuccess) isSuccess = dh.ExecuteSPCMD("sp_Load_LegalActions_FromStaging", true, true);
             if (isSuccess) isSuccess = dh.ExecuteSPCMD("sp_Snapshot_Tenants_SCD_Range", true, true);
             if (isSuccess) isSuccess = dh.ExecuteSPCMD("sp_AttorneyAssignments_LoadFromStg", true, true);   // -- run occasionally after loading up tblStg_Attornys
+
+            if (!isSuccess) { returnErrMsg = dh.data_err_msg; } else { returnErrMsg = ""; }
 
             return isSuccess;
         }

@@ -24,6 +24,8 @@ namespace LW_Common
 
     public class EmailImporter
     {
+        public const int TotalEmailFilesToImport = 10;  // Set this number according to how many files are expected to be imported from email
+
         public string err_msg { get; set; } = "";
         public string success_msg { get; set; } = "";
 
@@ -124,6 +126,7 @@ namespace LW_Common
 
             string archiveFolder = Path.Combine(_saveDirectory, "_Archive");
             Directory.CreateDirectory(archiveFolder);
+            int fileCount = 0;
 
             foreach (var filePath in files)
             {
@@ -192,9 +195,12 @@ namespace LW_Common
                 catch 
                 {
                     // Log error if needed
-                }   
+                }
 
+                fileCount += 1;
             }
+            
+            bool countMismatch = (fileCount != TotalEmailFilesToImport);    
 
             if (err_msg == "")
             {
@@ -206,10 +212,39 @@ namespace LW_Common
             }
 
             // Send email with results - Set recipients in Web.Config
+            string subjectTag = (err_msg == "No errors.") ? "[OK]" : "[ERROR]";  
             string body = "<p>Hello Team,</p><p>This automated message reports the results of the Yardi data import completed at " + DateTime.Now.ToString("MM/dd/yyyy h:mm tt") + ".</p><p><strong>ERRORS:<br></strong>" + @err_msg + "<br><br><strong>SUCCESS:</strong><br>" + success_msg.Replace("successfully.", "successfully.<br>") + "</p>";
             string signature = "<p><br>LemleWolff Online Portal<br>\r\nonlineportal@lemlewolff.net<br>\r\nportal.lemlewolff.net</p>";
             string footerMsg = "<p><br><br><center><i style=\"color:#666;\">This is an automated email from the Lemle & Wolff Yardi Importer.</i></center></p>";
-            string subjectTag = (err_msg == "No errors.") ? "[OK]" : "[ERROR]";  
+
+            bool addWarning = false;
+            if (countMismatch) addWarning = true;
+
+            // In case later we add more warnings this will handle adding the subject tag correctly
+            if (addWarning)
+            {
+                if (subjectTag == "[OK]")
+                {
+                    subjectTag = "[WARNING]";
+                }
+                else
+                {
+                    if (subjectTag == "[ERROR]")
+                    {
+                        subjectTag = "[ERROR & WARNING]";
+                    }
+                    else
+                    {
+                        subjectTag = "[WARNING]";
+                    }
+                }
+            }
+            
+            if (addWarning)
+            {
+                if (countMismatch) body = "<p>WARNING: The expected number of files (" + TotalEmailFilesToImport.ToString() + ") was not received. Please check the Yardi export process. " + fileCount.ToString() + " received.</p>" + body;
+            }
+
             clsUtilities.SendEmail(_EmailResults_TO, "LW Data Load Completed " + subjectTag, body + signature + footerMsg, _EmailResults_CC, _EmailResults_CC2, _EmailResults_CC3);
             System.IO.File.AppendAllText(_LogFile, DateTime.Now.ToString("yyyy/MM/dd hh:mm") + ": " + body, System.Text.Encoding.Unicode);
             System.IO.File.AppendAllText(_LogFile, DateTime.Now.ToString("yyyy/MM/dd hh:mm") + ": Done.", System.Text.Encoding.Unicode);

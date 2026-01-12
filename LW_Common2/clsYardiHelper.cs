@@ -198,7 +198,10 @@ namespace LW_Common
                     if (RowsProcessed >= limitRows && limitRows > 0) break;  // Limit the number of rows to process    
                 }
 
-                if (!clsReportHelper.RunAllReportSQL_Public()) { return false; }  // Run the SQL because it uses the temp tables just loaded
+                string errMsgOut = "";
+
+                // Run Pre-Processing of data
+                if (!clsReportHelper.RunAllReportSQL_Public(out errMsgOut)) { Error_Log += "Data Error: " + errMsgOut; return false; }
             }
 
             if (RowsProcessed == 5000)
@@ -418,7 +421,10 @@ namespace LW_Common
                     if (RowsProcessed >= limitRows && limitRows > 0) break;  // Limit the number of rows to process 
                 }
 
-                if (!clsReportHelper.RunAllReportSQL_Public()) { return false; }  // Run the SQL because it uses the temp tables just loaded
+                string errMsgOut = "";
+
+                // Run Pre-Processing of data
+                if (!clsReportHelper.RunAllReportSQL_Public(out errMsgOut)) { Error_Log += "Data Error: " + errMsgOut; return false; }
 
                 if (RowsProcessed == 5000)
                 {
@@ -447,7 +453,7 @@ namespace LW_Common
             DataView view = new DataView(sourceTable);
             System.Data.DataTable filteredTable = view.ToTable(true,
                 "yardiPropertyRowID", "BuildingCode", "addr1_Co", "addr2", "addr3", "addr4", "City", "StateCode", "ZipCode",
-                "isPropertyInactive", "propertyInactiveDate", "isInList_Posting", "LeaseStartDate", "LeaseEndDate", "CurrentTenantYardiID");
+                "isPropertyInactive", "propertyInactiveDate", "isInList_Posting", "isInList_Aquinas", "LeaseStartDate", "LeaseEndDate", "CurrentTenantYardiID");
 
             RowsProcessed = 0;
             int NumToProcess = filteredTable.Rows.Count;
@@ -471,6 +477,7 @@ namespace LW_Common
                     dh.cmd.Parameters.AddWithValue("@isInactive", r["isPropertyInactive"]);
                     dh.cmd.Parameters.AddWithValue("@inactiveDate", r["PropertyInactiveDate"]);
                     dh.cmd.Parameters.AddWithValue("@isInList_Posting", r["isInList_Posting"]);
+                    dh.cmd.Parameters.AddWithValue("@isInList_Aquinas", r["isInList_Aquinas"]);
 
                     bool isSuccess = dh.ExecuteSPCMD("spPropertyUpdate", false);
                     RowsProcessed++;

@@ -34,6 +34,15 @@ SELECT
           AND lst.HPROPERTY = p.hMy
       ) THEN 1 ELSE 0 END AS isInList_Posting,
 
+    -- Safe check for Posting list using hardcoded SCODE = 'Aquinas' 
+    CASE WHEN EXISTS (
+        SELECT 1 
+        FROM LISTPROP lst
+        JOIN PROPERTY prop ON prop.HMY = lst.HPROPLIST
+        WHERE prop.SCODE = 'Aquinas' 
+          AND lst.HPROPERTY = p.hMy
+      ) THEN 1 ELSE 0 END AS isInList_Aquinas,
+
     ct.LeaseStartDate,
     ct.LeaseEndDate,
     ct.CurrentTenantID as CurrentTenantYardiID 

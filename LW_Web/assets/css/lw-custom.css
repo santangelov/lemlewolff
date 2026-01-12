@@ -10,3 +10,8 @@
 .fieldCode {width: 8em;}
 .fieldQuantity {width: 6em;}
 .fieldDescription {min-width: 25em;}
+
+/* Remove sidebar user/profile panel completely */
+.leftside-menu .leftbar-user {
+    display: none !important;
+}

@@ -41,10 +41,10 @@
 
                         <div class="row mb">
                             <div class="col-10">
-                                @Html.LabelFor(model => model.Properties, "Select Property")
+                                @Html.LabelFor(model => model.Properties, "Select property or grouping")
                                 @Html.DropDownListFor(model => model.selectedBuildingCode,
                                     Model.Properties ?? new List<SelectListItem>(),
-                                    "-- Select Property --",
+                                    "Select...",
                                     new { @class = "form-control", id = "propertyDropdown", name = "propertyDropdown" })
                             </div>
                         </div>

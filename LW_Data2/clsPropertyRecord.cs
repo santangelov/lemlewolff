@@ -14,15 +14,10 @@ namespace LW_Data
         public string buildingCode { get; set; }
 
         public string addr1_Co { get; set; }
-        //public string addr2 { get; set; }
-        //public string addr3 { get; set; }
-        //public string addr4 { get; set; }
-        //public string city { get; set; }
-        //public string stateCode { get; set; }
-        //public string zipCode { get; set; }
         public bool isInactive { get; set; }
         public string fullAddress_calc { get; set; }  // calculated field in database
-        public bool isInList_Posting { get; set; }  
+        public bool isInList_Posting { get; set; }
+        public bool isInList_Aquinas { get; set; }
     }
 
 

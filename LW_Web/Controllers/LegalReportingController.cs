@@ -33,9 +33,12 @@ namespace LW_Web.Controllers
                 })
                 .ToList();
 
-            mdl.Properties.Insert(0, new SelectListItem { Value = "", Text = "All Properties" });   
+            mdl.Properties.Insert(0, new SelectListItem { Value = "", Text = "== PROPERTIES ==========" });
+            mdl.Properties.Insert(0, new SelectListItem { Value = "List-Posting", Text = "Posting" });
+            mdl.Properties.Insert(0, new SelectListItem { Value = "List-Aquinas", Text = "Aquinas" });   
+            mdl.Properties.Insert(0, new SelectListItem { Value = "", Text = "== LISTS ===============" });
 
-            mdl.selectedBuildingCode = "";
+            mdl.selectedBuildingCode = "List-Posting";   // Make the default option -- The Posting List, All Properties in this list
             return View("LegalReportingPage", mdl);
         }
 

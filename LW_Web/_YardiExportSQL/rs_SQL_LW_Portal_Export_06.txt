@@ -36,6 +36,13 @@ SELECT
         WHERE prop.SCODE = 'Posting' 
           AND lst.HPROPERTY = p.hMy
       ) THEN 1 ELSE 0 END AS isInList_Posting,
+    CASE WHEN EXISTS (
+        SELECT 1 
+        FROM LISTPROP lst
+        JOIN PROPERTY prop ON prop.HMY = lst.HPROPLIST
+        WHERE prop.SCODE = 'Aquinas' 
+          AND lst.HPROPERTY = p.hMy
+      ) THEN 1 ELSE 0 END AS isInList_Aquinas,	  
     ct.LeaseStartDate,
     ct.LeaseEndDate,
     ct.CurrentTenantID as CurrentTenantYardiID 
@@ -125,6 +132,7 @@ N,     isUnitExcluded,      isUnitExcluded,      ,      ,      ,      Y,    ,   
 N,     LastTenantRent,      LastTenantRent,      ,      ,      ,      Y,    ,       ,       ,     ,  90,    N,      N,
 T,     UnitTypeDesc,        UnitTypeDesc,        ,      ,      ,      Y,    ,       ,       ,     ,  320,   N,      N,
 N,     isInList_Posting,    isInList_Posting,    ,      ,      ,      Y,    ,       ,       ,     ,  90,    N,      N,
+N,     isInList_Aquinas,    isInList_Aquinas,    ,      ,      ,      Y,    ,       ,       ,     ,  90,    N,      N,
 T,     LeaseStartDate,      LeaseStartDate,      ,      ,      ,      Y,    ,       ,       ,     ,  100,   N,      N,
 T,     LeaseEndDate,        LeaseEndDate,        ,      ,      ,      Y,    ,       ,       ,     ,  100,   N,      N,
 N,     CurrentTenantYardiID,CurrentTenantYardiID,,      ,      ,      Y,    ,       ,       ,     ,  90,    N,      N,

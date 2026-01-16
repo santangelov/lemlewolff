@@ -21,25 +21,29 @@ namespace LW_Web.Controllers
         // GET: Home
         public ActionResult Index()
         {
-            LegalReportingPageModel mdl = new LegalReportingPageModel();
+            var mdl = new LegalReportingPageModel();
+            PopulateProperties(mdl);
 
+            mdl.selectedBuildingCode = "List-Posting";
+            return View("LegalReportingPage", mdl);
+        }
+
+        private void PopulateProperties(LegalReportingPageModel mdl)
+        {
             mdl.Properties = _context.tblProperties
                 .Where(p => !p.isInactive && _context.tblPropertyUnits.Any(u => u.yardiPropertyRowID == p.yardiPropertyRowID && !u.isExcluded))
                 .OrderBy(p => p.buildingCode)
                 .Select(p => new SelectListItem
                 {
                     Value = p.buildingCode,
-                    Text = string.Concat(p.buildingCode, " - ", (p.addr1_Co ?? "n/a").ToUpper()) // Concatenate in the DB query
+                    Text = string.Concat(p.buildingCode, " - ", (p.addr1_Co ?? "n/a").ToUpper())
                 })
                 .ToList();
 
             mdl.Properties.Insert(0, new SelectListItem { Value = "", Text = "== PROPERTIES ==========" });
             mdl.Properties.Insert(0, new SelectListItem { Value = "List-Posting", Text = "Posting" });
-            mdl.Properties.Insert(0, new SelectListItem { Value = "List-Aquinas", Text = "Aquinas" });   
+            mdl.Properties.Insert(0, new SelectListItem { Value = "List-Aquinas", Text = "Aquinas" });
             mdl.Properties.Insert(0, new SelectListItem { Value = "", Text = "== LISTS ===============" });
-
-            mdl.selectedBuildingCode = "List-Posting";   // Make the default option -- The Posting List, All Properties in this list
-            return View("LegalReportingPage", mdl);
         }
 
         [HttpPost]
@@ -47,17 +51,23 @@ namespace LW_Web.Controllers
         {
             Server.ScriptTimeout = 1200;
 
-            clsReportHelper R = new clsReportHelper();
-            string ReportDate = model.ArrearsReportDate;  // becomes month end
+            // IMPORTANT: repopulate for any return View(...)
+            PopulateProperties(model);
 
-            if (string.IsNullOrEmpty(ReportDate))
+            var R = new clsReportHelper();
+
+            if (string.IsNullOrEmpty(model.ArrearsReportDate))
             {
-                ViewBag.Message = R.error_message;
                 model.Error_log = "<div class=\"alert alert-danger\"><strong>*</strong> Enter a Reporting Date (it will be rounded up to month end).</div>";
                 return View("LegalReportingPage", model);
             }
 
-            DateTime ReportDateDTTM = DateTime.Parse(ReportDate);
+            if (!DateTime.TryParse(model.ArrearsReportDate, out var ReportDateDTTM))
+            {
+                model.Error_log = "<div class=\"alert alert-danger\"><strong>*</strong> Enter a valid Reporting Date (mm/dd/yyyy).</div>";
+                return View("LegalReportingPage", model);
+            }
+
             string NewFileName = "Tenant_Arrears_" + ReportDateDTTM.ToString("yyyy-MM") + ".xlsx";
             string fileNameAndPath = Server.MapPath("~/_Downloads/" + NewFileName);
 

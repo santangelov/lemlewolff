@@ -20,10 +20,7 @@ namespace LW_Web.Models
 
         public bool PageAccessDenied { get; set; } = false;
 
-        [DisplayName("Range Loaded: ")]
-        public string LoadedRangeText { get; set; }
-
-        [DisplayName("Reporting Date (mm/dd/yyyy - will be rounded to month end)")]
+        [DisplayName("Reporting Date (mm/dd/yyyy)")]
         public string ArrearsReportDate { get; set; }    // will end up being rounded to month end
 
         [DisplayName("Property")]

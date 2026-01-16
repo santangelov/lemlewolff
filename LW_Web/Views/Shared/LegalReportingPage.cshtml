@@ -14,7 +14,6 @@
         <div class="col-12">
             <div class="page-title-box">
                 <h4 class="page-title" style="color:chocolate;">LEGAL REPORTING</h4>
-                <p>@Html.Raw(Model.LoadedRangeText)</p>
             </div>
         </div>
     </div>
@@ -33,19 +32,19 @@
                     {
                         <div class="row mb">
                             <div class="col-10">
-                                LegalReporting
-                                @Html.LabelFor(m => m.ArrearsReportDate)
+                                <p>The Reporting Date will be rounded up to Month End.</p>
+                                @Html.LabelFor(m => m.ArrearsReportDate, new { @class = "form-label" })
                                 @Html.TextBoxFor(m => m.ArrearsReportDate, new { @class = "form-control" })
                             </div>
                         </div>
 
                         <div class="row mb">
                             <div class="col-10">
-                                @Html.LabelFor(model => model.Properties, "Select property or grouping")
+                                @Html.LabelFor(model => model.Properties, "Select property or grouping", new { @class = "form-label" })
                                 @Html.DropDownListFor(model => model.selectedBuildingCode,
                                     Model.Properties ?? new List<SelectListItem>(),
                                     "Select...",
-                                    new { @class = "form-control", id = "propertyDropdown", name = "propertyDropdown" })
+                                    new { @class = "form-control", id = "propertyDropdown" })
                             </div>
                         </div>
 

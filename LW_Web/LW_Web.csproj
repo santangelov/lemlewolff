@@ -218,8 +218,6 @@
     <Content Include="assets\js\hyper-config.js" />
     <Content Include="assets\js\vendor.min.js" />
     <Content Include="Global.asax" />
-    <Content Include="assets\css\app-modern.min.css.map" />
-    <Content Include="assets\css\icons.min.css.map" />
     <Content Include="assets\fonts\materialdesignicons-webfont.eot" />
     <Content Include="assets\fonts\materialdesignicons-webfont.ttf" />
     <Content Include="assets\fonts\materialdesignicons-webfont.woff" />

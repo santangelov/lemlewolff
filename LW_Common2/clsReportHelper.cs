@@ -82,7 +82,7 @@ namespace LW_Common
 
         public bool FillExcel_TenantArrearsReport(string NewFileName, DateTime? AsOfDate = null, string BuildingOrListCode = "")
         {
-            if (BuildingOrListCode == "") return false;   // Building Code is required. "": no longer valid as an option
+            if (string.IsNullOrEmpty(BuildingOrListCode)) return false;   // Building Code is required. "": no longer valid as an option
 
             string TargetPathAndFileName = WOAnalysisReportDownloadPath + "\\" + NewFileName;
             AsOfDate = clsFunc.GetEndOfMonth(AsOfDate);   // Default to end of current month if not provided

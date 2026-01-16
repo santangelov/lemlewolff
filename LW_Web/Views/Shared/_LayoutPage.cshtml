@@ -6,24 +6,37 @@
       data-sidenav-size="default"
       data-sidenav-user="false"
       data-layout-mode="fluid"
-      data-layout-position="scrollable">
+      data-layout-position="scrollable"
+      >
 
 <head>
     <meta charset="utf-8" />
     <title>@ViewBag.Title </title>
+
+    <style>
+        /* Prevent first-paint sidebar flash */
+        html.preload .leftside-menu {
+            visibility: hidden;
+        }
+    </style>
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="The Lemle & Wolff Companies" name="author" />
 
     <link rel="shortcut icon" href="~/assets/images/favicon.ico">
     <link rel="stylesheet" href="~/assets/css/icons.min.css" type="text/css" />
     <link rel="stylesheet" href="~/assets/css/app-modern.min.css" type="text/css" id="app-style" />
-    <link rel="stylesheet" href="~/assets/css/lw-custom.css?ver=1" type="text/css" />
+    <link rel="stylesheet" href="~/assets/css/lw-custom.css?ver=1.01" type="text/css" />
 
     <script type="text/javascript" src="~/assets/jquery/jquery-3.6.0.min.js"></script>
 
 </head>
 
 <body>
+    <div id="page-loader">
+        <div class="spinner-border text-primary"></div>
+    </div>
+
     <!-- Begin page -->
     <div class="wrapper">
 
@@ -69,19 +82,8 @@
                 </button>
 
                 <ul class="list-unstyled topbar-menu float-end mb-0">
-                    <li class="dropdown notification-list d-lg-none">
-                        <a class="nav-link dropdown-toggle arrow-none" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
-                            <i class="ri-search-line noti-icon"></i>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-animated dropdown-lg p-0">
-                            <form class="p-3">
-                                <input type="search" class="form-control" placeholder="Search ..." aria-label="Recipient's username">
-                            </form>
-                        </div>
-                    </li>
-
                     <li class="notification-list d-none d-md-inline-block">
-                        <a class="nav-link" href="" data-toggle="fullscreen">
+                        <a class="nav-link" href="javascript:void(0);" data-toggle="fullscreen">
                             <i class="ri-fullscreen-line noti-icon"></i>
                         </a>
                     </li>
@@ -114,42 +116,6 @@
                     </li>
                 </ul>
 
-                <!-- Topbar Search Form -->
-                <div class="app-search dropdown">
-                    <form>
-                        <div class="input-group">
-                            <input type="search" class="form-control dropdown-toggle" placeholder="Search..." id="top-search">
-                            <span class="mdi mdi-magnify search-icon"></span>
-                            <button class="input-group-text btn btn-primary" type="submit">Search</button>
-                        </div>
-                    </form>
-
-                    <div class="dropdown-menu dropdown-menu-animated dropdown-lg" id="search-dropdown">
-                        <!-- item-->
-                        <div class="dropdown-header noti-title">
-                            <h5 class="text-overflow mb-2">Found <span class="text-danger">17</span> results (not implemented)</h5>
-                        </div>
-
-                        <!-- item-->
-                        <a href="javascript:void(0);" class="dropdown-item notify-item">
-                            <i class="uil-notes font-16 me-1"></i>
-                            <span>Analytics Report</span>
-                        </a>
-
-                        <!-- item-->
-                        <a href="javascript:void(0);" class="dropdown-item notify-item">
-                            <i class="uil-wrench font-16 me-1"></i>
-                            <span>Inventory Item</span>
-                        </a>
-
-                        <!-- item-->
-                        <a href="javascript:void(0);" class="dropdown-item notify-item">
-                            <i class="uil-invoice font-16 me-1"></i>
-                            <span>Work Orders</span>
-                        </a>
-
-                    </div>
-                </div>
             </div>
         </div>
         <!-- ========== Topbar End ========== -->
@@ -258,7 +224,7 @@
                     </li>
 
                 </ul>
-                <!--- End Sidemenu -->
+                <!--- End Side-menu -->
 
                 <div class="clearfix"></div>
             </div>
@@ -303,9 +269,39 @@
     <script src="~/assets/js/hyper-config.js?ver=2"></script>
 
     <script>
-        // Force HTML -> defaultConfig -> config every page load
-        sessionStorage.removeItem("__HYPER_CONFIG__");
-        window.config = JSON.parse(JSON.stringify(window.defaultConfig));
+        (function () {
+            // Force the runtime config + HTML attrs to match what you want.
+            // This removes the "first load wrong, refresh right" behavior.
+            var h = document.documentElement;
+
+            // 1) Kill any stored override for this request
+            sessionStorage.removeItem("__HYPER_CONFIG__");
+
+            // 2) Ensure config object exists
+            window.config = window.config || {};
+            window.config.layout = window.config.layout || {};
+            window.config.topbar = window.config.topbar || {};
+            window.config.sidenav = window.config.sidenav || {};
+
+            // 3) Force the exact settings you want
+            window.config.theme = "light";
+            window.config.nav = "vertical";
+            window.config.layout.mode = "fluid";
+            window.config.layout.position = "scrollable";
+            window.config.topbar.color = "dark";
+            window.config.sidenav.color = "dark";
+            window.config.sidenav.size = "default";
+            window.config.sidenav.user = false;
+
+            // 4) Force the HTML attributes too (so CSS matches immediately)
+            h.setAttribute("data-theme", "light");
+            h.setAttribute("data-topbar-color", "dark");
+            h.setAttribute("data-sidenav-color", "dark");
+            h.setAttribute("data-sidenav-size", "default");
+            h.setAttribute("data-sidenav-user", "false");
+            h.setAttribute("data-layout-mode", "fluid");
+            h.setAttribute("data-layout-position", "scrollable");
+        })();
     </script>
 
     <!-- App js -->
@@ -313,6 +309,46 @@
 
     <!-- Scripts from View Page -->
     @RenderSection("scripts", required: false)
+
+    <script>
+        (function () {
+            let spinnerTimer = null;
+
+            function showSpinner() {
+                const loader = document.getElementById("page-loader");
+                if (loader) loader.classList.add("active");
+            }
+
+            function armSpinner() {
+                if (spinnerTimer) return;
+
+                spinnerTimer = setTimeout(function () {
+                    showSpinner();
+                }, 800); // 1 second delay = 1000
+            }
+
+            document.addEventListener("click", function (e) {
+                const a = e.target.closest("a");
+                if (!a) return;
+
+                const href = (a.getAttribute("href") || "").trim();
+
+                if (
+                    a.target === "_blank" ||
+                    a.hasAttribute("data-bs-toggle") ||
+                    a.hasAttribute("data-toggle") ||
+                    href === "" ||
+                    href === "#" ||
+                    href.startsWith("javascript:")
+                ) {
+                    return;
+                }
+
+                armSpinner();
+            }, true);
+        })();
+    </script>
+
 
 </body>
 </html> 

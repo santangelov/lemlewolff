@@ -271,6 +271,7 @@
     <Content Include="_YardiExportSQL\08 - LegalCaseActions.txt" />
     <Content Include="_YardiExportSQL\09 - LegalCaseHeaders.txt" />
     <Content Include="_YardiExportSQL\10 - DailyARbyTenant.txt" />
+    <Content Include="_YardiExportSQL\FULL-PORTAL-DATABASE.sql" />
     <Content Include="_YardiExportSQL\rs_SQL_LW_Portal_Export_01.txt" />
     <Content Include="_YardiExportSQL\rs_SQL_LW_Portal_Export_02.txt" />
     <Content Include="_YardiExportSQL\rs_SQL_LW_Portal_Export_03.txt" />

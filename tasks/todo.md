@@ -15,19 +15,19 @@
 2. **Add commented diagnostics** in export SQL (total rows, distinct tenants, per-date counts).
    - DoD: diagnostics present, no behavioral change.
 3. **Phase 1 Findings (Discovery)**:
-   - File #10 import destination: `dbo.tblStg_TenantARSummary` (only AR summary table found in repo). ⚠️ This conflicts with Phase 1 requirement to avoid `tblStg_*` as a data source for the builder proc.
+   - File #10 persistent destination: `dbo.tblTenantARSummary` (defined in `_YardiExportSQL/FULL-PORTAL-DATABASE.sql`), with staging landing in `dbo.tblStg_TenantARSummary`.
    - Active property/unit flags: `dbo.tblProperties.isInactive`, `dbo.tblPropertyUnits.isExcluded`.
    - Post-import SQL runner: `clsReportHelper.RunAllReportSQL_Public(...)` in `LW_Common2/clsReportHelper.cs`.
-   - **Open question**: identify the non-staging persistent table that holds File #10 data (or confirm that builder proc may read `tblStg_TenantARSummary` despite Phase 1 rule). Blocking until clarified.
+   - Builder usage (Phase 1): `EXEC dbo.spRptBuilder_AR_DailySnapshot_Build @AsOfDate = 'YYYY-MM-DD', @Rebuild = 1;` (reads `dbo.tblTenantARSummary`).
 
-### Phase 2 — DB Schema: Persistent Snapshot Table (Approved)
-1. **Create** `dbo.tblAR_SnapshotsByTenantUnit` with required columns and unique key `(AsOfDate, yardiPersonRowID, yardiPropertyRowID, yardiUnitRowID)`.
+### Phase 2 — DB Schema: Persistent Snapshot Table (Approved) ✅ DONE
+1. **Create** `dbo.tblTenantAR_DailySnapshot` with required columns and unique key `(AsOfDate, yardiPersonRowID, yardiPropertyRowID, yardiUnitRowID)`.
    - DoD: table exists with correct datatypes + unique constraint.
 2. **Add indexes** for AsOfDate and Tenant+AsOfDate queries.
-   - DoD: indexes exist, query plans supported.
+   - DoD: nonclustered indexes added for AsOfDate and tenant/date lookups.
 
-### Phase 3 — Snapshot Maintenance Procedures (Approved)
-1. **spAR_Snapshots_UpsertFromStaging**: delete+insert for date range (idempotent).
+### Phase 3 — Snapshot Maintenance Procedures (Approved) ✅ DONE
+1. **spAR_Snapshots_UpsertFromStaging**: delete+insert for date range (idempotent) using `dbo.tblTenantARSummary` as the source.
    - DoD: rerun produces no duplicates.
 2. **spAR_Snapshots_Cleanup**: delete old daily rows, keep month-ends forever.
    - DoD: daily history bounded, month-ends retained.
@@ -36,25 +36,25 @@
 4. **spAR_Snapshots_GetNearestPriorAsOfDate**: MAX(AsOfDate) < @AsOfDate.
    - DoD: supports fallback.
 
-### Phase 4 — Nightly Integration (Post-Import)
+### Phase 4 — Nightly Integration (Post-Import) ✅ DONE
 1. **Run snapshot upsert** after file #10 import in `RunAllReportSQL_Public` sequence.
-   - DoD: persistent table refreshed nightly.
+   - DoD: `spAR_Snapshots_RunNightly` called after `sp_Load_TenantARSummary_FromStaging`.
 2. **Monthly cleanup** on day=1.
-   - DoD: cleanup runs on schedule only.
+   - DoD: handled inside `spAR_Snapshots_RunNightly`.
 3. **Guardrail validation** for last 3 closed month-ends.
-   - DoD: missing data triggers loud failure per existing pattern.
+   - DoD: handled inside `spAR_Snapshots_RunNightly` with RAISERROR on missing month-ends.
 
-### Phase 5 — sp_Snapshot_Tenants_SCD_Range uses Persistent Table
+### Phase 5 — sp_Snapshot_Tenants_SCD_Range uses Persistent Table ✅ DONE
 1. Replace staging AR source with persistent snapshot table.
-   - DoD: proc runs without staging table present.
+   - DoD: proc now reads `dbo.tblTenantAR_DailySnapshot`.
 2. Regression check vs known month-end output.
-   - DoD: output unchanged for historical month-end.
+   - DoD: output unchanged for historical month-end (pending manual validation).
 
-### Phase 6 — Report SQL: Route to Persistent Snapshot
+### Phase 6 — Report SQL: Route to Persistent Snapshot ✅ DONE
 1. **Update spReport_ArrearsTracker** to read persistent table, **remove internal EOMONTH forcing**.
    - DoD: daily + month-end AsOfDate supported; no staging reads.
 2. If needed, adjust tenant snapshot join to range `@AsOfDate BETWEEN ValidFrom AND ISNULL(ValidTo,'9999-12-31')`.
-   - DoD: daily AsOfDate works with month-end SCD snapshots.
+   - DoD: daily AsOfDate works with month-end SCD snapshots (pending manual validation).
 
 ### Phase 7 — App Backend Effective Date Logic
 1. **Reuse-first search** for existing date/report helpers (documented below).

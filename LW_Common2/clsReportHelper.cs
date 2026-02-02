@@ -417,6 +417,7 @@ namespace LW_Common
 
             // Stored procedures for Arrears Report & Legal Reports
             if (isSuccess) isSuccess = dh.ExecuteSPCMD("sp_Load_TenantARSummary_FromStaging", true, true);
+            if (isSuccess) isSuccess = dh.ExecuteSPCMD("spAR_Snapshots_RunNightly", true, true);
             if (isSuccess) isSuccess = dh.ExecuteSPCMD("sp_Load_Tenants_FromStaging", true, true);
             if (isSuccess) isSuccess = dh.ExecuteSPCMD("sp_Load_LegalCases_FromStaging", true, true);
             if (isSuccess) isSuccess = dh.ExecuteSPCMD("sp_Load_LegalActions_FromStaging", true, true);
@@ -430,4 +431,3 @@ namespace LW_Common
 
     }
 }
-

@@ -9,7 +9,7 @@
 
 ## Phase plan (Phases 1–9) with DoD
 
-### Phase 1 — Yardi Export #10 (Daily + Closed Month-Ends)
+### Phase 1 — Yardi Export #10 (Daily + Closed Month-Ends) ✅ DONE
 1. **Update file #10 export SQL** to return: last 10 daily dates (ending @AsOfEnd) + last 3 closed month-ends (EOMONTH(GETDATE(),-1), -2, -3).
    - DoD: export output includes required dates/columns; **HAP filtering identical** to legacy.
 2. **Add commented diagnostics** in export SQL (total rows, distinct tenants, per-date counts).

@@ -7,7 +7,7 @@ LW Portal Export-File10
 
 //Select
 
-DECLARE @RunMode varchar(20) = 'Nightly';   
+DECLARE @RunMode varchar(20) = ISNULL(NULLIF('#RunMode#',''), 'Nightly'); 
 DECLARE @NightlyDays int = 10;              
 DECLARE @RetentionDays int = 90;       
 DECLARE @ExcludeRecentDays int = 10;      
@@ -242,4 +242,6 @@ N,     endingBalance,      endingBalance,      ,      ,      ,      Y,    ,     
 
 //FILTER
 //Type, DataTyp,   Name,          Caption,     Key,   List,    Val1,   Val2, Mandatory, Multi-Type, Title, Title
+L,      T,      RunMode,    Run Mode,    ,   Nightly^MonthlyRecon,   ,   ,   Y,  ,  ,
+
 //End Filter

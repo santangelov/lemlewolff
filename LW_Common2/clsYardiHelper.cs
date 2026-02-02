@@ -789,6 +789,7 @@ namespace LW_Common
                 }
 
                 clsUtilities.WriteToCounter("LegalCaseHeaders", "Completed");
+
                 return true;
             }
             catch (Exception ex)

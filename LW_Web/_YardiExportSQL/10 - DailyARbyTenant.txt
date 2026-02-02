@@ -31,7 +31,7 @@
    - HAP handling is preserved from prior logic (based on ':HAP' markers).
 */
 
-DECLARE @RunMode varchar(20) = 'Nightly';   -- 'Nightly' | 'MonthlyRecon'
+DECLARE @RunMode varchar(20) = ISNULL(NULLIF('#RunMode#',''), 'Nightly');   -- 'Nightly' | 'MonthlyRecon'
 DECLARE @NightlyDays int = 10;              -- nightly rolling window size
 DECLARE @RetentionDays int = 90;            -- daily snapshot retention window (for recon bounding)
 DECLARE @ExcludeRecentDays int = 10;        -- exclude most recent N days in recon (typically = @NightlyDays)

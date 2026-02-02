@@ -25,6 +25,7 @@ namespace LW_Common
     public class EmailImporter
     {
         public const int TotalEmailFilesToImport = 10;  // Set this number according to how many files are expected to be imported from email
+        public const int TotalEmailFilesToImport_Monthly = 4;  // Monthly counts are less (4 files instead of 10)
 
         public string err_msg { get; set; } = "";
         public string success_msg { get; set; } = "";
@@ -199,8 +200,26 @@ namespace LW_Common
 
                 fileCount += 1;
             }
-            
-            bool countMismatch = (fileCount != TotalEmailFilesToImport);    
+
+            bool countMismatch = (fileCount != TotalEmailFilesToImport && fileCount != TotalEmailFilesToImport_Monthly);
+
+            // Be sure to run the Stored Procedures to process all imports
+            bool addcountMismatchWarning = false;
+
+            // Run Pre-Processing of data
+            if (retVal && !countMismatch)
+            {
+                string errMsgOut = "";
+                if (!clsReportHelper.RunAllReportSQL_Public(out errMsgOut))
+                {
+                    err_msg += "<span style=\"color: red;\">Data Error: </span>" + errMsgOut;
+                    retVal = false;                 // IMPORTANT: fail the job
+                }
+            }
+            else
+            {
+                if (countMismatch) addcountMismatchWarning = true;
+            }
 
             if (err_msg == "")
             {
@@ -217,11 +236,8 @@ namespace LW_Common
             string signature = "<p><br>LemleWolff Online Portal<br>\r\nonlineportal@lemlewolff.net<br>\r\nportal.lemlewolff.net</p>";
             string footerMsg = "<p><br><br><center><i style=\"color:#666;\">This is an automated email from the Lemle & Wolff Yardi Importer.</i></center></p>";
 
-            bool addWarning = false;
-            if (countMismatch) addWarning = true;
-
             // In case later we add more warnings this will handle adding the subject tag correctly
-            if (addWarning)
+            if (addcountMismatchWarning)
             {
                 if (subjectTag == "[OK]")
                 {
@@ -240,9 +256,9 @@ namespace LW_Common
                 }
             }
             
-            if (addWarning)
+            if (addcountMismatchWarning)
             {
-                if (countMismatch) body = "<p>WARNING: The expected number of files (" + TotalEmailFilesToImport.ToString() + ") was not received. Please check the Yardi export process. " + fileCount.ToString() + " received.</p>" + body;
+                if (countMismatch) body = "<p>WARNING: The expected number of files (Daily runs: " + TotalEmailFilesToImport.ToString() + "; Monthly runs: " + TotalEmailFilesToImport_Monthly.ToString() + ";) were not received. Please check the Yardi export process. " + fileCount.ToString() + " received.</p>" + body;
             }
 
             clsUtilities.SendEmail(_EmailResults_TO, "LW Data Load Completed " + subjectTag, body + signature + footerMsg, _EmailResults_CC, _EmailResults_CC2, _EmailResults_CC3);

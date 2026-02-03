@@ -415,7 +415,9 @@ namespace LW_Common
             if (isSuccess) isSuccess = dh.ExecuteSPCMD("spRptBuilder_WOReview_05_Materials", true, true);
             if (isSuccess) isSuccess = dh.ExecuteSPCMD("spRptBuilder_WOReview_06_Calcs", true, true);
 
-            // Stored procedures for Arrears Report
+            // Stored procedures for Arrears Report & Legal Reports
+            if (isSuccess) isSuccess = dh.ExecuteSPCMD("sp_Load_TenantARSummary_FromStaging", true, true);
+            if (isSuccess) isSuccess = dh.ExecuteSPCMD("spAR_Snapshots_RunNightly", true, true);
             if (isSuccess) isSuccess = dh.ExecuteSPCMD("sp_Load_Tenants_FromStaging", true, true);
             if (isSuccess) isSuccess = dh.ExecuteSPCMD("sp_Load_LegalCases_FromStaging", true, true);
             if (isSuccess) isSuccess = dh.ExecuteSPCMD("sp_Load_LegalActions_FromStaging", true, true);
@@ -429,4 +431,3 @@ namespace LW_Common
 
     }
 }
-

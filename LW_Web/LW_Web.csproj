@@ -267,6 +267,10 @@
     <Content Include="Views\Shared\Dashboard.cshtml" />
     <Content Include="Views\Shared\ForgotPassword.cshtml" />
     <Content Include="Views\Shared\ChangePassword.cshtml" />
+    <Content Include="_YardiExportSQL\07 - Tenants.txt" />
+    <Content Include="_YardiExportSQL\08 - LegalCaseActions.txt" />
+    <Content Include="_YardiExportSQL\09 - LegalCaseHeaders.txt" />
+    <Content Include="_YardiExportSQL\10 - DailyARbyTenant.txt" />
     <Content Include="_YardiExportSQL\rs_SQL_LW_Portal_Export_01.txt" />
     <Content Include="_YardiExportSQL\rs_SQL_LW_Portal_Export_02.txt" />
     <Content Include="_YardiExportSQL\rs_SQL_LW_Portal_Export_03.txt" />
@@ -276,6 +280,10 @@
     <Content Include="Views\ExternalApps\Index.cshtml" />
     <Content Include="Views\Shared\LegalReportingPage.cshtml" />
     <Content Include="bin\roslyn\csc.rsp" />
+    <Content Include="_YardiExportSQL\rs_SQL_LW_Portal_Export_07.txt" />
+    <Content Include="_YardiExportSQL\rs_SQL_LW_Portal_Export_08.txt" />
+    <Content Include="_YardiExportSQL\rs_SQL_LW_Portal_Export_09.txt" />
+    <Content Include="_YardiExportSQL\rs_SQL_LW_Portal_Export_10.txt" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

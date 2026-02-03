@@ -1,50 +1,239 @@
-/* (10) Month-End A/R by Tenant — SLICED, READ-ONLY
-   Mapping (proven with Y9/Y10):
-     CHARGES  = iType 7  (amount = Trans.sTotalAmount; HAP via Trans.sNotes)
-     RECEIPTS = iType 6  (amount = Trans.sTotalAmount; HAP via Trans.sUserDefined2)
-   BFWD = CHARGES_before_month − RECEIPTS_before_month
-   Carry-in = net (charges − receipts) before the slice’s FIRST month start
-   Output columns (match dbo.tblStg_TenantARSummary):
-     AsOfDate, yardiPersonRowID, yardiPropertyRowID, yardiUnitRowID, balanceFwd, charges, receipts, endingBalance
+/* (10) DAILY A/R by Tenant � Rolling Window (Nightly + Monthly Recon)
+   UPDATED: Excludes inactive properties and excluded units (per Yardi fields)
+     - property.bInactive = -1 means inactive
+     - unit.exclude       = -1 means excluded
+
+   PURPOSE
+   -------
+   Export daily AR snapshots for the portal.
+
+   OUTPUT SHAPE (unchanged)
+   ------------------------
+   Matches dbo.tblStg_TenantARSummary:
+     AsOfDate,
+     yardiPersonRowID,
+     yardiPropertyRowID,
+     yardiUnitRowID,
+     balanceFwd,
+     charges,
+     receipts,
+     endingBalance
+
+   RUN MODES
+   ---------
+   1) Nightly (default): last @NightlyDays days for all Current tenants (active props/units only)
+   2) MonthlyRecon: only changed tenants since @ReconCutoff, bounded to retention window,
+      excluding most recent @ExcludeRecentDays days (already covered nightly)
+
+   NOTES
+   -----
+   - This script intentionally does NOT attempt to handle "out-of-window offenders" yet.
+   - HAP handling is preserved from prior logic (based on ':HAP' markers).
 */
 
-DECLARE @MonthsBack int = 3;
-DECLARE @SliceSize  int = 3;
-DECLARE @SliceIndex int = 1;
+DECLARE @RunMode varchar(20) = ISNULL(NULLIF('#RunMode#',''), 'Nightly');   -- 'Nightly' | 'MonthlyRecon'
+DECLARE @NightlyDays int = 10;              -- nightly rolling window size
+DECLARE @RetentionDays int = 90;            -- daily snapshot retention window (for recon bounding)
+DECLARE @ExcludeRecentDays int = 10;        -- exclude most recent N days in recon (typically = @NightlyDays)
 
-DECLARE @HAPMode varchar(10) = 'Include'   
+DECLARE @HAPMode varchar(10) = 'Include';   -- Include | Exclude | Only  (kept as-is)
 
-DECLARE @AsOfDate date = EOMONTH(DATEADD(MONTH,-1,CAST(GETDATE() AS date)));
+-- Export end date: set to -1 if you want to force "yesterday" snapshots (common for overnight processes)
+DECLARE @AsOfEndOffsetDays int = 0;
+DECLARE @AsOfEnd date = DATEADD(DAY, @AsOfEndOffsetDays, CAST(GETDATE() AS date));
 
-DECLARE @WindowStart date =
-    DATEADD(DAY,1,EOMONTH(DATEADD(MONTH,-@MonthsBack,@AsOfDate)));
+-- MonthlyRecon: changed-since cutoff (set to last successful recon run time)
+-- Placeholder default for testing:
+DECLARE @ReconCutoff datetime = DATEADD(DAY, -30, GETDATE());
 
-DECLARE @SliceStartOffset int = (@SliceIndex - 1) * @SliceSize;
-DECLARE @SliceEndOffset   int = @SliceStartOffset + @SliceSize - 1;
 
-DECLARE @FirstMonthStart date =
-    DATEFROMPARTS(
-        YEAR(DATEADD(MONTH,@SliceStartOffset,@WindowStart)),
-        MONTH(DATEADD(MONTH,@SliceStartOffset,@WindowStart)),
-        1
-    );
+/* =========================
+   DERIVED WINDOW DATES
+   ========================= */
+DECLARE @AsOfStart date;
+DECLARE @AsOfEndEffective date;
+DECLARE @WindowStart date;
 
-DECLARE @LastMonthEnd date =
-    EOMONTH(DATEADD(MONTH,@SliceEndOffset,@WindowStart));
+IF @RunMode = 'Nightly'
+BEGIN
+    SET @AsOfEndEffective = @AsOfEnd;
+    SET @AsOfStart = DATEADD(DAY, -(@NightlyDays - 1), @AsOfEndEffective);
+END
+ELSE
+BEGIN
+    SET @AsOfEndEffective = DATEADD(DAY, -@ExcludeRecentDays, @AsOfEnd);
+    SET @WindowStart = DATEADD(DAY, -(@RetentionDays - 1), @AsOfEndEffective);
+    SET @AsOfStart = @WindowStart;
+END
 
-IF @LastMonthEnd > @AsOfDate SET @LastMonthEnd = @AsOfDate;
+-- Carry-in must be computed from before the month containing @AsOfStart
+DECLARE @FirstMonthStart date = DATEFROMPARTS(YEAR(@AsOfStart), MONTH(@AsOfStart), 1);
 
-SELECT
-    r.AsOfDate,
-    r.yardiPersonRowID,
-    r.yardiPropertyRowID,
-    r.yardiUnitRowID,
-    CAST(r.balanceFwd AS decimal(12,2)) AS balanceFwd,
-    CAST(r.charges    AS decimal(12,2)) AS charges,
-    CAST(r.receipts   AS decimal(12,2)) AS receipts,
-    CAST(r.balanceFwd + r.charges - r.receipts AS decimal(12,2)) AS endingBalance
-FROM (
 
+/* =========================
+   MAIN QUERY
+   ========================= */
+;WITH CurrentTenants AS
+(
+    /* Only tenants we want to include in #10:
+       - Current status
+       - Property is NOT inactive
+       - Unit is NOT excluded
+    */
+    SELECT
+        t.hMyPerson,
+        t.hUnit,
+        t.hProperty,
+        t.dtLastModified
+    FROM Tenant t
+    JOIN TenStatus ts ON ts.iStatus = t.iStatus
+    JOIN property p   ON p.hMy = t.hProperty
+    JOIN unit u       ON u.hMy = t.hUnit
+    WHERE ts.Status LIKE 'Current%'
+      AND ISNULL(p.bInactive,0) = 0   -- exclude inactive properties (-1 = inactive)
+      AND ISNULL(u.exclude,0)   = 0   -- exclude excluded units (-1 = excluded)
+),
+ChangedTenants AS
+(
+    /* Nightly: everyone in CurrentTenants */
+    SELECT ct.hMyPerson AS hPerson
+    FROM CurrentTenants ct
+    WHERE @RunMode = 'Nightly'
+
+    UNION
+
+    /* MonthlyRecon: tenants with Trans changes since @ReconCutoff (bounded to retention window + recon end)
+       Note: we still only care about tenants that are in our CurrentTenants set (active props/units).
+    */
+    SELECT DISTINCT tr.hPerson
+    FROM Trans tr
+    JOIN CurrentTenants ct ON ct.hMyPerson = tr.hPerson
+    WHERE @RunMode = 'MonthlyRecon'
+      AND tr.iType IN (6,7)
+      AND tr.hMy BETWEEN 600000000 AND 799999999
+      AND (tr.SDATEMODIFIED >= @ReconCutoff OR tr.SDATECREATED >= @ReconCutoff)
+      AND CAST(tr.UPOSTDATE AS date) BETWEEN @WindowStart AND @AsOfEndEffective
+
+    UNION
+
+    /* MonthlyRecon: tenants whose tenant row changed since @ReconCutoff */
+    SELECT ct.hMyPerson
+    FROM CurrentTenants ct
+    WHERE @RunMode = 'MonthlyRecon'
+      AND ct.dtLastModified >= @ReconCutoff
+),
+ChangedTenantsDistinct AS
+(
+    SELECT DISTINCT hPerson
+    FROM ChangedTenants
+),
+DailyDates AS
+(
+    /* One row per AsOfDate in the run range */
+    SELECT DATEADD(DAY, n, @AsOfStart) AS AsOfDate
+    FROM
+    (
+        SELECT TOP (DATEDIFF(DAY, @AsOfStart, @AsOfEndEffective) + 1)
+               ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) - 1 AS n
+        FROM sys.all_objects
+    ) x
+),
+Tx AS
+(
+    /* Transactions used for month-to-date rollups up through the run end-date */
+    SELECT
+        tr.hPerson,
+        tr.iType,
+        CAST(tr.UPOSTDATE AS date) AS PostDate,
+        tr.sTotalAmount,
+        tr.sUserDefined2,
+        tr.sNotes AS trNotes
+    FROM Trans tr
+    JOIN ChangedTenantsDistinct ct ON ct.hPerson = tr.hPerson
+    WHERE tr.iType IN (6,7)
+      AND tr.hMy BETWEEN 600000000 AND 799999999
+      AND CAST(tr.UPOSTDATE AS date) BETWEEN @FirstMonthStart AND DATEADD(DAY, 1, @AsOfEndEffective)
+),
+CarryIn AS
+(
+    /* Carry-in = net (charges - receipts) BEFORE @FirstMonthStart */
+    SELECT
+        tr.hPerson,
+        SUM(
+            CASE WHEN tr.iType=7 AND SUBSTRING(ISNULL(tr.sNotes,''),1,4) <> ':HAP'
+                 THEN ISNULL(tr.sTotalAmount,0) ELSE 0 END
+        )
+        -
+        SUM(
+            CASE WHEN tr.iType=6 AND SUBSTRING(ISNULL(tr.sUserDefined2,''),1,4) <> ':HAP'
+                 THEN ISNULL(tr.sTotalAmount,0) ELSE 0 END
+        ) AS NetBefore
+    FROM Trans tr
+    JOIN ChangedTenantsDistinct ct ON ct.hPerson = tr.hPerson
+    WHERE CAST(tr.UPOSTDATE AS date) < @FirstMonthStart
+      AND tr.iType IN (6,7)
+      AND tr.hMy BETWEEN 600000000 AND 799999999
+    GROUP BY tr.hPerson
+),
+B AS
+(
+    /* Expand Tx rows across AsOfDates so we can aggregate up to each AsOfDate */
+    SELECT
+        d.AsOfDate,
+        tn.hProperty AS yardiPropertyRowID,
+        tn.hUnit     AS yardiUnitRowID,
+        tx.hPerson   AS yardiPersonRowID,
+        tx.PostDate,
+        tx.iType,
+
+        /* Charges (Type 7) */
+        CASE
+            WHEN tx.iType=7 AND (
+                (@HAPMode='Exclude' AND SUBSTRING(ISNULL(tx.trNotes,''),1,4)=':HAP')
+                OR (@HAPMode='Only' AND SUBSTRING(ISNULL(tx.trNotes,''),1,4) <> ':HAP')
+            ) THEN 0
+            WHEN tx.iType=7 AND SUBSTRING(ISNULL(tx.trNotes,'N/A'),1,4) <> ':HAP'
+            THEN ISNULL(tx.sTotalAmount,0)
+            ELSE 0
+        END AS ChargeAmt,
+
+        /* Receipts (Type 6) */
+        CASE
+            WHEN tx.iType=6 AND (
+                (@HAPMode='Exclude' AND SUBSTRING(ISNULL(tx.sUserDefined2,''),1,4)=':HAP')
+                OR (@HAPMode='Only' AND SUBSTRING(ISNULL(tx.sUserDefined2,''),1,4) <> ':HAP')
+            ) THEN 0
+            WHEN tx.iType=6 AND SUBSTRING(ISNULL(tx.sUserDefined2,'N/A'),1,4) <> ':HAP'
+            THEN ISNULL(tx.sTotalAmount,0)
+            ELSE 0
+        END AS ReceiptAmt
+    FROM DailyDates d
+    JOIN Tx tx
+      ON tx.PostDate <= d.AsOfDate
+    JOIN CurrentTenants tn
+      ON tn.hMyPerson = tx.hPerson
+
+    UNION ALL
+
+    /* Carry-in injected as a pseudo-row per tenant for each AsOfDate */
+    SELECT
+        d.AsOfDate,
+        tn.hProperty,
+        tn.hUnit,
+        ci.hPerson,
+        DATEADD(DAY, -1, @FirstMonthStart) AS PostDate,
+        0 AS iType,
+        CASE WHEN ci.NetBefore > 0 THEN ci.NetBefore ELSE 0 END AS ChargeAmt,
+        CASE WHEN ci.NetBefore < 0 THEN -ci.NetBefore ELSE 0 END AS ReceiptAmt
+    FROM DailyDates d
+    JOIN CarryIn ci
+      ON 1=1
+    JOIN CurrentTenants tn
+      ON tn.hMyPerson = ci.hPerson
+),
+R AS
+(
+    /* Aggregate to snapshot shape per AsOfDate/Tenant/Unit/Property */
     SELECT
         b.AsOfDate,
         b.yardiPropertyRowID,
@@ -59,141 +248,32 @@ FROM (
 
         SUM(
             CASE WHEN b.iType = 7
-                  AND b.PostDate BETWEEN DATEFROMPARTS(YEAR(b.AsOfDate),MONTH(b.AsOfDate),1)
-                                     AND b.AsOfDate
+                  AND b.PostDate BETWEEN DATEFROMPARTS(YEAR(b.AsOfDate),MONTH(b.AsOfDate),1) AND b.AsOfDate
                  THEN b.ChargeAmt ELSE 0 END
         ) AS charges,
 
         SUM(
             CASE WHEN b.iType = 6
-                  AND b.PostDate BETWEEN DATEFROMPARTS(YEAR(b.AsOfDate),MONTH(b.AsOfDate),1)
-                                     AND b.AsOfDate
+                  AND b.PostDate BETWEEN DATEFROMPARTS(YEAR(b.AsOfDate),MONTH(b.AsOfDate),1) AND b.AsOfDate
                  THEN b.ReceiptAmt ELSE 0 END
         ) AS receipts
-
-    FROM (
-
-        SELECT
-            me.AsOfDate,
-            tn.hProperty AS yardiPropertyRowID,
-            tn.hUnit     AS yardiUnitRowID,
-            tx.hPerson   AS yardiPersonRowID,
-            tx.PostDate,
-            tx.iType,
-            CASE 
-                WHEN tx.iType=7 AND (
-                    (@HAPMode='Exclude' AND SUBSTRING(ISNULL(tx.trNotes,''),1,4)=':HAP')
-                    OR (@HAPMode='Only' AND SUBSTRING(ISNULL(tx.trNotes,''),1,4) <> ':HAP')
-                )
-                THEN 0
-                WHEN tx.iType=7 AND SUBSTRING(ISNULL(tx.trNotes,'N/A'),1,4) <> ':HAP'
-                THEN ISNULL(tx.sTotalAmount,0)
-                ELSE 0
-            END AS ChargeAmt,
-
-            CASE 
-                WHEN tx.iType=6 AND (
-                    (@HAPMode='Exclude' AND SUBSTRING(ISNULL(tx.sUserDefined2,''),1,4)=':HAP')
-                    OR (@HAPMode='Only' AND SUBSTRING(ISNULL(tx.sUserDefined2,''),1,4) <> ':HAP')
-                )
-                THEN 0
-                WHEN tx.iType=6 AND SUBSTRING(ISNULL(tx.sUserDefined2,'N/A'),1,4) <> ':HAP'
-                THEN ISNULL(tx.sTotalAmount,0)
-                ELSE 0
-            END AS ReceiptAmt
-
-        FROM (
-            SELECT DISTINCT EOMONTH(DATEADD(MONTH,n,@FirstMonthStart)) AS AsOfDate
-            FROM (
-                SELECT ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) - 1 AS n
-                FROM sys.all_objects
-            ) AS nums
-            WHERE DATEADD(MONTH,n,@FirstMonthStart) <= @LastMonthEnd
-        ) AS me
-
-        JOIN (
-            SELECT
-                tr.hPerson,
-                tr.hProp,
-                tr.hMy,
-                tr.iType,
-                CAST(tr.uPostDate AS date) AS PostDate,
-                tr.sTotalAmount,
-                tr.sUserDefined2,
-                tr.sNotes AS trNotes
-            FROM Trans tr
-            WHERE tr.iType IN (6,7)
-              AND CAST(tr.uPostDate AS date)
-                    BETWEEN @FirstMonthStart AND DATEADD(DAY,1,@LastMonthEnd)
-              AND tr.hMy BETWEEN 600000000 AND 799999999
-        ) AS tx ON tx.PostDate <= me.AsOfDate
-
-        JOIN (
-            SELECT t.hMyPerson, t.hUnit, t.hProperty
-            FROM Tenant t
-            JOIN TenStatus ts ON ts.iStatus = t.iStatus
-            WHERE ts.Status LIKE 'Current%'
-        ) AS tn ON tn.hMyPerson = tx.hPerson
-
-
-        UNION ALL
-
-
-        SELECT
-            me.AsOfDate,
-            tn.hProperty,
-            tn.hUnit,
-            ci.hPerson,
-            DATEADD(DAY,-1,@FirstMonthStart),
-            0,
-
-            CASE WHEN ci.NetBefore > 0 THEN ci.NetBefore ELSE 0 END,
-            CASE WHEN ci.NetBefore < 0 THEN -ci.NetBefore ELSE 0 END
-
-        FROM (
-            SELECT DISTINCT EOMONTH(DATEADD(MONTH,n,@FirstMonthStart)) AS AsOfDate
-            FROM (
-                SELECT ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) - 1 AS n
-                FROM sys.all_objects
-            ) AS nums2
-            WHERE DATEADD(MONTH,n,@FirstMonthStart) <= @LastMonthEnd
-        ) AS me
-
-        CROSS JOIN (
-            SELECT
-                tr.hPerson,
-                SUM(
-                    CASE WHEN tr.iType=7 AND SUBSTRING(ISNULL(tr.sNotes,''),1,4) <> ':HAP'
-                         THEN ISNULL(tr.sTotalAmount,0) ELSE 0 END
-                )
-                -
-                SUM(
-                    CASE WHEN tr.iType=6 AND SUBSTRING(ISNULL(tr.sUserDefined2,''),1,4) <> ':HAP'
-                         THEN ISNULL(tr.sTotalAmount,0) ELSE 0 END
-                ) AS NetBefore
-            FROM Trans tr
-            WHERE CAST(tr.uPostDate AS date) < @FirstMonthStart
-              AND tr.iType IN (6,7)
-            GROUP BY tr.hPerson
-        ) AS ci
-
-        JOIN (
-            SELECT t.hMyPerson, t.hUnit, t.hProperty
-            FROM Tenant t
-            JOIN TenStatus ts ON ts.iStatus = t.iStatus
-            WHERE ts.Status LIKE 'Current%'
-        ) AS tn ON tn.hMyPerson = ci.hPerson
-
-    ) AS b
-
+    FROM B b
     GROUP BY
         b.AsOfDate,
         b.yardiPropertyRowID,
         b.yardiUnitRowID,
         b.yardiPersonRowID
-
-) AS r
-
+)
+SELECT
+    r.AsOfDate,
+    r.yardiPersonRowID,
+    r.yardiPropertyRowID,
+    r.yardiUnitRowID,
+    CAST(r.balanceFwd AS decimal(12,2)) AS balanceFwd,
+    CAST(r.charges    AS decimal(12,2)) AS charges,
+    CAST(r.receipts   AS decimal(12,2)) AS receipts,
+    CAST(r.balanceFwd + r.charges - r.receipts AS decimal(12,2)) AS endingBalance
+FROM R r
 ORDER BY
     r.AsOfDate,
     r.yardiPropertyRowID,

@@ -58,7 +58,7 @@ namespace LW_Web.Controllers
 
             if (string.IsNullOrEmpty(model.ArrearsReportDate))
             {
-                model.Error_log = "<div class=\"alert alert-danger\"><strong>*</strong> Enter a Reporting Date (it will be rounded up to month end).</div>";
+                model.Error_log = "<div class=\"alert alert-danger\"><strong>*</strong> Enter a Reporting Date.</div>";
                 return View("LegalReportingPage", model);
             }
 

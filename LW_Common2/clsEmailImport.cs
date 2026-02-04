@@ -30,10 +30,12 @@ namespace LW_Common
         public const int TotalEmailFilesToImport = 10;              // Set this number according to how many files are expected to be imported from email
         public const int TotalEmailFilesToImport_Monthly = 4;       // Monthly counts are less (4 files instead of 10)
         // Guardrail + importer notes:
-        // - Filename acceptance remains strict and unchanged (REGEX_FILE_PATTERN).
+        // - Filename acceptance remains strict and unchanged (see regex constants below).
         // - Attachment saving behavior is unchanged (uses the existing filename).
         // - No new AppSettings were introduced for the guardrail schedule or remediation list.
-        public const string REGEX_FILE_PATTERN = @"^\d{4}-\d{2}-\d{2}_LW_Portal_Export-File\d{2}_amc\.xlsx$";
+        public const string REGEX_ATTACHMENT_PATTERN = @"^LW_Portal_Export-File\d{2}_amc\.xlsx$";
+        public const string REGEX_WORKINGFILE_PATTERN = @"^\d{4}-\d{2}-\d{2}_LW_Portal_Export-File\d{2}_amc\.xlsx$";
+        public const string REGEX_CLEANUP_PATTERN = @"^(\d{4}-\d{2}-\d{2}_)?LW_Portal_Export-File\d{2}_amc\.xlsx$";
 
         public string err_msg { get; set; } = "";
         public string success_msg { get; set; } = "";
@@ -59,7 +61,9 @@ namespace LW_Common
 
         public bool CheckEmailAndImport()
         {
-            Regex _filenamePattern = new Regex(REGEX_FILE_PATTERN, RegexOptions.IgnoreCase);
+            Regex _attachmentPattern = new Regex(REGEX_ATTACHMENT_PATTERN, RegexOptions.IgnoreCase);
+            Regex _workingFilePattern = new Regex(REGEX_WORKINGFILE_PATTERN, RegexOptions.IgnoreCase);
+            Regex _cleanupPattern = new Regex(REGEX_CLEANUP_PATTERN, RegexOptions.IgnoreCase);
             err_msg = "";
             bool retVal = true;
 
@@ -82,16 +86,21 @@ namespace LW_Common
                     var message = inbox.GetMessage(lastUid);
 
                     // Clear out the working folder
-                    clsFunc.DeleteMatchingFiles(_saveDirectory, REGEX_FILE_PATTERN);
+                    clsFunc.DeleteMatchingFiles(_saveDirectory, REGEX_CLEANUP_PATTERN);
 
                     // Save attachments that match the regex
                     foreach (var attachment in message.Attachments)
                     {
                         if (attachment is MimeKit.MimePart part)
                         {
-                            if (_filenamePattern.IsMatch(part.FileName))
+                            if (_attachmentPattern.IsMatch(part.FileName))
                             {
-                                var filePath = Path.Combine(_saveDirectory, message.Date.ToString("yyyy-MM-dd_") + part.FileName);
+                                string fileName = part.FileName;
+                                if (!_workingFilePattern.IsMatch(fileName))
+                                {
+                                    fileName = message.Date.ToString("yyyy-MM-dd_") + fileName;
+                                }
+                                var filePath = Path.Combine(_saveDirectory, fileName);
                                 using (var stream = File.Create(filePath))
                                 {
                                     part.Content.DecodeTo(stream);
@@ -129,6 +138,7 @@ namespace LW_Common
 
             // Process the saved files as before
             var files = Directory.GetFiles(_saveDirectory)
+                                 .Where(f => _cleanupPattern.IsMatch(Path.GetFileName(f)))
                                  .OrderBy(f => Path.GetFileName(f))
                                  .ToList();
 
@@ -461,7 +471,7 @@ namespace LW_Common
             }
 
             result.Pass = !anyFail;
-            result.HtmlBody = BuildArrearsGuardrailEmailHtml(runDate, rowsForEmail, failNotes, REGEX_FILE_PATTERN);
+            result.HtmlBody = BuildArrearsGuardrailEmailHtml(runDate, rowsForEmail, failNotes, REGEX_CLEANUP_PATTERN);
             return result;
         }
 

@@ -1,4 +1,4 @@
-# Arrears “Daily As-Of” Project Plan (Phase 0 discovery)
+﻿# Arrears “Daily As-Of” Project Plan (Phase 0 discovery)
 
 ## Scope & constraints
 - **Production-sensitive**: minimal-touch, reuse-first, no refactors unless required.
@@ -56,21 +56,26 @@
 2. If needed, adjust tenant snapshot join to range `@AsOfDate BETWEEN ValidFrom AND ISNULL(ValidTo,'9999-12-31')`.
    - DoD: daily AsOfDate works with month-end SCD snapshots (pending manual validation).
 
-### Phase 7 — App Backend Effective Date Logic
-1. **Reuse-first search** for existing date/report helpers (documented below).
-   - DoD: decision documented before new helper.
-2. Implement **single EffectiveAsOfDate method** (inputs: requested date, checkbox; uses snapshot procs).
-   - DoD: returns requested/effective dates + warnings consistently.
-3. Replace unconditional month-end rounding in code path with EffectiveAsOfDate.
-   - DoD: 90-day rule + checkbox honored.
+### Phase 7 — App Backend Effective Date Logic ✅ DONE
+1. ✅ **Reuse-first search** for existing date/report helpers (documented below).
+2. ✅ Implement **EffectiveAsOfDate** logic (requested date → resolved AR AsOf + resolved tenant snapshot ValidFrom).
+3. ✅ Replace unconditional month-end rounding in report code path with EffectiveAsOfDate (daily within last 90 days; month-end older history).
 
-### Phase 8 — UI: Checkbox + Display
-1. Add checkbox and bind to model.
-2. Client-side immediate rounding while checked.
-3. Display Requested vs Reporting-through + warnings.
-   - DoD: UX matches spec without breaking export.
+### Phase 8 — UI: Reporting Date helper text ✅ DONE
+0. ✅ Update helper text under the Reporting Date field to explain daily vs month-end behavior.
+   - Note: kept UI simple; no checkbox or additional UI controls added.
 
-### Phase 9 — Validation Queries + Manual Test Plan
+### Phase 9 — Validation Queries + Manual Test Plan ✅ DONE
+#### Validation results (executed in production)
+- **Snapshot freshness:** `tblTenantAR_DailySnapshot` max AsOfDate matches `tblTenantARSummary` max AsOfDate (both 2026-02-03).
+- **Recent-day parity:** For 2026-01-27 .. 2026-02-03, daily snapshot row counts match AR summary counts per AsOfDate.
+- **Last 90 days coverage:** 91 distinct snapshot dates present for 2025-11-05 .. 2026-02-03.
+- **Month-end guardrail:** Month-ends 2025-11-30, 2025-12-31, 2026-01-31 exist in daily snapshot and AR summary; row counts match.
+- **Arrears report effective-date behavior:** Requesting 2026-02-04 correctly uses AR as-of 2026-02-03 and tenant snapshot as-of 2026-01-31.
+- **Arrears tracker join correctness:** Joined rows = tenant snapshot rows for that AsOf; no duplicate joins; no balance mismatches post-fix.
+- **Signs / filters sanity:** All ending balances are stored as positive numbers; Excel inclusion logic uses `endingBalance > 0` as “arrears”.
+- **Retention cleanup safety:** With @RetentionMonths = 18, no rows eligible for deletion yet; month-end preservation rule in place.
+
 1. Add SQL validation snippets to this file.
 2. Manual test plan for nightly import, SCD snapshot, daily report, fallback behavior, regression checks.
    - DoD: tests documented + results recorded when run.

@@ -29,6 +29,10 @@ namespace LW_Common
     {
         public const int TotalEmailFilesToImport = 10;              // Set this number according to how many files are expected to be imported from email
         public const int TotalEmailFilesToImport_Monthly = 4;       // Monthly counts are less (4 files instead of 10)
+        // Guardrail + importer notes:
+        // - Filename acceptance remains strict and unchanged (REGEX_FILE_PATTERN).
+        // - Attachment saving behavior is unchanged (uses the existing filename).
+        // - No new AppSettings were introduced for the guardrail schedule or remediation list.
         public const string REGEX_FILE_PATTERN = @"^\d{4}-\d{2}-\d{2}_LW_Portal_Export-File\d{2}_amc\.xlsx$";
 
         public string err_msg { get; set; } = "";
@@ -315,7 +319,7 @@ namespace LW_Common
             //
             // Behavior:
             //   - Runs only when the import is fully successful (no errors, no file-count mismatch)
-            //   - Runs only on a small schedule (1st/2nd/15th) to keep the nightly job fast and quiet
+            //   - Runs only on a small schedule (1st/15th) to keep the nightly job fast and quiet
             //   - Sends an email ONLY if the guardrail fails
             // ---------------------------------------------------------------------------------
             System.IO.File.AppendAllText(_LogFile, DateTime.Now.ToString("yyyy/MM/dd hh:mm") + ": " + body, System.Text.Encoding.Unicode);
@@ -353,10 +357,9 @@ namespace LW_Common
         {
             // Keep it quiet/cheap: run only on a small schedule.
             //  - Day 1: catches month-end issues early
-            //  - Day 2: backup if the job/data was late on the 1st
             //  - Day 15: mid-month sanity check
             int d = today.Day;
-            return (d == 1 || d == 2 || d == 15);
+            return (d == 1 || d == 15);
         }
 
         private static ArrearsGuardrailQaResult RunArrearsGuardrailQa(DateTime runDate)
@@ -518,11 +521,16 @@ namespace LW_Common
                     sb.Append("</div>");
                     sb.Append("<ul style='margin:8px 0 0 18px; padding:0;'>");
 
-                    sb.Append("<li><strong>Always</strong>: re-run <strong>File #10 (Daily AR by Tenant)</strong> so the attachment includes the resolved AR date (" + System.Web.HttpUtility.HtmlEncode(arAsOf) + "), and re-import it.</li>");
+                    DateTime arResolvedDate = ResolveGuardrailDate(arAsOf, runDate);
+                    DateTime tenantResolvedDate = ResolveGuardrailDate(tenantSnapAsOf, runDate);
+                    int[] remediationFiles = new[] { 10, 6, 7, 8, 9 };
 
-                    sb.Append("<li>If the tenant snapshot side is missing or wrong: re-run the <strong>monthly</strong> export email that includes these files (and re-import):");
-                    sb.Append("<div style='margin-top:4px;'>File #06 (Property-Unit), File #07 (Tenants), File #08 (LegalCaseActions), File #09 (LegalCaseHeaders).</div>");
-                    sb.Append("</li>");
+                    foreach (int fileNum in remediationFiles)
+                    {
+                        DateTime resolvedDate = (fileNum == 10) ? arResolvedDate : tenantResolvedDate;
+                        string expectedFileName = BuildExpectedExportFileName(resolvedDate, fileNum);
+                        sb.Append("<li>File #" + fileNum.ToString("00") + " — Expected filename: <strong>" + System.Web.HttpUtility.HtmlEncode(expectedFileName) + "</strong></li>");
+                    }
 
                     sb.Append("</ul>");
 
@@ -587,6 +595,22 @@ namespace LW_Common
             existing = existing ?? "";
             if (string.IsNullOrWhiteSpace(existing)) return add;
             return existing + "; " + add;
+        }
+
+        private static DateTime ResolveGuardrailDate(string dateValue, DateTime fallbackDate)
+        {
+            DateTime resolved;
+            if (DateTime.TryParse(dateValue, out resolved))
+            {
+                return resolved.Date;
+            }
+
+            return fallbackDate.Date;
+        }
+
+        private static string BuildExpectedExportFileName(DateTime asOfDate, int fileNumber)
+        {
+            return $"{asOfDate:yyyy-MM-dd}_LW_Portal_Export-File{fileNumber:00}_amc.xlsx";
         }
     }
 }

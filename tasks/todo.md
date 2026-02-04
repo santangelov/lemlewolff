@@ -5,6 +5,9 @@
 - **Phase 0 only**: discovery + plan; no implementation.
 - **Reporting** must ultimately query **persistent snapshot table** (never staging), but Phase 0 is read-only.
 
+## Maintenance updates
+- ✅ DONE: Arrears guardrail email remediation guidance + schedule update.
+
 ---
 
 ## Phase plan (Phases 1–9) with DoD
@@ -76,9 +79,63 @@
 - **Signs / filters sanity:** All ending balances are stored as positive numbers; Excel inclusion logic uses `endingBalance > 0` as “arrears”.
 - **Retention cleanup safety:** With @RetentionMonths = 18, no rows eligible for deletion yet; month-end preservation rule in place.
 
-1. Add SQL validation snippets to this file.
-2. Manual test plan for nightly import, SCD snapshot, daily report, fallback behavior, regression checks.
-   - DoD: tests documented + results recorded when run.
+#### SQL Validation Snippets (copy/paste)
+1. **Snapshot freshness parity (MAX AsOfDate)**
+   ```sql
+   SELECT MAX(AsOfDate) AS MaxSnapshot FROM dbo.tblTenantAR_DailySnapshot;
+   SELECT MAX(AsOfDate) AS MaxArSummary FROM dbo.tblTenantARSummary;
+   ```
+2. **Last 90 days distinct AsOfDate count**
+   ```sql
+   SELECT COUNT(DISTINCT AsOfDate) AS SnapshotDayCount
+   FROM dbo.tblTenantAR_DailySnapshot
+   WHERE AsOfDate >= DATEADD(day, -90, CAST(GETDATE() AS date));
+   ```
+3. **Per-day rowcount parity (choose date range)**
+   ```sql
+   SELECT AsOfDate, COUNT(*) AS SnapshotRows
+   FROM dbo.tblTenantAR_DailySnapshot
+   WHERE AsOfDate BETWEEN 'YYYY-MM-DD' AND 'YYYY-MM-DD'
+   GROUP BY AsOfDate
+   ORDER BY AsOfDate;
+
+   SELECT AsOfDate, COUNT(*) AS ArSummaryRows
+   FROM dbo.tblTenantARSummary
+   WHERE AsOfDate BETWEEN 'YYYY-MM-DD' AND 'YYYY-MM-DD'
+   GROUP BY AsOfDate
+   ORDER BY AsOfDate;
+   ```
+4. **Month-end existence check (last 3 closed month-ends)**
+   ```sql
+   SELECT AsOfDate, COUNT(*) AS SnapshotRows
+   FROM dbo.tblTenantAR_DailySnapshot
+   WHERE AsOfDate IN ('YYYY-MM-DD', 'YYYY-MM-DD', 'YYYY-MM-DD')
+   GROUP BY AsOfDate
+   ORDER BY AsOfDate;
+
+   SELECT AsOfDate, COUNT(*) AS ArSummaryRows
+   FROM dbo.tblTenantARSummary
+   WHERE AsOfDate IN ('YYYY-MM-DD', 'YYYY-MM-DD', 'YYYY-MM-DD')
+   GROUP BY AsOfDate
+   ORDER BY AsOfDate;
+   ```
+5. **ArrearsTracker date resolution (example)**
+   ```sql
+   EXEC dbo.spQA_ArrearsTracker_DateResolution @RequestedAsOfDate = 'YYYY-MM-DD';
+   ```
+
+#### Manual Test Plan (Nightly Import + Reporting)
+- [ ] **Nightly import + staging load** — Re-run import pipeline with known exports; confirm `sp_Load_TenantARSummary_FromStaging` completes without errors.
+- [ ] **Snapshot upsert + cleanup** — Verify `spAR_Snapshots_RunNightly` executes and updates daily rows; confirm retention rules are respected.
+- [ ] **SCD snapshot integration** — Validate `sp_Snapshot_Tenants_SCD_Range` produces expected rows for the run date.
+- [ ] **Daily report output** — Run arrears report for a recent date; verify totals against AR summary.
+- [ ] **Fallback behavior (older than 90 days)** — Run report for a date >90 days old; confirm month-end resolution.
+- [ ] **Regression check** — Compare a known month-end report against historical output for parity.
+
+**Results (record after run)**
+- Date run:
+- PASS/FAIL:
+- Notes:
 
 ---
 

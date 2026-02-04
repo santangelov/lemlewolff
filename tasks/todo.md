@@ -125,17 +125,51 @@
    ```
 
 #### Manual Test Plan (Nightly Import + Reporting)
-- [ ] **Nightly import + staging load** — Re-run import pipeline with known exports; confirm `sp_Load_TenantARSummary_FromStaging` completes without errors.
-- [ ] **Snapshot upsert + cleanup** — Verify `spAR_Snapshots_RunNightly` executes and updates daily rows; confirm retention rules are respected.
-- [ ] **SCD snapshot integration** — Validate `sp_Snapshot_Tenants_SCD_Range` produces expected rows for the run date.
-- [ ] **Daily report output** — Run arrears report for a recent date; verify totals against AR summary.
-- [ ] **Fallback behavior (older than 90 days)** — Run report for a date >90 days old; confirm month-end resolution.
-- [ ] **Regression check** — Compare a known month-end report against historical output for parity.
+- [x] **Nightly import + staging load** — Re-run import pipeline with known exports; confirm `sp_Load_TenantARSummary_FromStaging` completes without errors. (PASS)
+- [x] **Snapshot upsert + cleanup** — Verify `spAR_Snapshots_RunNightly` executes and updates daily rows; confirm retention rules are respected. (PASS)
+- [x] **SCD snapshot integration** — Validate `sp_Snapshot_Tenants_SCD_Range` produces expected rows for the run date. (PASS)
+- [x] **Daily report output** — Run arrears report for a recent date; verify totals against AR summary. (PASS)
+- [x] **Fallback behavior (older than 90 days)** — Run report for a date >90 days old; confirm month-end resolution. (PASS)
+- [x] **Regression check** — Compare a known month-end report against historical output for parity. (PASS)
 
 **Results (record after run)**
 - Date run:
 - PASS/FAIL:
 - Notes:
+
+#### Phase 9 – Manual QA Results (PROD read-only)
+**STEP 2 – Post-production-run validations**
+- **2A Staging (tblStg_TenantARSummary):**
+  - MaxAsOfDate = 2026-01-25
+  - MinAsOfDate = 2025-10-28
+  - TotalRows = 442,460
+  - RowsAfterMax (AsOfDate > 2026-01-25) = 0
+  - RowCnt@2026-01-25: Staging = 4,946 vs ARSummary = 6,377 (staging is a subset; observation only)
+- **2B AR summary (tblTenantARSummary):**
+  - MinAsOfDate = 2025-10-23
+  - MaxAsOfDate = 2026-02-04
+  - TotalRows = 578,197
+  - Top 10 AsOfDates row counts captured (recent dates 2026-02-04..2026-01-26)
+- **2C Snapshot (tblTenantAR_DailySnapshot):**
+  - MinAsOfDate = 2025-10-23
+  - MaxAsOfDate = 2026-02-04
+  - TotalRows = 578,197
+  - Top 10 AsOfDates row counts match AR summary exactly (PASS)
+- **2D QA stored procedure:**
+  - spQA_ArrearsTracker_DateResolution @AsOfDate = 2026-02-04 → Pass=1; DAILY (<=90); ARAsOf_Resolved=2026-02-04; TenantSnapAsOf_Resolved=2026-01-31
+  - spQA_ArrearsTracker_DateResolution @AsOfDate = 2026-02-03 → Pass=1; DAILY (<=90); ARAsOf_Resolved=2026-02-03; TenantSnapAsOf_Resolved=2026-01-31
+  - spQA_ArrearsTracker_DateResolution @AsOfDate = 2025-10-17 → Pass=1; MONTH-END (>90); ARAsOf_Resolved=2025-10-31; TenantSnapAsOf_Resolved=2025-10-31
+
+**STEP 3 – Portal report validation (DAILY, Posting group)**
+- Confirmed “Posting” is a property-list filter; the initial high-balance sample properties (2067/2073/2094) had isInList_Posting=0 and correctly did not appear.
+- Using Posting-only sample tenants for 2026-02-03, snapshot tie-out PASS (tblTenantAR_DailySnapshot):
+  - (49, 1391, 63563) endingBalance 87,523.73
+  - (44, 6266, 65710) endingBalance 84,174.27
+  - (101, 3081, 63089) endingBalance 74,637.16
+
+**STEP 4 – Fallback/regression (>90 days → month-end)**
+- QA PASS: Requested 2025-10-17 resolves to month-end 2025-10-31.
+- Portal Excel export (Posting, 2025-10-17) matches spReport_ArrearsTracker output (FilterOnlyExcel=1, FilterIsList_Posting=1) for sampled rows (PASS).
 
 ---
 

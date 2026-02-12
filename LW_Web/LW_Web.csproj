@@ -294,6 +294,9 @@
     <Content Include="_PowerShell_Scripts\importSortly.ps1" />
     <Content Include="_PowerShell_Scripts\importYardiCheck.ps1" />
     <Content Include="_Templates\_Template - Tenant_Arrears.xlsx" />
+    <Content Include="_document-store\_templates\Template_01_LeaseRenewal_CoverPage.docx" />
+    <Content Include="_document-store\_templates\Template_02_LeaseRenewal_SampleLeaseAgreement.docx" />
+    <Content Include="_document-store\_templates\Template_03_LeaseRenewal_SampleAddendum.docx" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\RouteConfig.cs" />

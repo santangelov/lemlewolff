@@ -1,0 +1,368 @@
+using LW_Common;
+using LW_Data;
+using LW_Security;
+using LW_Web.Services;
+using LW_Web.ViewModels;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Data.SqlClient;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Web.Mvc;
+
+namespace LW_Web.Controllers
+{
+    public class DocumentPackageDemoController : BaseController
+    {
+        private static readonly string[] TemplateNames =
+        {
+            "RenewalDemo_CoverPage.docx",
+            "RenewalDemo_LeaseAgreement.docx",
+            "RenewalDemo_Addendum.docx"
+        };
+
+        private readonly LWDbContext _context;
+        private readonly SyncfusionDocumentService _syncfusionDocumentService;
+        private readonly FileStorageService _fileStorageService;
+
+        public DocumentPackageDemoController()
+        {
+            _context = new LWDbContext();
+            _syncfusionDocumentService = new SyncfusionDocumentService();
+            _fileStorageService = new FileStorageService();
+        }
+
+        public ActionResult Index()
+        {
+            var model = BuildBaseModel();
+            return View("Index", model);
+        }
+
+        [HttpGet]
+        public JsonResult GetUnits(int buildingId)
+        {
+            var units = GetUnitsForBuilding(buildingId)
+                .Select(u => new SelectListItem
+                {
+                    Value = u.UnitId.ToString(CultureInfo.InvariantCulture),
+                    Text = string.IsNullOrWhiteSpace(u.TenantLastName)
+                        ? $"{u.UnitNumber}"
+                        : $"{u.UnitNumber} - {u.TenantLastName}, {u.TenantFirstName}"
+                })
+                .ToList();
+
+            return Json(units, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult GeneratePackage(DocumentPackageDemoViewModel model)
+        {
+            Server.ScriptTimeout = 1200;
+            var outputModel = BuildBaseModel();
+            outputModel.SelectedBuildingId = model.SelectedBuildingId;
+            outputModel.SelectedUnitIds = model.SelectedUnitIds;
+
+            try
+            {
+                if (!model.SelectedBuildingId.HasValue || model.SelectedBuildingId.Value <= 0)
+                {
+                    outputModel.ErrorMessageHtml = "<div class=\"alert alert-danger\"><strong>*</strong> Select a building.</div>";
+                    return View("Index", outputModel);
+                }
+
+                var selectedUnitIds = ParseUnitIds(model.SelectedUnitIds);
+                if (!selectedUnitIds.Any())
+                {
+                    outputModel.ErrorMessageHtml = "<div class=\"alert alert-danger\"><strong>*</strong> Select one or more units.</div>";
+                    return View("Index", outputModel);
+                }
+
+                var units = GetUnitPackageData(model.SelectedBuildingId.Value, selectedUnitIds);
+                if (!units.Any())
+                {
+                    outputModel.ErrorMessageHtml = "<div class=\"alert alert-danger\"><strong>*</strong> No matching active units were found for the selected building.</div>";
+                    return View("Index", outputModel);
+                }
+
+                var templateRootAbsolute = MapConfiguredPath("DocumentTemplateRoot", "_document-store/_templates/");
+                var documentStoreAbsolute = MapConfiguredPath("DocumentStoreRoot", "_document-store/");
+
+                _syncfusionDocumentService.EnsureTemplatesExist(templateRootAbsolute, TemplateNames);
+
+                var createdByUser = clsSecurity.LoggedInUserFullName();
+                if (string.IsNullOrWhiteSpace(createdByUser))
+                {
+                    createdByUser = "SYSTEM";
+                }
+
+                var printHistoryId = _fileStorageService.InsertPrintHistoryRecord(
+                    "RenewalDemo",
+                    model.SelectedBuildingId,
+                    units.Count,
+                    createdByUser,
+                    "Demo run. Existing filenames are overwritten when collisions occur.");
+
+                var perUnitPdfs = new List<byte[]>();
+                foreach (var unit in units)
+                {
+                    var unitPdf = GenerateSingleUnitPdf(templateRootAbsolute, unit);
+                    perUnitPdfs.Add(unitPdf);
+
+                    var safeUnitNumber = _fileStorageService.SanitizePathSegment(unit.UnitNumber, "UNKNOWN_UNIT");
+                    var safeLastName = _fileStorageService.SanitizePathSegment((unit.TenantLastName ?? "UNKNOWN").ToUpperInvariant(), "UNKNOWN");
+                    var relativePath = $"units/{unit.BuildingId}/{safeUnitNumber}/renewals/{DateTime.Today:yyyy-MM-dd}_{safeLastName}.pdf";
+                    var absolutePath = Path.Combine(documentStoreAbsolute, relativePath.Replace('/', Path.DirectorySeparatorChar));
+
+                    _fileStorageService.SavePdfAndLog(new FileStoreRequest
+                    {
+                        FileCategory = "RenewalUnitPackage",
+                        RelatedTable = "tblPropertyUnits",
+                        RelatedRecordId = unit.UnitId,
+                        BuildingId = unit.BuildingId,
+                        UnitId = unit.UnitId,
+                        TenantId = unit.TenantId,
+                        RelativeFilePath = "/" + relativePath,
+                        AbsoluteFilePath = absolutePath,
+                        FileBytes = unitPdf,
+                        CreatedByUser = createdByUser
+                    });
+                }
+
+                var combinedPdf = _syncfusionDocumentService.MergePdfDocuments(perUnitPdfs);
+                var uniquePrintId = Guid.NewGuid().ToString("N").Substring(0, 12);
+                var combinedRelativePath = $"renewal-printings/{DateTime.Today:yyyy-MM-dd}_{uniquePrintId}.pdf";
+                var combinedAbsolutePath = Path.Combine(documentStoreAbsolute, combinedRelativePath.Replace('/', Path.DirectorySeparatorChar));
+
+                var combinedFile = _fileStorageService.SavePdfAndLog(new FileStoreRequest
+                {
+                    FileCategory = "RenewalCombined",
+                    RelatedTable = "tblPrintHistory",
+                    RelatedRecordId = printHistoryId,
+                    BuildingId = model.SelectedBuildingId,
+                    UnitId = null,
+                    TenantId = null,
+                    RelativeFilePath = "/" + combinedRelativePath,
+                    AbsoluteFilePath = combinedAbsolutePath,
+                    FileBytes = combinedPdf,
+                    CreatedByUser = createdByUser
+                });
+
+                _fileStorageService.LinkCombinedFileToPrintHistory(printHistoryId, combinedFile.FileId);
+
+                var downloadName = Path.GetFileName(combinedAbsolutePath);
+                return File(combinedPdf, "application/pdf", downloadName);
+            }
+            catch (FileNotFoundException ex)
+            {
+                clsUtilities.WriteToCounter("RenewalDemo", "Template missing");
+                outputModel.ErrorMessageHtml = $"<div class=\"alert alert-danger\"><strong>Template Missing:</strong> {ex.FileName}</div>";
+                return View("Index", outputModel);
+            }
+            catch (Exception ex)
+            {
+                clsUtilities.WriteToCounter("RenewalDemo", "Error: " + ex.Message);
+                outputModel.ErrorMessageHtml = $"<div class=\"alert alert-danger\"><strong>Error:</strong> {ex.Message}</div>";
+                return View("Index", outputModel);
+            }
+        }
+
+        private DocumentPackageDemoViewModel BuildBaseModel()
+        {
+            var model = new DocumentPackageDemoViewModel();
+            model.Buildings = _context.tblProperties
+                .Where(p => !p.isInactive && _context.tblPropertyUnits.Any(u => u.yardiPropertyRowID == p.yardiPropertyRowID && !u.isExcluded))
+                .OrderBy(p => p.yardiPropertyRowID)
+                .Select(p => new SelectListItem
+                {
+                    Value = p.yardiPropertyRowID.ToString(),
+                    Text = p.buildingCode + " - " + (p.addr1_Co ?? "n/a").ToUpper()
+                })
+                .ToList();
+
+            return model;
+        }
+
+        private List<DocumentPackageUnitData> GetUnitsForBuilding(int buildingId)
+        {
+            return _context.tblPropertyUnits
+                .Where(u => u.yardiPropertyRowID == buildingId && !u.isExcluded)
+                .OrderBy(u => u.AptNumber)
+                .Select(u => new DocumentPackageUnitData
+                {
+                    UnitId = u.yardiUnitRowID,
+                    BuildingId = u.yardiPropertyRowID,
+                    UnitNumber = u.AptNumber,
+                    TenantFirstName = null,
+                    TenantLastName = null
+                })
+                .ToList();
+        }
+
+        private List<DocumentPackageUnitData> GetUnitPackageData(int buildingId, IReadOnlyCollection<int> selectedUnitIds)
+        {
+            var rows = new List<DocumentPackageUnitData>();
+            var idParamNames = selectedUnitIds.Select((id, index) => $"@unitId{index}").ToList();
+
+            var sql = $@"
+SELECT
+    p.yardiPropertyRowID AS BuildingID,
+    p.buildingCode AS BuildingCode,
+    p.addr1_Co AS PropertyAddress1,
+    p.city AS PropertyCity,
+    p.stateCode AS PropertyState,
+    p.zipCode AS PropertyZip,
+    u.yardiUnitRowID AS UnitID,
+    u.AptNumber,
+    u.Bedrooms,
+    u.SqFt,
+    u.rent,
+    u.LeaseStartDate,
+    u.LeaseEndDate,
+    TRY_CAST(u.CurrentTenantYardiID AS INT) AS TenantID,
+    t.firstName AS TenantFirstName,
+    t.lastName AS TenantLastName
+FROM dbo.tblPropertyUnits u
+INNER JOIN dbo.tblProperties p
+    ON p.yardiPropertyRowID = u.yardiPropertyRowID
+LEFT JOIN dbo.tblTenants t
+    ON t.yardiPersonRowID = TRY_CAST(u.CurrentTenantYardiID AS INT)
+WHERE p.isInactive = 0
+  AND u.isExcluded = 0
+  AND u.yardiPropertyRowID = @buildingId
+  AND u.yardiUnitRowID IN ({string.Join(",", idParamNames)})
+ORDER BY p.yardiPropertyRowID ASC, u.AptNumber ASC;";
+
+            using (var connection = clsDataHelper.sqlconn(false))
+            using (var command = new SqlCommand(sql, connection))
+            {
+                command.Parameters.AddWithValue("@buildingId", buildingId);
+                var index = 0;
+                foreach (var unitId in selectedUnitIds)
+                {
+                    command.Parameters.AddWithValue($"@unitId{index}", unitId);
+                    index++;
+                }
+
+                connection.Open();
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        rows.Add(new DocumentPackageUnitData
+                        {
+                            BuildingId = reader.GetInt32(reader.GetOrdinal("BuildingID")),
+                            BuildingCode = reader["BuildingCode"]?.ToString(),
+                            PropertyAddress1 = reader["PropertyAddress1"]?.ToString(),
+                            PropertyCity = reader["PropertyCity"]?.ToString(),
+                            PropertyState = reader["PropertyState"]?.ToString(),
+                            PropertyZip = reader["PropertyZip"]?.ToString(),
+                            UnitId = reader.GetInt32(reader.GetOrdinal("UnitID")),
+                            UnitNumber = reader["AptNumber"]?.ToString(),
+                            Bedrooms = reader["Bedrooms"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["Bedrooms"]),
+                            SqFt = reader["SqFt"] == DBNull.Value ? (decimal?)null : Convert.ToDecimal(reader["SqFt"]),
+                            Rent = reader["rent"] == DBNull.Value ? (decimal?)null : Convert.ToDecimal(reader["rent"]),
+                            LeaseStartDate = reader["LeaseStartDate"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(reader["LeaseStartDate"]),
+                            LeaseEndDate = reader["LeaseEndDate"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(reader["LeaseEndDate"]),
+                            TenantId = reader["TenantID"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["TenantID"]),
+                            TenantFirstName = reader["TenantFirstName"]?.ToString(),
+                            TenantLastName = reader["TenantLastName"]?.ToString()
+                        });
+                    }
+                }
+            }
+
+            return rows;
+        }
+
+        private byte[] GenerateSingleUnitPdf(string templateRootAbsolute, DocumentPackageUnitData unit)
+        {
+            var templatePdfs = new List<byte[]>();
+            var tokenMap = BuildTokenMap(unit);
+
+            foreach (var templateName in TemplateNames)
+            {
+                var templatePath = Path.Combine(templateRootAbsolute, templateName);
+                var pdf = _syncfusionDocumentService.BuildPdfFromTemplate(templatePath, tokenMap);
+                templatePdfs.Add(pdf);
+            }
+
+            return _syncfusionDocumentService.MergePdfDocuments(templatePdfs);
+        }
+
+        private static Dictionary<string, string> BuildTokenMap(DocumentPackageUnitData unit)
+        {
+            var cityStateZip = string.Join(" ", new[]
+            {
+                unit.PropertyCity,
+                unit.PropertyState,
+                unit.PropertyZip
+            }.Where(s => !string.IsNullOrWhiteSpace(s))).Trim();
+
+            return new Dictionary<string, string>
+            {
+                ["TenantFirstName"] = unit.TenantFirstName ?? string.Empty,
+                ["TenantLastName"] = unit.TenantLastName ?? string.Empty,
+                ["BuildingCode"] = unit.BuildingCode ?? string.Empty,
+                ["AptNumber"] = unit.UnitNumber ?? string.Empty,
+                ["PropertyAddress1"] = unit.PropertyAddress1 ?? string.Empty,
+                ["PropertyCityStateZip"] = cityStateZip,
+                ["Rent"] = unit.Rent.HasValue ? unit.Rent.Value.ToString("0.00") : string.Empty,
+                ["LeaseStartDate"] = unit.LeaseStartDate.HasValue ? unit.LeaseStartDate.Value.ToString("MM/dd/yyyy") : string.Empty,
+                ["LeaseEndDate"] = unit.LeaseEndDate.HasValue ? unit.LeaseEndDate.Value.ToString("MM/dd/yyyy") : string.Empty,
+                ["Bedrooms"] = unit.Bedrooms.HasValue ? unit.Bedrooms.Value.ToString(CultureInfo.InvariantCulture) : string.Empty,
+                ["SqFt"] = unit.SqFt.HasValue ? unit.SqFt.Value.ToString("0") : string.Empty
+            };
+        }
+
+        private string MapConfiguredPath(string appSettingKey, string fallbackRelative)
+        {
+            var configuredValue = ConfigurationManager.AppSettings[appSettingKey];
+            var normalized = string.IsNullOrWhiteSpace(configuredValue) ? fallbackRelative : configuredValue;
+            if (Path.IsPathRooted(normalized))
+            {
+                return normalized;
+            }
+
+            return Server.MapPath("~/" + normalized.TrimStart('~', '/').Replace("\\", "/"));
+        }
+
+        private static List<int> ParseUnitIds(string selectedUnitIds)
+        {
+            if (string.IsNullOrWhiteSpace(selectedUnitIds))
+            {
+                return new List<int>();
+            }
+
+            return selectedUnitIds
+                .Split(',')
+                .Select(s => s.Trim())
+                .Where(s => !string.IsNullOrWhiteSpace(s) && int.TryParse(s, out _))
+                .Select(int.Parse)
+                .Distinct()
+                .ToList();
+        }
+    }
+
+    public class DocumentPackageUnitData
+    {
+        public int BuildingId { get; set; }
+        public string BuildingCode { get; set; }
+        public string PropertyAddress1 { get; set; }
+        public string PropertyCity { get; set; }
+        public string PropertyState { get; set; }
+        public string PropertyZip { get; set; }
+        public int UnitId { get; set; }
+        public string UnitNumber { get; set; }
+        public int? TenantId { get; set; }
+        public string TenantFirstName { get; set; }
+        public string TenantLastName { get; set; }
+        public decimal? Rent { get; set; }
+        public DateTime? LeaseStartDate { get; set; }
+        public DateTime? LeaseEndDate { get; set; }
+        public int? Bedrooms { get; set; }
+        public decimal? SqFt { get; set; }
+    }
+}

@@ -1,0 +1,103 @@
+@model LW_Web.ViewModels.DocumentPackageDemoViewModel
+@{
+    Layout = "~/Views/Shared/_LayoutPage.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box">
+                <h4 class="page-title" style="color:chocolate;">DOCUMENT PACKAGE DEMO</h4>
+                <p>Proof-of-concept: token replacement, Word to PDF conversion, per-unit package generation, and combined PDF output.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-6">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="header-title">Generate Renewal Demo Package</h4>
+                    <p class="text-muted font-14">Select one building, then choose one or more units.</p>
+
+                    @Html.Raw(Model.ErrorMessageHtml)
+
+                    @using (Html.BeginForm("GeneratePackage", "DocumentPackageDemo", FormMethod.Post, new { id = "documentPackageDemoForm" }))
+                    {
+                        @Html.AntiForgeryToken()
+
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                @Html.LabelFor(m => m.SelectedBuildingId, "Building")
+                                @Html.DropDownListFor(
+                                    m => m.SelectedBuildingId,
+                                    Model.Buildings,
+                                    "-- Select Building --",
+                                    new { @class = "form-control", id = "buildingDropdown" })
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <label for="unitMultiSelect">Units</label>
+                                <select id="unitMultiSelect" class="form-control" size="12" multiple="multiple"></select>
+                                @Html.HiddenFor(m => m.SelectedUnitIds, new { id = "selectedUnitIds" })
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary w-100">Generate Package</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        const buildingDropdown = $("#buildingDropdown");
+        const unitMultiSelect = $("#unitMultiSelect");
+        const selectedUnitIds = $("#selectedUnitIds");
+
+        function loadUnits(buildingId) {
+            unitMultiSelect.empty();
+            selectedUnitIds.val("");
+
+            if (!buildingId) {
+                return;
+            }
+
+            $.get('@Url.Action("GetUnits", "DocumentPackageDemo")', { buildingId: buildingId })
+                .done(function (units) {
+                    if (!units || units.length === 0) {
+                        unitMultiSelect.append('<option value="">No units found</option>');
+                        return;
+                    }
+
+                    $.each(units, function (_, item) {
+                        unitMultiSelect.append($('<option></option>').val(item.Value).text(item.Text));
+                    });
+                })
+                .fail(function () {
+                    unitMultiSelect.append('<option value="">Error loading units</option>');
+                });
+        }
+
+        buildingDropdown.on("change", function () {
+            loadUnits($(this).val());
+        });
+
+        $("#documentPackageDemoForm").on("submit", function () {
+            const selected = unitMultiSelect.val() || [];
+            selectedUnitIds.val(selected.join(","));
+        });
+
+        if (buildingDropdown.val()) {
+            loadUnits(buildingDropdown.val());
+        }
+    });
+</script>

@@ -178,6 +178,21 @@
     <Reference Include="System.Web.WebPages.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.9\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
     </Reference>
+    <Reference Include="Syncfusion.Compression.Base, Version=31.0.0.0, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>..\packages\Syncfusion.Compression.Base.31.1.17\lib\net48\Syncfusion.Compression.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.DocIO.Base, Version=31.0.0.0, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>..\packages\Syncfusion.DocIO.Base.31.1.17\lib\net48\Syncfusion.DocIO.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.DocIORenderer.Base, Version=31.0.0.0, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>..\packages\Syncfusion.DocIORenderer.Base.31.1.17\lib\net48\Syncfusion.DocIORenderer.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.OfficeChart.Base, Version=31.0.0.0, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>..\packages\Syncfusion.OfficeChart.Base.31.1.17\lib\net48\Syncfusion.OfficeChart.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="Syncfusion.Pdf.Base, Version=31.0.0.0, Culture=neutral, PublicKeyToken=3d67ed1f87d44c89, processorArchitecture=MSIL">
+      <HintPath>..\packages\Syncfusion.Pdf.Base.31.1.17\lib\net48\Syncfusion.Pdf.Base.dll</HintPath>
+    </Reference>
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Configuration" />
@@ -277,6 +292,7 @@
     <Content Include="_YardiExportSQL\rs_SQL_LW_Portal_Export_04.txt" />
     <Content Include="_YardiExportSQL\rs_SQL_LW_Portal_Export_05.txt" />
     <Content Include="_YardiExportSQL\rs_SQL_LW_Portal_Export_06.txt" />
+    <Content Include="Views\DocumentPackageDemo\Index.cshtml" />
     <Content Include="Views\ExternalApps\Index.cshtml" />
     <Content Include="Views\Shared\LegalReportingPage.cshtml" />
     <Content Include="bin\roslyn\csc.rsp" />
@@ -302,6 +318,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\APIController.cs" />
     <Compile Include="Controllers\DashboardController.cs" />
+    <Compile Include="Controllers\DocumentPackageDemoController.cs" />
     <Compile Include="Controllers\LegalReportingController.cs" />
     <Compile Include="Controllers\VendorController.cs" />
     <Compile Include="Controllers\PIController.cs" />
@@ -325,6 +342,9 @@
     <Compile Include="Models\LoginModel.cs" />
     <Compile Include="Models\ImportFilesModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\FileStorageService.cs" />
+    <Compile Include="Services\SyncfusionDocumentService.cs" />
+    <Compile Include="ViewModels\DocumentPackageDemoViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\web.config" />

@@ -8,6 +8,22 @@
 ## Maintenance updates
 - ✅ DONE: Arrears guardrail email remediation guidance + schedule update.
 
+## Final signoff snapshot (audit trail)
+- **Environment:** lemlewolff / WEB2\PMSQL
+
+### Snapshot evidence
+- **LatestSnapshotDate:** 2026-01-31
+- **ClosestPrior for 2026-01-15:** 2025-12-31
+
+### Smoke tests
+- **1/15 Posting=1:** 2023, PresentAsOf=Resolved
+- **1/31 Posting=1:** 2406, PresentAsOf=Yes
+
+### Filter counts
+- **Posting ON/OFF:** 2023 / 3342
+- **Aquinas ON/OFF:** 485 / 3342
+- **Posting3536 ON/OFF:** 2627 / 3342
+
 ---
 
 ## Phase plan (Phases 1–9) with DoD
@@ -347,4 +363,3 @@
 - Runtime DB validation to run in environment with SQL access:
   - `exec spReport_ArrearsTracker @AsOfDate='2026-01-15', @FilterIsList_Posting=1` should now return rows using resolved snapshot date.
   - `exec spReport_ArrearsTracker @AsOfDate='2026-01-31', @FilterIsList_Posting=1` should resolve exact and return rows.
-

@@ -89,7 +89,8 @@ CREATE OR ALTER PROCEDURE [dbo].[spReport_ArrearsTracker]
       @BuildingCode       varchar(20) = NULL,
       @FilterOnlyExcel    bit = 1,   -- 1 = return ONLY rows that qualify for the Excel report
       @FilterIsList_Posting bit = 0,  -- 1 = include ONLY buildings in Posting list
-      @FilterIsList_Aquinas bit = 0   -- 1 = include ONLY buildings in Posting list
+      @FilterIsList_Aquinas bit = 0,  -- 1 = include ONLY buildings in Aquinas list
+      @FilterIsList_Posting3536 bit = 0 -- 1 = include Posting + supplemental 35xx/36xx buildings
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -267,6 +268,12 @@ BEGIN
         WHERE (@BuildingCode IS NULL OR r.Property = @BuildingCode)
           AND (@FilterIsList_Posting = 0 OR p.isInList_Posting = 1)
 		  AND (@FilterIsList_Aquinas = 0 OR p.isInList_Aquinas = 1)
+          AND (
+                @FilterIsList_Posting3536 = 0
+                OR p.isInList_Posting = 1
+                OR p.buildingCode IN ('3651', '3655')
+                OR (TRY_CONVERT(int, p.buildingCode) BETWEEN 3500 AND 3572)
+              )
     ),
 
 

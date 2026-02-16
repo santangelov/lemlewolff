@@ -629,7 +629,7 @@ RETURN
   ),
   legal_at_end AS (
     SELECT s.yardiPersonRowID,
-           COALESCE(NULLIF(LTRIM(RTRIM(s.LegalDisplay)),N''), N'Open – status missing') AS [Legal Status]
+           COALESCE(NULLIF(LTRIM(RTRIM(s.LegalDisplay)),N''), N'Open Â– status missing') AS [Legal Status]
     FROM dbo.tblTenants_Snapshots s
     CROSS JOIN bounds b
     WHERE b.EndME BETWEEN s.ValidFrom AND ISNULL(s.ValidTo,'9999-12-31')
@@ -2283,7 +2283,7 @@ BEGIN
         s.dtLastModified
       FROM dbo.tblStg_LegalCasesActions s
     ),
-    /* De-dupe: one “best” row per legalActionRowID */
+    /* De-dupe: one Â“bestÂ” row per legalActionRowID */
     S AS (
       SELECT d.*
       FROM (
@@ -4057,7 +4057,7 @@ BEGIN
         SET @FailReason = 'Resolved TenantSnapAsOf_Resolved has 0 rows.';
     END
 
-    -- Extra strict checks for MONTH-END mode (this is what catches “out of whack” history)
+    -- Extra strict checks for MONTH-END mode (this is what catches Â“out of whackÂ” history)
     IF @Pass = 1 AND @ResolutionMode LIKE 'MONTH-END%'
     BEGIN
         IF @ARAsOf_Resolved <> @RequestedMonthEnd
@@ -4141,7 +4141,8 @@ CREATE PROCEDURE [dbo].[spReport_ArrearsTracker]
       @BuildingCode         varchar(20) = NULL,
       @FilterOnlyExcel      bit = 1,   -- 1 = return ONLY rows that qualify for the Excel report
       @FilterIsList_Posting bit = 0,   -- 1 = include ONLY buildings in Posting list
-      @FilterIsList_Aquinas bit = 0    -- 1 = include ONLY buildings in Aquinas list
+      @FilterIsList_Aquinas bit = 0,   -- 1 = include ONLY buildings in Aquinas list
+      @FilterIsList_Posting3536 bit = 0 -- 1 = include Posting + supplemental 35xx/36xx buildings
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -4171,8 +4172,8 @@ BEGIN
     -- 0B. RESOLVE EFFECTIVE DATES (Daily AR within 90 days, Month-End outside 90 days)
     --
     -- Business rule:
-    --   • Last 90 days: use daily balances (exact date if present; otherwise closest prior)
-    --   • Older history: use month-end balances (EOMONTH of requested month; or nearest prior month-end)
+    --   Â• Last 90 days: use daily balances (exact date if present; otherwise closest prior)
+    --   Â• Older history: use month-end balances (EOMONTH of requested month; or nearest prior month-end)
     --
     -- Note: Tenant snapshots are month-end based. For daily AR dates, we use the nearest prior month-end
     -- tenant snapshot (MAX ValidFrom <= EffectiveAsOf).
@@ -4329,7 +4330,7 @@ BEGIN
 
             ar.endingBalance,
 
-            COALESCE(NULLIF(LTRIM(RTRIM(s.LegalDisplay)), N''), N'Open – status missing') AS CurrentLegalStatus,
+            COALESCE(NULLIF(LTRIM(RTRIM(s.LegalDisplay)), N''), N'Open Â– status missing') AS CurrentLegalStatus,
             s.lastLegalNoteDate AS LastLegalNote,
             s.dayCounter,
             s.yardiPersonRowID,
@@ -4384,6 +4385,12 @@ BEGIN
         WHERE (@BuildingCode IS NULL OR r.Property = @BuildingCode)
           AND (@FilterIsList_Posting = 0 OR p.isInList_Posting = 1)
           AND (@FilterIsList_Aquinas = 0 OR p.isInList_Aquinas = 1)
+          AND (
+                @FilterIsList_Posting3536 = 0
+                OR p.isInList_Posting = 1
+                OR p.buildingCode IN ('3651', '3655')
+                OR (TRY_CONVERT(int, p.buildingCode) BETWEEN 3500 AND 3572)
+              )
     ),
 
     -------------------------------------------------------------------------------------
@@ -4406,7 +4413,7 @@ BEGIN
 
             CAST(CASE
                    WHEN NULLIF(b.CurrentLegalStatus,N'') IS NOT NULL
-                     AND LOWER(LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(b.CurrentLegalStatus, NCHAR(8211), '-'),'–','-'),'  ',' '))))
+                     AND LOWER(LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(b.CurrentLegalStatus, NCHAR(8211), '-'),'Â–','-'),'  ',' '))))
                          NOT LIKE 'open%status missing%'
                  THEN 1 ELSE 0 END AS bit) AS Legal_ActiveOpen_bit,
 
@@ -4440,7 +4447,7 @@ BEGIN
         [Name],
         endingBalance,
 
-        CASE WHEN ISNULL(CurrentLegalStatus, N'') = N'Open – status missing'
+        CASE WHEN ISNULL(CurrentLegalStatus, N'') = N'Open Â– status missing'
              THEN N'' ELSE CurrentLegalStatus END AS CurrentLegalStatus,
 
         CASE WHEN ISNULL(LastLegalNote,N'') IN (N'',N'1900-01-01 00:00:00.000')
@@ -4579,14 +4586,14 @@ GO
    spRptBuilder_Inventory_01_Import
 
    CHANGES:
-     • Preserve ReceivedDate as imported from Yardi
+     Â• Preserve ReceivedDate as imported from Yardi
        (may remain NULL if not provided).
-     • Use ISNULL(ReceivedDate, OrderDate) for DateOfSale
+     Â• Use ISNULL(ReceivedDate, OrderDate) for DateOfSale
        so reporting has a usable date even when ReceivedDate is NULL.
-     • PO UPDATE logic compares:
+     Â• PO UPDATE logic compares:
          - it.ReceivedDate  vs imp.ReceivedDate
          - it.DateOfSale    vs ISNULL(imp.ReceivedDate, imp.OrderDate)
-     • PO HEADERS now UPSERT into tblPurchaseOrders:
+     Â• PO HEADERS now UPSERT into tblPurchaseOrders:
          - Aggregate from tblImport_Inv_Yardi_POItems (POAgg CTE)
          - UPDATE existing rows when any header fields change
          - INSERT new rows for PONumbers not present yet
@@ -4745,7 +4752,7 @@ BEGIN
         OR ISNULL(po.TotalCostOfItems, 0.00)       <> ISNULL(a.TotalCostsOfItems, 0.00);
 
 
-    -- 2) INSERT new PO headers that don’t exist yet
+    -- 2) INSERT new PO headers that donÂ’t exist yet
     INSERT INTO tblPurchaseOrders
         (PONumber, WONumber, VendorName, OrderDate, ReceivedDate, ExpenseType, TotalCostOfItems)
     SELECT 
@@ -5082,7 +5089,7 @@ BEGIN
 
     DECLARE @ignoreCategory varchar(100) = 'CABINETS';
 
-    -- STEP 1: Per-item seed logic — find most recent physical inventory snapshot before @StartDate
+    -- STEP 1: Per-item seed logic Â— find most recent physical inventory snapshot before @StartDate
     IF OBJECT_ID('tempdb..#LatestSeedDates') IS NOT NULL DROP TABLE #LatestSeedDates;
     SELECT 
         Code, 
@@ -6483,7 +6490,7 @@ BEGIN
 
     ----------------------------------------------------------------------
     -- Normalize ReceivedDate key
-    -- NULL means NULL — preserve exactly as Yardi gave it.
+    -- NULL means NULL Â— preserve exactly as Yardi gave it.
     ----------------------------------------------------------------------
     DECLARE @FinalReceivedDate DATE =
         CASE WHEN @ReceivedDate IS NOT NULL 

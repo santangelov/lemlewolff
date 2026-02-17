@@ -16,6 +16,11 @@ namespace LW_Web.Controllers
 {
     public class DocumentPackageDemoController : BaseController
     {
+        /// <summary>
+        /// Template names - list in order of desired PDF output. 
+        /// These templates must exist in the configured template root folder for the demo to work. 
+        /// The SyncfusionDocumentService will throw a FileNotFoundException if any are missing.
+        /// </summary>
         private static readonly string[] TemplateNames =
         {
             "RenewalDemo_CoverPage.docx",

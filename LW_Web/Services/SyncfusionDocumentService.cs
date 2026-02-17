@@ -1,11 +1,9 @@
-using Syncfusion.DocIO;
-using Syncfusion.DocIO.DLS;
-using Syncfusion.DocIORenderer;
 using Syncfusion.Pdf;
 using Syncfusion.Pdf.Parsing;
-using System;
 using System.Collections.Generic;
 using System.IO;
+using Syncfusion.DocIO;
+using Syncfusion.DocIO.DLS;
 
 namespace LW_Web.Services
 {
@@ -26,14 +24,14 @@ namespace LW_Web.Services
         public byte[] BuildPdfFromTemplate(string templatePath, IDictionary<string, string> tokens)
         {
             using (var documentStream = new FileStream(templatePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            using (var wordDocument = new WordDocument(documentStream, FormatType.Docx))
+            using (var wordDocument = new WordDocument(documentStream, Syncfusion.DocIO.FormatType.Docx))
             {
                 foreach (var token in tokens)
                 {
                     wordDocument.Replace($"##{token.Key}##", token.Value ?? string.Empty, true, true);
                 }
 
-                using (var renderer = new DocIORenderer())
+                using (var renderer = new Syncfusion.DocIORenderer.DocIORenderer())
                 using (var pdfDocument = renderer.ConvertToPDF(wordDocument))
                 using (var outputStream = new MemoryStream())
                 {

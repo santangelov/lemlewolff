@@ -42,7 +42,7 @@ namespace LW_Web.Services
         public int InsertPrintHistoryRecord(string printType, int? buildingId, int unitCount, string createdByUser, string notes)
         {
             using (var connection = clsDataHelper.sqlconn(true))
-            using (var command = new SqlCommand(@"
+            using (var command = new SqlCommand(SqlFromXml(@"<sql>
 INSERT INTO dbo.tblPrintHistory
 (
     PrintType,
@@ -65,7 +65,8 @@ VALUES
     @UnitCount,
     @Notes
 );
-SELECT CAST(SCOPE_IDENTITY() AS INT);", connection))
+SELECT CAST(SCOPE_IDENTITY() AS INT);
+</sql>"), connection))
             {
                 command.Parameters.Add("@PrintType", SqlDbType.NVarChar, 100).Value = printType;
                 command.Parameters.Add("@BuildingID", SqlDbType.Int).Value = (object)buildingId ?? DBNull.Value;
@@ -81,10 +82,11 @@ SELECT CAST(SCOPE_IDENTITY() AS INT);", connection))
         public void LinkCombinedFileToPrintHistory(int printHistoryId, int combinedFileId)
         {
             using (var connection = clsDataHelper.sqlconn(true))
-            using (var command = new SqlCommand(@"
+            using (var command = new SqlCommand(SqlFromXml(@"<sql>
 UPDATE dbo.tblPrintHistory
 SET CombinedFileID = @CombinedFileID
-WHERE PrintHistoryID = @PrintHistoryID;", connection))
+WHERE PrintHistoryID = @PrintHistoryID;
+</sql>"), connection))
             {
                 command.Parameters.Add("@CombinedFileID", SqlDbType.Int).Value = combinedFileId;
                 command.Parameters.Add("@PrintHistoryID", SqlDbType.Int).Value = printHistoryId;
@@ -173,7 +175,7 @@ WHERE h.PrintHistoryID = @PrintHistoryID
         private int InsertFileStoreRecord(FileStoreRequest request, long fileSize)
         {
             using (var connection = clsDataHelper.sqlconn(true))
-            using (var command = new SqlCommand(@"
+            using (var command = new SqlCommand(SqlFromXml(@"<sql>
 INSERT INTO dbo.tblFileStore
 (
     FileCategory,
@@ -202,7 +204,8 @@ VALUES
     @FileSizeBytes,
     @CreatedByUser
 );
-SELECT CAST(SCOPE_IDENTITY() AS INT);", connection))
+SELECT CAST(SCOPE_IDENTITY() AS INT);
+</sql>"), connection))
             {
                 command.Parameters.Add("@FileCategory", SqlDbType.NVarChar, 100).Value = request.FileCategory;
                 command.Parameters.Add("@RelatedTable", SqlDbType.NVarChar, 100).Value = (object)request.RelatedTable ?? DBNull.Value;
@@ -219,6 +222,11 @@ SELECT CAST(SCOPE_IDENTITY() AS INT);", connection))
                 connection.Open();
                 return Convert.ToInt32(command.ExecuteScalar());
             }
+        }
+
+        private static string SqlFromXml(string sqlXml)
+        {
+            return clsUtilities.ExtractSqlFromXml(sqlXml);
         }
 
         private static void EnsureDirectoryExists(string directoryPath)

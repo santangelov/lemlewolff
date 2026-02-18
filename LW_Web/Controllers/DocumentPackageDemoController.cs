@@ -263,7 +263,7 @@ namespace LW_Web.Controllers
             var rows = new List<DocumentPackageUnitData>();
             var idParamNames = selectedUnitIds.Select((id, index) => $"@unitId{index}").ToList();
 
-            var sql = $@"
+            var sql = clsUtilities.ExtractSqlFromXml($@"<sql>
 SELECT
     p.yardiPropertyRowID AS BuildingID,
     p.buildingCode AS BuildingCode,
@@ -290,7 +290,8 @@ WHERE p.isInactive = 0
   AND u.isExcluded = 0
   AND u.yardiPropertyRowID = @buildingId
   AND u.yardiUnitRowID IN ({string.Join(",", idParamNames)})
-ORDER BY p.yardiPropertyRowID ASC, u.AptNumber ASC;";
+ORDER BY p.yardiPropertyRowID ASC, u.AptNumber ASC;
+</sql>");
 
             using (var connection = clsDataHelper.sqlconn(false))
             using (var command = new SqlCommand(sql, connection))

@@ -9,6 +9,7 @@ using System.Runtime.Caching;
 using System.Text;
 using System.Threading.Tasks;
 using System.Net;
+using System.Xml.Linq;
 
 namespace LW_Common
 {
@@ -130,6 +131,16 @@ namespace LW_Common
                 return false;
             }
 
+        }
+
+        public static string ExtractSqlFromXml(string sqlXml)
+        {
+            if (string.IsNullOrWhiteSpace(sqlXml))
+            {
+                return string.Empty;
+            }
+
+            return XDocument.Parse(sqlXml).Root?.Value?.Trim() ?? string.Empty;
         }
 
         //public static async Task FetchCounterAsync(string fileType)

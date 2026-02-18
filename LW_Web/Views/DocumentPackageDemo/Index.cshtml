@@ -14,11 +14,12 @@
     </div>
 
     <div class="row">
-        <div class="col-6">
+        <div class="col-lg-6">
             <div class="card">
                 <div class="card-body">
                     <h4 class="header-title">Generate Renewal Demo Package</h4>
                     <p class="text-muted font-14">Select one building, then choose one or more units.</p>
+                    <p class="text-muted font-13 mb-3"><strong>Tip:</strong> Hold down <kbd>CTRL</kbd> while clicking to select multiple units.</p>
 
                     @Html.Raw(Model.ErrorMessageHtml)
 
@@ -49,6 +50,50 @@
                             <div class="col-12">
                                 <button type="submit" class="btn btn-primary w-100">Generate Package</button>
                             </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6 mt-3 mt-lg-0">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="header-title">Previously Printed Packages</h4>
+                    <p class="text-muted font-13">These PDFs are streamed through the app for controlled access.</p>
+
+                    @if (Model.PrintHistory == null || Model.PrintHistory.Count == 0)
+                    {
+                        <div class="alert alert-light mb-0">No print history found yet.</div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm table-striped mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Printed</th>
+                                        <th>User</th>
+                                        <th>Units</th>
+                                        <th class="text-center">PDF</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                @foreach (var item in Model.PrintHistory)
+                                {
+                                    <tr>
+                                        <td>@item.CreatedDate.ToString("MM/dd/yyyy hh:mm tt")</td>
+                                        <td>@(item.CreatedByUser ?? "SYSTEM")</td>
+                                        <td>@item.UnitCount</td>
+                                        <td class="text-center">
+                                            <a href="@Url.Action("StreamPrintedPackage", "DocumentPackageDemo", new { printHistoryId = item.PrintHistoryId })" title="Open PDF" class="btn btn-sm btn-outline-primary">
+                                                <i class="uil-file-download-alt"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                                </tbody>
+                            </table>
                         </div>
                     }
                 </div>

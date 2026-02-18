@@ -10,6 +10,7 @@
     <RootNamespace>LW_Data</RootNamespace>
     <AssemblyName>LW_Data</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <NuGetPackageImportStamp>

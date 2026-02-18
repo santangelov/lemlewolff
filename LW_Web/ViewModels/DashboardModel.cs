@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Web;
 using System.Web.Mvc;
 
-namespace LW_Web.Models
+namespace LW_Web.ViewModels
 {
     public class DashboardModel
     {

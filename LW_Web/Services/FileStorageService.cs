@@ -1,5 +1,6 @@
 using LW_Data;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.IO;
@@ -93,6 +94,82 @@ WHERE PrintHistoryID = @PrintHistoryID;", connection))
             }
         }
 
+        public List<PrintPackageHistoryRecord> GetRecentPrintHistory(string printType, int maxRows = 100)
+        {
+            var rows = new List<PrintPackageHistoryRecord>();
+
+            using (var connection = clsDataHelper.sqlconn(false))
+            using (var command = new SqlCommand(@"
+SELECT TOP (@MaxRows)
+    h.PrintHistoryID,
+    h.CreatedDate,
+    h.CreatedByUser,
+    h.UnitCount,
+    f.FileName
+FROM dbo.tblPrintHistory h
+INNER JOIN dbo.tblFileStore f
+    ON f.FileID = h.CombinedFileID
+WHERE h.PrintType = @PrintType
+ORDER BY h.CreatedDate DESC;", connection))
+            {
+                command.Parameters.Add("@MaxRows", SqlDbType.Int).Value = maxRows;
+                command.Parameters.Add("@PrintType", SqlDbType.NVarChar, 100).Value = printType;
+
+                connection.Open();
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        rows.Add(new PrintPackageHistoryRecord
+                        {
+                            PrintHistoryId = reader.GetInt32(reader.GetOrdinal("PrintHistoryID")),
+                            CreatedDate = reader.GetDateTime(reader.GetOrdinal("CreatedDate")),
+                            CreatedByUser = reader["CreatedByUser"]?.ToString(),
+                            UnitCount = reader["UnitCount"] == DBNull.Value ? 0 : Convert.ToInt32(reader["UnitCount"]),
+                            FileName = reader["FileName"]?.ToString()
+                        });
+                    }
+                }
+            }
+
+            return rows;
+        }
+
+        public CombinedStoredFileRecord GetCombinedPrintFileRecord(int printHistoryId, string printType)
+        {
+            using (var connection = clsDataHelper.sqlconn(false))
+            using (var command = new SqlCommand(@"
+SELECT
+    h.PrintHistoryID,
+    f.FilePath,
+    f.FileName
+FROM dbo.tblPrintHistory h
+INNER JOIN dbo.tblFileStore f
+    ON f.FileID = h.CombinedFileID
+WHERE h.PrintHistoryID = @PrintHistoryID
+  AND h.PrintType = @PrintType;", connection))
+            {
+                command.Parameters.Add("@PrintHistoryID", SqlDbType.Int).Value = printHistoryId;
+                command.Parameters.Add("@PrintType", SqlDbType.NVarChar, 100).Value = printType;
+
+                connection.Open();
+                using (var reader = command.ExecuteReader())
+                {
+                    if (!reader.Read())
+                    {
+                        return null;
+                    }
+
+                    return new CombinedStoredFileRecord
+                    {
+                        PrintHistoryId = reader.GetInt32(reader.GetOrdinal("PrintHistoryID")),
+                        FilePath = reader["FilePath"]?.ToString(),
+                        FileName = reader["FileName"]?.ToString()
+                    };
+                }
+            }
+        }
+
         private int InsertFileStoreRecord(FileStoreRequest request, long fileSize)
         {
             using (var connection = clsDataHelper.sqlconn(true))
@@ -177,6 +254,22 @@ SELECT CAST(SCOPE_IDENTITY() AS INT);", connection))
         public int FileId { get; set; }
         public string AbsolutePath { get; set; }
         public string RelativePath { get; set; }
+        public string FileName { get; set; }
+    }
+
+    public class PrintPackageHistoryRecord
+    {
+        public int PrintHistoryId { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public string CreatedByUser { get; set; }
+        public int UnitCount { get; set; }
+        public string FileName { get; set; }
+    }
+
+    public class CombinedStoredFileRecord
+    {
+        public int PrintHistoryId { get; set; }
+        public string FilePath { get; set; }
         public string FileName { get; set; }
     }
 }

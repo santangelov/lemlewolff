@@ -1,4 +1,4 @@
-﻿using LW_Web.Models;
+﻿using LW_Web.ViewModels;
 using System.Web.Mvc;
 
 namespace LW_Web.Controllers

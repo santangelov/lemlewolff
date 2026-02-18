@@ -17,8 +17,8 @@ namespace LW_Web.Controllers
     public class DocumentPackageDemoController : BaseController
     {
         /// <summary>
-        /// Template names - list in order of desired PDF output. 
-        /// These templates must exist in the configured template root folder for the demo to work. 
+        /// Template names - list in order of desired PDF output.
+        /// These templates must exist in the configured template root folder for the demo to work.
         /// The SyncfusionDocumentService will throw a FileNotFoundException if any are missing.
         /// </summary>
         private static readonly string[] TemplateNames =
@@ -59,6 +59,42 @@ namespace LW_Web.Controllers
                 .ToList();
 
             return Json(units, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
+        public ActionResult StreamPrintedPackage(int printHistoryId)
+        {
+            try
+            {
+                if (!CanAccessPrintedPackages())
+                {
+                    clsUtilities.WriteToCounter("RenewalDemo", "Unauthorized package stream attempt by user: " + clsSecurity.LoggedInUserID());
+                    return new HttpStatusCodeResult(403, "You do not have access to printed packages.");
+                }
+
+                var printFile = _fileStorageService.GetCombinedPrintFileRecord(printHistoryId, "RenewalDemo");
+                if (printFile == null)
+                {
+                    return HttpNotFound();
+                }
+
+                var documentStoreAbsolute = MapConfiguredPath("DocumentStoreRoot", "_document-store/");
+                var absolutePath = ResolveStoredFileAbsolutePath(documentStoreAbsolute, printFile.FilePath);
+
+                if (!System.IO.File.Exists(absolutePath))
+                {
+                    clsUtilities.WriteToCounter("RenewalDemo", "Combined package file not found: " + absolutePath);
+                    return HttpNotFound();
+                }
+
+                var fileBytes = System.IO.File.ReadAllBytes(absolutePath);
+                return File(fileBytes, "application/pdf", printFile.FileName);
+            }
+            catch (Exception ex)
+            {
+                clsUtilities.WriteToCounter("RenewalDemo", "Error streaming package: " + ex.Message);
+                return new HttpStatusCodeResult(500, "Unable to stream requested package.");
+            }
         }
 
         [HttpPost]
@@ -187,7 +223,23 @@ namespace LW_Web.Controllers
                 })
                 .ToList();
 
+            model.PrintHistory = _fileStorageService.GetRecentPrintHistory("RenewalDemo")
+                .Select(r => new DocumentPackageHistoryItemViewModel
+                {
+                    PrintHistoryId = r.PrintHistoryId,
+                    CreatedDate = r.CreatedDate,
+                    CreatedByUser = r.CreatedByUser,
+                    UnitCount = r.UnitCount,
+                    FileName = r.FileName
+                })
+                .ToList();
+
             return model;
+        }
+
+        private static bool CanAccessPrintedPackages()
+        {
+            return clsSecurity.isSuperAdmin() || clsSecurity.isUserAdmin() || clsSecurity.isLegalTeam();
         }
 
         private List<DocumentPackageUnitData> GetUnitsForBuilding(int buildingId)
@@ -320,6 +372,20 @@ ORDER BY p.yardiPropertyRowID ASC, u.AptNumber ASC;";
                 ["Bedrooms"] = unit.Bedrooms.HasValue ? unit.Bedrooms.Value.ToString(CultureInfo.InvariantCulture) : string.Empty,
                 ["SqFt"] = unit.SqFt.HasValue ? unit.SqFt.Value.ToString("0") : string.Empty
             };
+        }
+
+        private static string ResolveStoredFileAbsolutePath(string documentStoreAbsolute, string relativeFilePath)
+        {
+            var basePath = Path.GetFullPath(documentStoreAbsolute);
+            var relativePath = (relativeFilePath ?? string.Empty).TrimStart('~', '/', '\\').Replace('/', Path.DirectorySeparatorChar);
+            var combinedPath = Path.GetFullPath(Path.Combine(basePath, relativePath));
+
+            if (!combinedPath.StartsWith(basePath, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException("Invalid file path requested.");
+            }
+
+            return combinedPath;
         }
 
         private string MapConfiguredPath(string appSettingKey, string fallbackRelative)

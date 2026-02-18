@@ -11,6 +11,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Web.Mvc;
+using static LW_Web.Services.FileStorageService;
 
 namespace LW_Web.Controllers
 {
@@ -29,13 +30,13 @@ namespace LW_Web.Controllers
         };
 
         private readonly LWDbContext _context;
-        private readonly SyncfusionDocumentService _syncfusionDocumentService;
+        private readonly SyncfusionDocumentEngine _syncfusionDocumentEngine;
         private readonly FileStorageService _fileStorageService;
 
         public DocumentPackageDemoController()
         {
             _context = new LWDbContext();
-            _syncfusionDocumentService = new SyncfusionDocumentService();
+            _syncfusionDocumentEngine = new SyncfusionDocumentEngine();
             _fileStorageService = new FileStorageService();
         }
 
@@ -131,7 +132,7 @@ namespace LW_Web.Controllers
                 var templateRootAbsolute = MapConfiguredPath("DocumentTemplateRoot", "_document-store/_templates/");
                 var documentStoreAbsolute = MapConfiguredPath("DocumentStoreRoot", "_document-store/");
 
-                _syncfusionDocumentService.EnsureTemplatesExist(templateRootAbsolute, TemplateNames);
+                _syncfusionDocumentEngine.EnsureTemplatesExist(templateRootAbsolute, TemplateNames);
 
                 var createdByUser = clsSecurity.LoggedInUserFullName();
                 if (string.IsNullOrWhiteSpace(createdByUser))
@@ -157,7 +158,7 @@ namespace LW_Web.Controllers
                     var relativePath = $"units/{unit.BuildingId}/{safeUnitNumber}/renewals/{DateTime.Today:yyyy-MM-dd}_{safeLastName}.pdf";
                     var absolutePath = Path.Combine(documentStoreAbsolute, relativePath.Replace('/', Path.DirectorySeparatorChar));
 
-                    _fileStorageService.SavePdfAndLog(new FileStoreRequest
+                    _fileStorageService.SavePdfAndLog(new clsFileStoreRequest
                     {
                         FileCategory = "RenewalUnitPackage",
                         RelatedTable = "tblPropertyUnits",
@@ -172,12 +173,12 @@ namespace LW_Web.Controllers
                     });
                 }
 
-                var combinedPdf = _syncfusionDocumentService.MergePdfDocuments(perUnitPdfs);
+                var combinedPdf = _syncfusionDocumentEngine.MergePdfs(perUnitPdfs);
                 var uniquePrintId = Guid.NewGuid().ToString("N").Substring(0, 12);
                 var combinedRelativePath = $"renewal-printings/{DateTime.Today:yyyy-MM-dd}_{uniquePrintId}.pdf";
                 var combinedAbsolutePath = Path.Combine(documentStoreAbsolute, combinedRelativePath.Replace('/', Path.DirectorySeparatorChar));
 
-                var combinedFile = _fileStorageService.SavePdfAndLog(new FileStoreRequest
+                var combinedFile = _fileStorageService.SavePdfAndLog(new clsFileStoreRequest
                 {
                     FileCategory = "RenewalCombined",
                     RelatedTable = "tblPrintHistory",
@@ -343,11 +344,11 @@ ORDER BY p.yardiPropertyRowID ASC, u.AptNumber ASC;
             foreach (var templateName in TemplateNames)
             {
                 var templatePath = Path.Combine(templateRootAbsolute, templateName);
-                var pdf = _syncfusionDocumentService.BuildPdfFromTemplate(templatePath, tokenMap);
+                var pdf = _syncfusionDocumentEngine.BuildPdfFromDocxTemplate(templatePath, tokenMap);
                 templatePdfs.Add(pdf);
             }
 
-            return _syncfusionDocumentService.MergePdfDocuments(templatePdfs);
+            return _syncfusionDocumentEngine.MergePdfs(templatePdfs);
         }
 
         private static Dictionary<string, string> BuildTokenMap(DocumentPackageUnitData unit)

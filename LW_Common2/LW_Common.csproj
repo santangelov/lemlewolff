@@ -157,14 +157,14 @@
     <Compile Include="clsADPHelper.cs" />
     <Compile Include="clsEmailImport.cs" />
     <Compile Include="clsFunc.cs" />
-    <Compile Include="clsFunc_ArchiveFromVB.cs" />
     <Compile Include="clsGeneralImportHelper.cs" />
     <Compile Include="clsReportHelper.cs" />
     <Compile Include="clsYardiHelper.cs" />
     <Compile Include="clsSortlyHelper.cs" />
     <Compile Include="clsUtilities.cs" />
     <Compile Include="clsWebFormHelper.cs" />
-    <Compile Include="Documents\SyncfusionDocumentEngine.cs" />
+    <Compile Include="SyncfusionDocumentEngine.cs" />
+    <Compile Include="FileStorageService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

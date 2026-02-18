@@ -1,4 +1,4 @@
-using LW_Common.Documents;
+using LW_Common;
 using System.Configuration;
 using System.Data.Entity;
 using System.Web.Mvc;

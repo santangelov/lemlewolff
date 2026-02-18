@@ -10,6 +10,46 @@ namespace LW_Web.Services
 {
     public class FileStorageService
     {
+        public class clsFileStoreRequest
+        {
+            public string FileCategory { get; set; }
+            public string RelatedTable { get; set; }
+            public int? RelatedRecordId { get; set; }
+            public int? BuildingId { get; set; }
+            public int? UnitId { get; set; }
+            public int? TenantId { get; set; }
+            public string RelativeFilePath { get; set; }
+            public string AbsoluteFilePath { get; set; }
+            public byte[] FileBytes { get; set; }
+            public string CreatedByUser { get; set; }
+        }
+
+        public class clsStoredFileResult
+        {
+            public int FileId { get; set; }
+            public string AbsolutePath { get; set; }
+            public string RelativePath { get; set; }
+            public string FileName { get; set; }
+        }
+
+        public class clsPrintPackageHistoryRecord
+        {
+            public int PrintHistoryId { get; set; }
+            public DateTime CreatedDate { get; set; }
+            public string CreatedByUser { get; set; }
+            public int UnitCount { get; set; }
+            public string FileName { get; set; }
+        }
+
+        public class clsCombinedStoredFileRecord
+        {
+            public int PrintHistoryId { get; set; }
+            public string FilePath { get; set; }
+            public string FileName { get; set; }
+        }
+
+
+
         public string SanitizePathSegment(string value, string fallback)
         {
             var baseValue = string.IsNullOrWhiteSpace(value) ? fallback : value.Trim();
@@ -22,7 +62,7 @@ namespace LW_Web.Services
             return string.IsNullOrWhiteSpace(baseValue) ? fallback : baseValue;
         }
 
-        public StoredFileResult SavePdfAndLog(FileStoreRequest request)
+        public clsStoredFileResult SavePdfAndLog(clsFileStoreRequest request)
         {
             EnsureDirectoryExists(Path.GetDirectoryName(request.AbsoluteFilePath));
             File.WriteAllBytes(request.AbsoluteFilePath, request.FileBytes);
@@ -30,7 +70,7 @@ namespace LW_Web.Services
             var fileInfo = new FileInfo(request.AbsoluteFilePath);
             var fileId = InsertFileStoreRecord(request, fileInfo.Length);
 
-            return new StoredFileResult
+            return new clsStoredFileResult
             {
                 FileId = fileId,
                 AbsolutePath = request.AbsoluteFilePath,
@@ -42,7 +82,7 @@ namespace LW_Web.Services
         public int InsertPrintHistoryRecord(string printType, int? buildingId, int unitCount, string createdByUser, string notes)
         {
             using (var connection = clsDataHelper.sqlconn(true))
-            using (var command = new SqlCommand(SqlFromXml(@"<sql>
+            using (var command = new SqlCommand(@"
 INSERT INTO dbo.tblPrintHistory
 (
     PrintType,
@@ -65,8 +105,7 @@ VALUES
     @UnitCount,
     @Notes
 );
-SELECT CAST(SCOPE_IDENTITY() AS INT);
-</sql>"), connection))
+SELECT CAST(SCOPE_IDENTITY() AS INT);", connection))
             {
                 command.Parameters.Add("@PrintType", SqlDbType.NVarChar, 100).Value = printType;
                 command.Parameters.Add("@BuildingID", SqlDbType.Int).Value = (object)buildingId ?? DBNull.Value;
@@ -82,23 +121,22 @@ SELECT CAST(SCOPE_IDENTITY() AS INT);
         public void LinkCombinedFileToPrintHistory(int printHistoryId, int combinedFileId)
         {
             using (var connection = clsDataHelper.sqlconn(true))
-            using (var command = new SqlCommand(SqlFromXml(@"<sql>
-UPDATE dbo.tblPrintHistory
-SET CombinedFileID = @CombinedFileID
-WHERE PrintHistoryID = @PrintHistoryID;
-</sql>"), connection))
-            {
-                command.Parameters.Add("@CombinedFileID", SqlDbType.Int).Value = combinedFileId;
-                command.Parameters.Add("@PrintHistoryID", SqlDbType.Int).Value = printHistoryId;
+            using (var command = new SqlCommand(@"
+                    UPDATE dbo.tblPrintHistory
+                    SET CombinedFileID = @CombinedFileID
+                    WHERE PrintHistoryID = @PrintHistoryID;", connection))
+                    {
+                        command.Parameters.Add("@CombinedFileID", SqlDbType.Int).Value = combinedFileId;
+                        command.Parameters.Add("@PrintHistoryID", SqlDbType.Int).Value = printHistoryId;
 
-                connection.Open();
-                command.ExecuteNonQuery();
-            }
+                        connection.Open();
+                        command.ExecuteNonQuery();
+                    }
         }
 
-        public List<PrintPackageHistoryRecord> GetRecentPrintHistory(string printType, int maxRows = 100)
+        public List<clsPrintPackageHistoryRecord> GetRecentPrintHistory(string printType, int maxRows = 100)
         {
-            var rows = new List<PrintPackageHistoryRecord>();
+            var rows = new List<clsPrintPackageHistoryRecord>();
 
             using (var connection = clsDataHelper.sqlconn(false))
             using (var command = new SqlCommand(@"
@@ -122,7 +160,7 @@ ORDER BY h.CreatedDate DESC;", connection))
                 {
                     while (reader.Read())
                     {
-                        rows.Add(new PrintPackageHistoryRecord
+                        rows.Add(new clsPrintPackageHistoryRecord
                         {
                             PrintHistoryId = reader.GetInt32(reader.GetOrdinal("PrintHistoryID")),
                             CreatedDate = reader.GetDateTime(reader.GetOrdinal("CreatedDate")),
@@ -137,7 +175,7 @@ ORDER BY h.CreatedDate DESC;", connection))
             return rows;
         }
 
-        public CombinedStoredFileRecord GetCombinedPrintFileRecord(int printHistoryId, string printType)
+        public clsCombinedStoredFileRecord GetCombinedPrintFileRecord(int printHistoryId, string printType)
         {
             using (var connection = clsDataHelper.sqlconn(false))
             using (var command = new SqlCommand(@"
@@ -162,7 +200,7 @@ WHERE h.PrintHistoryID = @PrintHistoryID
                         return null;
                     }
 
-                    return new CombinedStoredFileRecord
+                    return new clsCombinedStoredFileRecord
                     {
                         PrintHistoryId = reader.GetInt32(reader.GetOrdinal("PrintHistoryID")),
                         FilePath = reader["FilePath"]?.ToString(),
@@ -172,10 +210,10 @@ WHERE h.PrintHistoryID = @PrintHistoryID
             }
         }
 
-        private int InsertFileStoreRecord(FileStoreRequest request, long fileSize)
+        private int InsertFileStoreRecord(clsFileStoreRequest request, long fileSize)
         {
             using (var connection = clsDataHelper.sqlconn(true))
-            using (var command = new SqlCommand(SqlFromXml(@"<sql>
+            using (var command = new SqlCommand(@"
 INSERT INTO dbo.tblFileStore
 (
     FileCategory,
@@ -204,8 +242,7 @@ VALUES
     @FileSizeBytes,
     @CreatedByUser
 );
-SELECT CAST(SCOPE_IDENTITY() AS INT);
-</sql>"), connection))
+SELECT CAST(SCOPE_IDENTITY() AS INT);", connection))
             {
                 command.Parameters.Add("@FileCategory", SqlDbType.NVarChar, 100).Value = request.FileCategory;
                 command.Parameters.Add("@RelatedTable", SqlDbType.NVarChar, 100).Value = (object)request.RelatedTable ?? DBNull.Value;
@@ -224,11 +261,6 @@ SELECT CAST(SCOPE_IDENTITY() AS INT);
             }
         }
 
-        private static string SqlFromXml(string sqlXml)
-        {
-            return clsUtilities.ExtractSqlFromXml(sqlXml);
-        }
-
         private static void EnsureDirectoryExists(string directoryPath)
         {
             if (string.IsNullOrWhiteSpace(directoryPath))
@@ -243,41 +275,4 @@ SELECT CAST(SCOPE_IDENTITY() AS INT);
         }
     }
 
-    public class FileStoreRequest
-    {
-        public string FileCategory { get; set; }
-        public string RelatedTable { get; set; }
-        public int? RelatedRecordId { get; set; }
-        public int? BuildingId { get; set; }
-        public int? UnitId { get; set; }
-        public int? TenantId { get; set; }
-        public string RelativeFilePath { get; set; }
-        public string AbsoluteFilePath { get; set; }
-        public byte[] FileBytes { get; set; }
-        public string CreatedByUser { get; set; }
-    }
-
-    public class StoredFileResult
-    {
-        public int FileId { get; set; }
-        public string AbsolutePath { get; set; }
-        public string RelativePath { get; set; }
-        public string FileName { get; set; }
-    }
-
-    public class PrintPackageHistoryRecord
-    {
-        public int PrintHistoryId { get; set; }
-        public DateTime CreatedDate { get; set; }
-        public string CreatedByUser { get; set; }
-        public int UnitCount { get; set; }
-        public string FileName { get; set; }
-    }
-
-    public class CombinedStoredFileRecord
-    {
-        public int PrintHistoryId { get; set; }
-        public string FilePath { get; set; }
-        public string FileName { get; set; }
-    }
 }

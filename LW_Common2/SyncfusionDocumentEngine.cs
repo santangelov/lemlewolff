@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace LW_Common.Documents
+namespace LW_Common
 {
     public class SyncfusionDocumentEngine
     {

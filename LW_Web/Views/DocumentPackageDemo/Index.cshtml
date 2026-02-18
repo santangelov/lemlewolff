@@ -116,6 +116,7 @@
         const buildingDropdown = $("#buildingDropdown");
         const unitMultiSelect = $("#unitMultiSelect");
         const selectedUnitIds = $("#selectedUnitIds");
+        const autoOpenPrintHistoryId = @(Model.AutoOpenPrintHistoryId.HasValue ? Model.AutoOpenPrintHistoryId.Value.ToString() : "null");
 
         function loadUnits(buildingId) {
             unitMultiSelect.empty();
@@ -152,6 +153,11 @@
 
         if (buildingDropdown.val()) {
             loadUnits(buildingDropdown.val());
+        }
+
+        if (autoOpenPrintHistoryId) {
+            const streamUrl = '@Url.Action("StreamPrintedPackage", "DocumentPackageDemo")' + '?printHistoryId=' + autoOpenPrintHistoryId;
+            window.open(streamUrl, "_blank", "noopener");
         }
     });
 </script>

@@ -43,10 +43,11 @@ namespace LW_Web.Controllers
             _fileStorageService = new FileStorageService();
         }
 
-        public ActionResult Index()
+        public ActionResult Index(int? autoOpenPrintHistoryId = null)
         {
             var model = BuildBaseModel();
             model.IncludeCoverSheet = ReadIncludeCoverSheetPreference();
+            model.AutoOpenPrintHistoryId = autoOpenPrintHistoryId;
             return View("Index", model);
         }
 
@@ -208,7 +209,7 @@ namespace LW_Web.Controllers
 
                 _fileStorageService.LinkCombinedFileToPrintHistory(printHistoryId, combinedFile.FileId);
 
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { autoOpenPrintHistoryId = printHistoryId });
             }
             catch (FileNotFoundException ex)
             {

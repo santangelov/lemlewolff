@@ -10,6 +10,11 @@
 *.userosscache
 *.sln.docstates
 
+# Project generated files & documents
+_document-store/
+_document-store/renewal-printings
+_document-store/units
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 

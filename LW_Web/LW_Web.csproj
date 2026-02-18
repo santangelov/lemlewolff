@@ -200,9 +200,9 @@
     <Content Include="_PowerShell_Scripts\importSortly.ps1" />
     <Content Include="_PowerShell_Scripts\importYardiCheck.ps1" />
     <Content Include="_Templates\_Template - Tenant_Arrears.xlsx" />
-    <Content Include="_document-store\_templates\RenewalDemo_CoverPage.docx" />
-    <Content Include="_document-store\_templates\RenewalDemo_LeaseAgreement.docx" />
-    <Content Include="_document-store\_templates\RenewalDemo_Addendum.docx" />
+    <Content Include="_Templates\Lease-Renewal-Docs\RenewalDemo_Addendum.docx" />
+    <Content Include="_Templates\Lease-Renewal-Docs\RenewalDemo_CoverPage.docx" />
+    <Content Include="_Templates\Lease-Renewal-Docs\RenewalDemo_LeaseAgreement.docx" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\RouteConfig.cs" />
@@ -252,6 +252,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="_document-store\" />
     <Folder Include="_Logs\" />
   </ItemGroup>
   <ItemGroup>

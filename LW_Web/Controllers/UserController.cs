@@ -1,7 +1,7 @@
 ﻿using LW_Common;
 using LW_Data;
 using LW_Security;
-using LW_Web.Models;
+using LW_Web.ViewModels;
 using System.Data;
 using System.Linq;
 using System.Net;

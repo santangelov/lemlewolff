@@ -1,6 +1,8 @@
+using LW_Common;
+using System.Configuration;
+using System.Data.Entity;
 using System.Web.Mvc;
 using System.Web.Routing;
-using System.Data.Entity;
 
 namespace LW_Web
 {
@@ -8,6 +10,8 @@ namespace LW_Web
     {
         protected void Application_Start()
         {
+            SyncfusionDocumentEngine.RegisterLicense(ConfigurationManager.AppSettings["SyncfusionLicenseKey"]);
+
             AreaRegistration.RegisterAllAreas();
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             Database.SetInitializer<LW_Data.LWDbContext>(null);

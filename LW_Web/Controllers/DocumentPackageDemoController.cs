@@ -164,11 +164,11 @@ namespace LW_Web.Controllers
                     var unitPdf = GenerateSingleUnitPdf(templateRootAbsolute, unit, model.IncludeCoverSheet);
                     perUnitPdfs.Add(unitPdf);
 
-                    var buildingFolder = GetBuildingFolderName(unit.BuildingCode, unit.BuildingId);
+                    var buildingFolder = GetBuildingFolderName(unit.BuildingId);
                     var safeUnitNumber = _fileStorageService.SanitizePathSegment(unit.UnitNumber, "UNKNOWN_UNIT");
                     var safeLastName = _fileStorageService.SanitizePathSegment((unit.TenantLastName ?? "UNKNOWN").ToUpperInvariant(), "UNKNOWN");
                     var unitFileName = $"{nowUtc:yyyy-MM-dd-HHmmss}_{safeLastName}.pdf";
-                    var relativePath = $"units/{buildingFolder}/{safeUnitNumber}/renewals/{unitFileName}";
+                    var relativePath = $"buildings-units/{buildingFolder}/{safeUnitNumber}/renewals/{unitFileName}";
                     var absolutePath = EnsureUniqueFilePath(Path.Combine(documentStoreAbsolute, relativePath.Replace('/', Path.DirectorySeparatorChar)));
                     var relativeSavePath = ToRelativeDocumentStorePath(documentStoreAbsolute, absolutePath);
 
@@ -376,18 +376,9 @@ ORDER BY p.yardiPropertyRowID ASC, u.AptNumber ASC;
             return TemplateNames.Where(t => !t.Equals("RenewalDemo_CoverPage.docx", StringComparison.OrdinalIgnoreCase)).ToArray();
         }
 
-        private string GetBuildingFolderName(string buildingCode, int buildingId)
+        private static string GetBuildingFolderName(int buildingId)
         {
-            var sourceCode = string.IsNullOrWhiteSpace(buildingCode)
-                ? buildingId.ToString(CultureInfo.InvariantCulture)
-                : buildingCode.Trim();
-
-            if (int.TryParse(sourceCode, NumberStyles.Integer, CultureInfo.InvariantCulture, out var numericCode))
-            {
-                return numericCode.ToString("0000", CultureInfo.InvariantCulture);
-            }
-
-            return _fileStorageService.SanitizePathSegment(sourceCode, buildingId.ToString(CultureInfo.InvariantCulture));
+            return buildingId.ToString("0000", CultureInfo.InvariantCulture);
         }
 
         private static string EnsureUniqueFilePath(string proposedAbsolutePath)

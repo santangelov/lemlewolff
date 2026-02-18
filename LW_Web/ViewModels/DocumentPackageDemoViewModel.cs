@@ -10,6 +10,7 @@ namespace LW_Web.ViewModels
         public List<SelectListItem> Units { get; set; } = new List<SelectListItem>();
         public int? SelectedBuildingId { get; set; }
         public string SelectedUnitIds { get; set; }
+        public bool IncludeCoverSheet { get; set; } = true;
         public string ErrorMessageHtml { get; set; }
         public List<DocumentPackageHistoryItemViewModel> PrintHistory { get; set; } = new List<DocumentPackageHistoryItemViewModel>();
     }

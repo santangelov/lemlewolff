@@ -48,6 +48,15 @@
 
                         <div class="row mb-3">
                             <div class="col-12">
+                                <div class="form-check">
+                                    @Html.CheckBoxFor(m => m.IncludeCoverSheet, new { @class = "form-check-input", id = "includeCoverSheet" })
+                                    <label class="form-check-label" for="includeCoverSheet">Include Cover Sheet</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-12">
                                 <button type="submit" class="btn btn-primary w-100">Generate Package</button>
                             </div>
                         </div>
@@ -86,7 +95,7 @@
                                         <td>@(item.CreatedByUser ?? "SYSTEM")</td>
                                         <td>@item.UnitCount</td>
                                         <td class="text-center">
-                                            <a href="@Url.Action("StreamPrintedPackage", "DocumentPackageDemo", new { printHistoryId = item.PrintHistoryId })" title="Open PDF" class="btn btn-sm btn-outline-primary">
+                                            <a href="@Url.Action("StreamPrintedPackage", "DocumentPackageDemo", new { printHistoryId = item.PrintHistoryId })" title="Open PDF" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary">
                                                 <i class="uil-file-download-alt"></i>
                                             </a>
                                         </td>

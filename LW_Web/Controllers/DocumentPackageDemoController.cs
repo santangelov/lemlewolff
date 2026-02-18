@@ -17,6 +17,8 @@ namespace LW_Web.Controllers
 {
     public class DocumentPackageDemoController : BaseController
     {
+        private const string IncludeCoverSheetCookieName = "RenewalDemo_IncludeCoverSheet";
+
         /// <summary>
         /// Template names - list in order of desired PDF output.
         /// These templates must exist in the configured template root folder for the demo to work.
@@ -43,6 +45,7 @@ namespace LW_Web.Controllers
         public ActionResult Index()
         {
             var model = BuildBaseModel();
+            model.IncludeCoverSheet = ReadIncludeCoverSheetPreference();
             return View("Index", model);
         }
 
@@ -76,6 +79,7 @@ namespace LW_Web.Controllers
                 var printFile = _fileStorageService.GetCombinedPrintFileRecord(printHistoryId, "RenewalDemo");
                 if (printFile == null)
                 {
+                    clsUtilities.WriteToCounter("RenewalDemo", "No print history/file found for PrintHistoryID=" + printHistoryId);
                     return HttpNotFound();
                 }
 
@@ -85,15 +89,15 @@ namespace LW_Web.Controllers
                 if (!System.IO.File.Exists(absolutePath))
                 {
                     clsUtilities.WriteToCounter("RenewalDemo", "Combined package file not found: " + absolutePath);
-                    return HttpNotFound();
+                    return HttpNotFound("Requested PDF could not be found.");
                 }
 
-                var fileBytes = System.IO.File.ReadAllBytes(absolutePath);
-                return File(fileBytes, "application/pdf", printFile.FileName);
+                var safeFileName = _fileStorageService.SanitizePathSegment(printFile.FileName, "Lease-Renewal-Package.pdf");
+                return File(absolutePath, "application/pdf", safeFileName);
             }
             catch (Exception ex)
             {
-                clsUtilities.WriteToCounter("RenewalDemo", "Error streaming package: " + ex.Message);
+                clsUtilities.WriteToCounter("RenewalDemo", "Error streaming package for PrintHistoryID=" + printHistoryId + ": " + ex);
                 return new HttpStatusCodeResult(500, "Unable to stream requested package.");
             }
         }
@@ -103,9 +107,12 @@ namespace LW_Web.Controllers
         public ActionResult GeneratePackage(DocumentPackageDemoViewModel model)
         {
             Server.ScriptTimeout = 1200;
+            SaveIncludeCoverSheetPreference(model.IncludeCoverSheet);
+
             var outputModel = BuildBaseModel();
             outputModel.SelectedBuildingId = model.SelectedBuildingId;
             outputModel.SelectedUnitIds = model.SelectedUnitIds;
+            outputModel.IncludeCoverSheet = model.IncludeCoverSheet;
 
             try
             {
@@ -129,10 +136,11 @@ namespace LW_Web.Controllers
                     return View("Index", outputModel);
                 }
 
-                var templateRootAbsolute = MapConfiguredPath("DocumentTemplateRoot", "_document-store/_templates/");
+                var templateRootAbsolute = MapConfiguredPath("DocumentTemplateRoot", "_Templates/Lease-Renewal-Docs/");
                 var documentStoreAbsolute = MapConfiguredPath("DocumentStoreRoot", "_document-store/");
 
-                _syncfusionDocumentEngine.EnsureTemplatesExist(templateRootAbsolute, TemplateNames);
+                var selectedTemplates = GetSelectedTemplateNames(model.IncludeCoverSheet);
+                _syncfusionDocumentEngine.EnsureTemplatesExist(templateRootAbsolute, selectedTemplates);
 
                 var createdByUser = clsSecurity.LoggedInUserFullName();
                 if (string.IsNullOrWhiteSpace(createdByUser))
@@ -145,18 +153,22 @@ namespace LW_Web.Controllers
                     model.SelectedBuildingId,
                     units.Count,
                     createdByUser,
-                    "Demo run. Existing filenames are overwritten when collisions occur.");
+                    "Demo run. Filenames are generated with UTC timestamps to allow duplicate runs.");
 
                 var perUnitPdfs = new List<byte[]>();
+                var nowUtc = DateTime.UtcNow;
                 foreach (var unit in units)
                 {
-                    var unitPdf = GenerateSingleUnitPdf(templateRootAbsolute, unit);
+                    var unitPdf = GenerateSingleUnitPdf(templateRootAbsolute, unit, model.IncludeCoverSheet);
                     perUnitPdfs.Add(unitPdf);
 
+                    var buildingFolder = GetBuildingFolderName(unit.BuildingCode, unit.BuildingId);
                     var safeUnitNumber = _fileStorageService.SanitizePathSegment(unit.UnitNumber, "UNKNOWN_UNIT");
                     var safeLastName = _fileStorageService.SanitizePathSegment((unit.TenantLastName ?? "UNKNOWN").ToUpperInvariant(), "UNKNOWN");
-                    var relativePath = $"units/{unit.BuildingId}/{safeUnitNumber}/renewals/{DateTime.Today:yyyy-MM-dd}_{safeLastName}.pdf";
-                    var absolutePath = Path.Combine(documentStoreAbsolute, relativePath.Replace('/', Path.DirectorySeparatorChar));
+                    var unitFileName = $"{nowUtc:yyyy-MM-dd-HHmmss}_{safeLastName}.pdf";
+                    var relativePath = $"units/{buildingFolder}/{safeUnitNumber}/renewals/{unitFileName}";
+                    var absolutePath = EnsureUniqueFilePath(Path.Combine(documentStoreAbsolute, relativePath.Replace('/', Path.DirectorySeparatorChar)));
+                    var relativeSavePath = ToRelativeDocumentStorePath(documentStoreAbsolute, absolutePath);
 
                     _fileStorageService.SavePdfAndLog(new clsFileStoreRequest
                     {
@@ -166,7 +178,7 @@ namespace LW_Web.Controllers
                         BuildingId = unit.BuildingId,
                         UnitId = unit.UnitId,
                         TenantId = unit.TenantId,
-                        RelativeFilePath = "/" + relativePath,
+                        RelativeFilePath = relativeSavePath,
                         AbsoluteFilePath = absolutePath,
                         FileBytes = unitPdf,
                         CreatedByUser = createdByUser
@@ -174,9 +186,10 @@ namespace LW_Web.Controllers
                 }
 
                 var combinedPdf = _syncfusionDocumentEngine.MergePdfs(perUnitPdfs);
-                var uniquePrintId = Guid.NewGuid().ToString("N").Substring(0, 12);
-                var combinedRelativePath = $"renewal-printings/{DateTime.Today:yyyy-MM-dd}_{uniquePrintId}.pdf";
-                var combinedAbsolutePath = Path.Combine(documentStoreAbsolute, combinedRelativePath.Replace('/', Path.DirectorySeparatorChar));
+                var unitCountToken = units.Count.ToString("000", CultureInfo.InvariantCulture);
+                var combinedFileName = $"Lease-Renewal-Package_{nowUtc:yyyyMMddHHmmss}-{unitCountToken}-Units.pdf";
+                var combinedAbsolutePath = EnsureUniqueFilePath(Path.Combine(documentStoreAbsolute, "renewal-printings", combinedFileName));
+                var combinedRelativePath = ToRelativeDocumentStorePath(documentStoreAbsolute, combinedAbsolutePath);
 
                 var combinedFile = _fileStorageService.SavePdfAndLog(new clsFileStoreRequest
                 {
@@ -186,7 +199,7 @@ namespace LW_Web.Controllers
                     BuildingId = model.SelectedBuildingId,
                     UnitId = null,
                     TenantId = null,
-                    RelativeFilePath = "/" + combinedRelativePath,
+                    RelativeFilePath = combinedRelativePath,
                     AbsoluteFilePath = combinedAbsolutePath,
                     FileBytes = combinedPdf,
                     CreatedByUser = createdByUser
@@ -194,8 +207,7 @@ namespace LW_Web.Controllers
 
                 _fileStorageService.LinkCombinedFileToPrintHistory(printHistoryId, combinedFile.FileId);
 
-                var downloadName = Path.GetFileName(combinedAbsolutePath);
-                return File(combinedPdf, "application/pdf", downloadName);
+                return RedirectToAction("Index");
             }
             catch (FileNotFoundException ex)
             {
@@ -336,12 +348,13 @@ ORDER BY p.yardiPropertyRowID ASC, u.AptNumber ASC;
             return rows;
         }
 
-        private byte[] GenerateSingleUnitPdf(string templateRootAbsolute, DocumentPackageUnitData unit)
+        private byte[] GenerateSingleUnitPdf(string templateRootAbsolute, DocumentPackageUnitData unit, bool includeCoverSheet)
         {
             var templatePdfs = new List<byte[]>();
             var tokenMap = BuildTokenMap(unit);
+            var templateNames = GetSelectedTemplateNames(includeCoverSheet);
 
-            foreach (var templateName in TemplateNames)
+            foreach (var templateName in templateNames)
             {
                 var templatePath = Path.Combine(templateRootAbsolute, templateName);
                 var pdf = _syncfusionDocumentEngine.BuildPdfFromDocxTemplate(templatePath, tokenMap);
@@ -349,6 +362,62 @@ ORDER BY p.yardiPropertyRowID ASC, u.AptNumber ASC;
             }
 
             return _syncfusionDocumentEngine.MergePdfs(templatePdfs);
+        }
+
+        private static string[] GetSelectedTemplateNames(bool includeCoverSheet)
+        {
+            if (includeCoverSheet)
+            {
+                return TemplateNames;
+            }
+
+            return TemplateNames.Where(t => !t.Equals("RenewalDemo_CoverPage.docx", StringComparison.OrdinalIgnoreCase)).ToArray();
+        }
+
+        private string GetBuildingFolderName(string buildingCode, int buildingId)
+        {
+            var sourceCode = string.IsNullOrWhiteSpace(buildingCode)
+                ? buildingId.ToString(CultureInfo.InvariantCulture)
+                : buildingCode.Trim();
+
+            if (int.TryParse(sourceCode, NumberStyles.Integer, CultureInfo.InvariantCulture, out var numericCode))
+            {
+                return numericCode.ToString("0000", CultureInfo.InvariantCulture);
+            }
+
+            return _fileStorageService.SanitizePathSegment(sourceCode, buildingId.ToString(CultureInfo.InvariantCulture));
+        }
+
+        private static string EnsureUniqueFilePath(string proposedAbsolutePath)
+        {
+            if (!System.IO.File.Exists(proposedAbsolutePath))
+            {
+                return proposedAbsolutePath;
+            }
+
+            var directory = Path.GetDirectoryName(proposedAbsolutePath);
+            var baseName = Path.GetFileNameWithoutExtension(proposedAbsolutePath);
+            var extension = Path.GetExtension(proposedAbsolutePath);
+
+            for (var i = 1; i <= 99; i++)
+            {
+                var candidatePath = Path.Combine(directory ?? string.Empty, $"{baseName}-{i:00}{extension}");
+                if (!System.IO.File.Exists(candidatePath))
+                {
+                    return candidatePath;
+                }
+            }
+
+            throw new IOException("Unable to determine a unique filename after 99 attempts: " + proposedAbsolutePath);
+        }
+
+        private static string ToRelativeDocumentStorePath(string documentStoreAbsolute, string absolutePath)
+        {
+            var relativePath = absolutePath.Substring(documentStoreAbsolute.TrimEnd(Path.DirectorySeparatorChar).Length)
+                .TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                .Replace(Path.DirectorySeparatorChar, '/');
+
+            return "/" + relativePath;
         }
 
         private static Dictionary<string, string> BuildTokenMap(DocumentPackageUnitData unit)
@@ -416,6 +485,30 @@ ORDER BY p.yardiPropertyRowID ASC, u.AptNumber ASC;
                 .Select(int.Parse)
                 .Distinct()
                 .ToList();
+        }
+
+        private bool ReadIncludeCoverSheetPreference()
+        {
+            var includeCoverCookie = Request?.Cookies[IncludeCoverSheetCookieName]?.Value;
+            if (bool.TryParse(includeCoverCookie, out var includeCoverSheet))
+            {
+                return includeCoverSheet;
+            }
+
+            return true;
+        }
+
+        private void SaveIncludeCoverSheetPreference(bool includeCoverSheet)
+        {
+            var cookie = new System.Web.HttpCookie(IncludeCoverSheetCookieName, includeCoverSheet.ToString())
+            {
+                Expires = DateTime.UtcNow.AddYears(1),
+                HttpOnly = false,
+                Secure = Request?.IsSecureConnection ?? false,
+                SameSite = SameSiteMode.Lax
+            };
+
+            Response.Cookies.Set(cookie);
         }
     }
 

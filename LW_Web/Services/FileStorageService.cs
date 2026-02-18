@@ -101,7 +101,7 @@ WHERE PrintHistoryID = @PrintHistoryID;
             var rows = new List<PrintPackageHistoryRecord>();
 
             using (var connection = clsDataHelper.sqlconn(false))
-            using (var command = new SqlCommand(SqlFromXml(@"<sql>
+            using (var command = new SqlCommand(@"
 SELECT TOP (@MaxRows)
     h.PrintHistoryID,
     h.CreatedDate,
@@ -112,8 +112,7 @@ FROM dbo.tblPrintHistory h
 INNER JOIN dbo.tblFileStore f
     ON f.FileID = h.CombinedFileID
 WHERE h.PrintType = @PrintType
-ORDER BY h.CreatedDate DESC;
-</sql>"), connection))
+ORDER BY h.CreatedDate DESC;", connection))
             {
                 command.Parameters.Add("@MaxRows", SqlDbType.Int).Value = maxRows;
                 command.Parameters.Add("@PrintType", SqlDbType.NVarChar, 100).Value = printType;
@@ -141,7 +140,7 @@ ORDER BY h.CreatedDate DESC;
         public CombinedStoredFileRecord GetCombinedPrintFileRecord(int printHistoryId, string printType)
         {
             using (var connection = clsDataHelper.sqlconn(false))
-            using (var command = new SqlCommand(SqlFromXml(@"<sql>
+            using (var command = new SqlCommand(@"
 SELECT
     h.PrintHistoryID,
     f.FilePath,
@@ -150,8 +149,7 @@ FROM dbo.tblPrintHistory h
 INNER JOIN dbo.tblFileStore f
     ON f.FileID = h.CombinedFileID
 WHERE h.PrintHistoryID = @PrintHistoryID
-  AND h.PrintType = @PrintType;
-</sql>"), connection))
+  AND h.PrintType = @PrintType;", connection))
             {
                 command.Parameters.Add("@PrintHistoryID", SqlDbType.Int).Value = printHistoryId;
                 command.Parameters.Add("@PrintType", SqlDbType.NVarChar, 100).Value = printType;

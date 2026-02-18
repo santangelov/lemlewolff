@@ -11,6 +11,7 @@ namespace LW_Web.ViewModels
         public int? SelectedBuildingId { get; set; }
         public string SelectedUnitIds { get; set; }
         public bool IncludeCoverSheet { get; set; } = true;
+        public int? AutoOpenPrintHistoryId { get; set; }
         public string ErrorMessageHtml { get; set; }
         public List<DocumentPackageHistoryItemViewModel> PrintHistory { get; set; } = new List<DocumentPackageHistoryItemViewModel>();
     }

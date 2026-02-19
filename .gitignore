@@ -9,11 +9,14 @@
 *.user
 *.userosscache
 *.sln.docstates
+*.lnk
 
 # Project generated files & documents
-_document-store/
 _document-store/renewal-printings
-_document-store/units
+_document-store/buildings-units
+_FileUploads/*.xlsx
+_Downloads/*.xlsx
+_Downloads/*.csv
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

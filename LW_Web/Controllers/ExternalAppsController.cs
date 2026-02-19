@@ -9,11 +9,6 @@ namespace LW_Web.Controllers
     public class ExternalAppsController : Controller
     {
 
-        // GET: ExternalApps
-//        public ActionResult Index()
-//        {
-//            return View("ExternalApps");
-//}
         private readonly LWDbContext _context;
 
         public ExternalAppsController()
@@ -29,10 +24,7 @@ namespace LW_Web.Controllers
                 return RedirectToAction("Index", "Login");
             }
 
-            var apps = _context.tblAdminApps
-                                .OrderBy(a => a.AppName)
-                                .ToList();
-
+            var apps = _context.tblAdminApps.OrderBy(a => a.AppName).ToList();
             return View(apps);
         }
 

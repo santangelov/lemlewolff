@@ -153,7 +153,7 @@
     <Content Include="assets\fonts\unicons.woff" />
     <Content Include="assets\fonts\unicons.woff2" />
     <Content Include="Web.config" />
-    <Content Include="_cm\vacancytracker.png" />
+    <Content Include="assets\images\AppLogos\vacancytracker.png" />
     <Content Include="_Downloads\placeholder.txt" />
     <Content Include="_FileUploads\placeholder.txt" />
     <Content Include="_YardiExportSQL\01 - WO List.txt" />

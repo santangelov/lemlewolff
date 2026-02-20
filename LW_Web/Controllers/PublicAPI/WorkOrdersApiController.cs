@@ -122,10 +122,10 @@ namespace LW_Web.Controllers
         {
             var result = new Dictionary<int, List<Dictionary<string, object>>>();
             var sql = @"
-SELECT woi.*
-FROM dbo.tblWorkOrderItems woi
-INNER JOIN dbo.tblWorkOrders wo ON wo.WONumber = woi.WONumber
-WHERE 1 = 1";
+                SELECT woi.*
+                FROM dbo.tblWorkOrderItems woi
+                INNER JOIN dbo.tblWorkOrders wo ON wo.WONumber = woi.WONumber
+                WHERE 1 = 1";
 
             using (var conn = clsDataHelper.sqlconn(false))
             using (var cmd = new SqlCommand())

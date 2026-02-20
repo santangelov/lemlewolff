@@ -21,9 +21,16 @@ namespace LW_Web
                 defaults: new { controller = "ReportPage", action = "Index", filetype = UrlParameter.Optional });
 
             routes.MapRoute(
-                name: "WorkOrdersQuery",
-                url: "work-orders/query",
-                defaults: new { controller = "WorkOrdersApi", action = "Query" });
+                name: "ApiWorkOrdersSearch",
+                url: "api/work-orders/search",
+                defaults: new { controller = "WorkOrdersApi", action = "Search" },
+                constraints: new { httpMethod = new HttpMethodConstraint("POST") });
+
+            routes.MapRoute(
+                name: "ApiWorkOrdersQuery",
+                url: "api/work-orders/query",
+                defaults: new { controller = "WorkOrdersApi", action = "Query" },
+                constraints: new { httpMethod = new HttpMethodConstraint("POST") });
 
             routes.MapRoute(
                 name: "Default",

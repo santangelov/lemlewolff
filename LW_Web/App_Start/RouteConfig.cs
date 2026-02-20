@@ -21,6 +21,11 @@ namespace LW_Web
                 defaults: new { controller = "ReportPage", action = "Index", filetype = UrlParameter.Optional });
 
             routes.MapRoute(
+                name: "WorkOrdersQuery",
+                url: "work-orders/query",
+                defaults: new { controller = "WorkOrdersApi", action = "Query" });
+
+            routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}/{id}",
                 defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional });

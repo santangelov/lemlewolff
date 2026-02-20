@@ -29,7 +29,7 @@ namespace LW_Web.Controllers
         }
 
         [HttpPost]
-        public ActionResult Search(WorkOrderSearchRequest request)
+        public ActionResult Query(WorkOrderSearchRequest request)
         {
             if (!IsAuthorized(Request.Headers["Authorization"]))
             {
@@ -84,6 +84,12 @@ namespace LW_Web.Controllers
             {
                 return JsonError(500, "Unexpected error while processing request.", ex.Message);
             }
+        }
+
+        [HttpPost]
+        public ActionResult Search(WorkOrderSearchRequest request)
+        {
+            return Query(request);
         }
 
         private List<Dictionary<string, object>> GetWorkOrders(WorkOrderSearchRequest request)

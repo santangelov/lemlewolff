@@ -33,7 +33,7 @@ namespace LW_Web.Controllers
         {
             if (!IsAuthorized(Request.Headers["Authorization"]))
             {
-                Response.AddHeader("WWW-Authenticate", "Basic realm=\"VacancyAPI\"");
+                Response.AddHeader("WWW-Authenticate", "Basic realm=\"WorkOrderAPI\"");
                 return new HttpStatusCodeResult(401, "Unauthorized");
             }
 
@@ -86,18 +86,9 @@ namespace LW_Web.Controllers
             }
         }
 
-        [HttpPost]
-        public ActionResult Search(WorkOrderSearchRequest request)
-        {
-            return Query(request);
-        }
-
         private List<Dictionary<string, object>> GetWorkOrders(WorkOrderSearchRequest request)
         {
-            var sql = @"
-SELECT *
-FROM dbo.tblWorkOrders wo
-WHERE 1 = 1";
+            var sql = @"SELECT * FROM dbo.tblWorkOrders wo WHERE 1 = 1";
 
             using (var conn = clsDataHelper.sqlconn(false))
             using (var cmd = new SqlCommand())

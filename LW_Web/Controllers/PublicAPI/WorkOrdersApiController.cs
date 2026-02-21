@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Web.Mvc;
@@ -22,11 +21,13 @@ namespace LW_Web.Controllers
     {
         private readonly string _accountId;
         private readonly string _password;
+        private readonly clsWorkOrdersData _workOrdersData;
 
         public WorkOrdersApiController()
         {
             _accountId = ConfigurationManager.AppSettings["VacancyApiAccountId"];
             _password = ConfigurationManager.AppSettings["VacancyApiPassword"];
+            _workOrdersData = new clsWorkOrdersData();
         }
 
         [HttpPost]
@@ -44,23 +45,16 @@ namespace LW_Web.Controllers
             bool hasFilters =
                 (request.Categories != null && request.Categories.Any(x => !string.IsNullOrWhiteSpace(x))) ||
                 request.CompletionDateIsBlank.HasValue ||
-                (request.WONumbers != null && request.WONumbers.Any()) ||
+                request.WONumber.HasValue ||
                 (request.BuildingNums != null && request.BuildingNums.Any(x => !string.IsNullOrWhiteSpace(x))) ||
                 !string.IsNullOrWhiteSpace(request.JobStatus);
 
             if (!hasFilters)
             {
                 return JsonError(400,
-                    "At least one filter is required (Categories, CompletionDateIsBlank, WONumbers, BuildingNums, or JobStatus). Returning all work orders is not allowed.");
+                    "At least one filter is required (Categories, CompletionDateIsBlank, WONumber, BuildingNums, or JobStatus). Returning all work orders is not allowed.");
             }
 
-            int estimatedParameterCount = EstimateFilterParameterCount(request);
-            if (estimatedParameterCount > 2000)
-            {
-                return JsonError(400,
-                    "Too many filter values were provided.",
-                    "Reduce total Categories/WONumbers/BuildingNums values or switch to broader field-based filters.");
-            }
 
             try
             {
@@ -102,209 +96,26 @@ namespace LW_Web.Controllers
 
         private List<Dictionary<string, object>> GetWorkOrders(WorkOrderSearchRequest request)
         {
-            var sql = @"SELECT * FROM dbo.tblWorkOrders wo WHERE 1 = 1";
-
-            using (var conn = clsDataHelper.sqlconn(false))
-            using (var cmd = new SqlCommand())
-            {
-                cmd.Connection = conn;
-                sql += BuildWorkOrderFilterSql(cmd, request, "wo", "wof");
-
-                cmd.CommandText = sql;
-                cmd.CommandType = CommandType.Text;
-                cmd.CommandTimeout = 180;
-
-                return ExecuteCommandToDictionaryList(cmd);
-            }
+            return _workOrdersData.GetWorkOrders(ToFilter(request));
         }
 
         private Dictionary<int, List<Dictionary<string, object>>> GetWorkOrderItems(WorkOrderSearchRequest request)
         {
-            var result = new Dictionary<int, List<Dictionary<string, object>>>();
-            var sql = @"
-                SELECT woi.*
-                FROM dbo.tblWorkOrderItems woi
-                INNER JOIN dbo.tblWorkOrders wo ON wo.WONumber = woi.WONumber
-                WHERE 1 = 1";
-
-            using (var conn = clsDataHelper.sqlconn(false))
-            using (var cmd = new SqlCommand())
-            {
-                cmd.Connection = conn;
-                sql += BuildWorkOrderFilterSql(cmd, request, "wo", "itf");
-
-                cmd.CommandText = sql;
-                cmd.CommandType = CommandType.Text;
-                cmd.CommandTimeout = 180;
-
-                var items = ExecuteCommandToDictionaryList(cmd);
-
-                foreach (var item in items)
-                {
-                    if (!item.ContainsKey("WONumber") || item["WONumber"] == null)
-                    {
-                        continue;
-                    }
-
-                    int woNumber = Convert.ToInt32(item["WONumber"]);
-                    if (!result.ContainsKey(woNumber))
-                    {
-                        result[woNumber] = new List<Dictionary<string, object>>();
-                    }
-
-                    result[woNumber].Add(item);
-                }
-            }
-
-            return result;
+            return _workOrdersData.GetWorkOrderItems(ToFilter(request));
         }
 
-        private static int EstimateFilterParameterCount(WorkOrderSearchRequest request)
+        private static WorkOrderQueryFilter ToFilter(WorkOrderSearchRequest request)
         {
-            int count = 0;
-
-            if (request.Categories != null)
+            return new WorkOrderQueryFilter
             {
-                count += request.Categories
-                    .Where(x => !string.IsNullOrWhiteSpace(x))
-                    .Select(x => x.Trim())
-                    .Distinct(StringComparer.OrdinalIgnoreCase)
-                    .Count();
-            }
-
-            if (request.WONumbers != null)
-            {
-                count += request.WONumbers.Distinct().Count();
-            }
-
-            if (request.BuildingNums != null)
-            {
-                count += request.BuildingNums
-                    .Where(x => !string.IsNullOrWhiteSpace(x))
-                    .Select(x => x.Trim())
-                    .Distinct(StringComparer.OrdinalIgnoreCase)
-                    .Count();
-            }
-
-            if (!string.IsNullOrWhiteSpace(request.JobStatus))
-            {
-                count += 1;
-            }
-
-            return count;
-        }
-
-        private static string BuildWorkOrderFilterSql(SqlCommand cmd, WorkOrderSearchRequest request, string woAlias, string paramPrefix)
-        {
-            var sql = string.Empty;
-
-            if (request.Categories != null)
-            {
-                var categories = request.Categories
-                    .Where(x => !string.IsNullOrWhiteSpace(x))
-                    .Select(x => x.Trim())
-                    .Distinct(StringComparer.OrdinalIgnoreCase)
-                    .ToList();
-
-                if (categories.Count > 0)
-                {
-                    var categoryParams = new List<string>();
-                    for (int i = 0; i < categories.Count; i++)
-                    {
-                        string paramName = "@" + paramPrefix + "cat" + i;
-                        categoryParams.Add(paramName);
-                        cmd.Parameters.Add(paramName, SqlDbType.VarChar, 50).Value = categories[i].ToUpperInvariant();
-                    }
-
-                    sql += "\nAND UPPER(" + woAlias + ".Category) IN (" + string.Join(",", categoryParams) + ")";
-                }
-            }
-
-            if (request.CompletionDateIsBlank.HasValue)
-            {
-                sql += request.CompletionDateIsBlank.Value
-                    ? "\nAND " + woAlias + ".CompletedDate IS NULL"
-                    : "\nAND " + woAlias + ".CompletedDate IS NOT NULL";
-            }
-
-            if (request.WONumbers != null)
-            {
-                var woNumbers = request.WONumbers.Distinct().ToList();
-                if (woNumbers.Count > 0)
-                {
-                    var woParams = new List<string>();
-                    for (int i = 0; i < woNumbers.Count; i++)
-                    {
-                        string paramName = "@" + paramPrefix + "wo" + i;
-                        woParams.Add(paramName);
-                        cmd.Parameters.Add(paramName, SqlDbType.Int).Value = woNumbers[i];
-                    }
-
-                    sql += "\nAND " + woAlias + ".WONumber IN (" + string.Join(",", woParams) + ")";
-                }
-            }
-
-            if (request.BuildingNums != null)
-            {
-                var buildingNums = request.BuildingNums
-                    .Where(x => !string.IsNullOrWhiteSpace(x))
-                    .Select(x => x.Trim())
-                    .Distinct(StringComparer.OrdinalIgnoreCase)
-                    .ToList();
-
-                if (buildingNums.Count > 0)
-                {
-                    var buildingParams = new List<string>();
-                    for (int i = 0; i < buildingNums.Count; i++)
-                    {
-                        string paramName = "@" + paramPrefix + "bld" + i;
-                        buildingParams.Add(paramName);
-                        cmd.Parameters.Add(paramName, SqlDbType.VarChar, 50).Value = buildingNums[i].ToUpperInvariant();
-                    }
-
-                    sql += "\nAND UPPER(" + woAlias + ".BuildingNum) IN (" + string.Join(",", buildingParams) + ")";
-                }
-            }
-
-            if (!string.IsNullOrWhiteSpace(request.JobStatus))
-            {
-                string paramName = "@" + paramPrefix + "jobStatus";
-                cmd.Parameters.Add(paramName, SqlDbType.VarChar, 50).Value = request.JobStatus.Trim().ToUpperInvariant();
-                sql += "\nAND UPPER(" + woAlias + ".JobStatus) = " + paramName;
-            }
-
-            return sql;
-        }
-
-        private static List<Dictionary<string, object>> ExecuteCommandToDictionaryList(SqlCommand cmd)
-        {
-            var table = new DataTable();
-            using (var da = new SqlDataAdapter(cmd))
-            {
-                da.Fill(table);
-            }
-
-            return DataTableToDictionaryList(table);
-        }
-
-        private static List<Dictionary<string, object>> DataTableToDictionaryList(DataTable table)
-        {
-            var rows = new List<Dictionary<string, object>>();
-
-            foreach (DataRow row in table.Rows)
-            {
-                var item = new Dictionary<string, object>();
-
-                foreach (DataColumn column in table.Columns)
-                {
-                    object value = row[column];
-                    item[column.ColumnName] = value == DBNull.Value ? null : value;
-                }
-
-                rows.Add(item);
-            }
-
-            return rows;
+                Categories = request.Categories,
+                CompletionDateIsBlank = request.CompletionDateIsBlank,
+                WONumber = request.WONumber,
+                BuildingNums = request.BuildingNums,
+                JobStatus = request.JobStatus,
+                ItemCodes = request.ItemCodes,
+                FilterItemCategories = request.FilterItemCategories
+            };
         }
 
         private ActionResult JsonError(int statusCode, string message, string detail = null)
@@ -376,9 +187,11 @@ namespace LW_Web.Controllers
     {
         public List<string> Categories { get; set; }
         public bool? CompletionDateIsBlank { get; set; }
-        public List<int> WONumbers { get; set; }
+        public int? WONumber { get; set; }
         public List<string> BuildingNums { get; set; }
         public string JobStatus { get; set; }
+        public List<string> ItemCodes { get; set; }
+        public List<string> FilterItemCategories { get; set; }
         public bool? IncludeWOItems { get; set; }
     }
 }

@@ -36,7 +36,7 @@ namespace LW_Web.Controllers
         {
             if (!IsAuthorized(Request.Headers["Authorization"]))
             {
-                Response.AddHeader("WWW-Authenticate", "Basic realm=\"VacancyAPI\"");
+                Response.AddHeader("WWW-Authenticate", "Basic realm=\"WorkOrderAPI\"");
                 return new HttpStatusCodeResult(401, "Unauthorized");
             }
 

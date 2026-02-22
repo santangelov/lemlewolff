@@ -10,29 +10,37 @@ namespace LW_Data
     {
         public List<Dictionary<string, object>> GetWorkOrders(WorkOrderQueryFilter filter)
         {
-            return ExecuteWorkOrdersStoredProcedure(filter);
+            return ExecuteStoredProcedure("spWorkOrders", filter);
         }
 
-        public List<Dictionary<string, object>> GetWorkOrderItems(int woNumber, List<string> itemCodes, List<string> filterItemCategories)
+        public Dictionary<int, List<Dictionary<string, object>>> GetWorkOrderItems(WorkOrderQueryFilter filter)
         {
-            using (var conn = clsDataHelper.sqlconn(false)) // read-only connection, same pattern used solution-wide
-            using (var cmd = new SqlCommand("spWorkOrderItems", conn))
+            var result = new Dictionary<int, List<Dictionary<string, object>>>();
+            var items = ExecuteStoredProcedure("spWorkOrderItems", filter);
+
+            foreach (var item in items)
             {
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.CommandTimeout = 180;
+                if (!item.ContainsKey("WONumber") || item["WONumber"] == null)
+                {
+                    continue;
+                }
 
-                cmd.Parameters.Add("@WONumber", SqlDbType.Int).Value = woNumber;
-                cmd.Parameters.Add("@ItemCodesCsv", SqlDbType.VarChar, -1).Value = (object)ToCsv(itemCodes) ?? DBNull.Value;
-                cmd.Parameters.Add("@FilterItemCategoriesCsv", SqlDbType.VarChar, -1).Value = (object)ToCsv(filterItemCategories) ?? DBNull.Value;
+                int woNumber = Convert.ToInt32(item["WONumber"]);
+                if (!result.ContainsKey(woNumber))
+                {
+                    result[woNumber] = new List<Dictionary<string, object>>();
+                }
 
-                return ExecuteCommandToDictionaryList(cmd);
+                result[woNumber].Add(item);
             }
+
+            return result;
         }
 
-        private static List<Dictionary<string, object>> ExecuteWorkOrdersStoredProcedure(WorkOrderQueryFilter filter)
+        private static List<Dictionary<string, object>> ExecuteStoredProcedure(string storedProcedureName, WorkOrderQueryFilter filter)
         {
             using (var conn = clsDataHelper.sqlconn(false)) // read-only connection, same pattern used solution-wide
-            using (var cmd = new SqlCommand("spWorkOrders", conn))
+            using (var cmd = new SqlCommand(storedProcedureName, conn))
             {
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.CommandTimeout = 180;
@@ -48,6 +56,8 @@ namespace LW_Data
                 cmd.Parameters.Add("@JobStatus", SqlDbType.VarChar, 50).Value = string.IsNullOrWhiteSpace(filter.JobStatus)
                     ? (object)DBNull.Value
                     : filter.JobStatus.Trim();
+                cmd.Parameters.Add("@ItemCodesCsv", SqlDbType.VarChar, -1).Value = (object)ToCsv(filter.ItemCodes) ?? DBNull.Value;
+                cmd.Parameters.Add("@FilterItemCategoriesCsv", SqlDbType.VarChar, -1).Value = (object)ToCsv(filter.FilterItemCategories) ?? DBNull.Value;
 
                 return ExecuteCommandToDictionaryList(cmd);
             }
@@ -108,5 +118,7 @@ namespace LW_Data
         public int? WONumber { get; set; }
         public List<string> BuildingNums { get; set; }
         public string JobStatus { get; set; }
+        public List<string> ItemCodes { get; set; }
+        public List<string> FilterItemCategories { get; set; }
     }
 }

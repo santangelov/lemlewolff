@@ -65,6 +65,7 @@
     <Compile Include="clsPhysicalInvRecord.cs" />
     <Compile Include="clsADPRecord.cs" />
     <Compile Include="clsDataHelper.cs" />
+    <Compile Include="clsWorkOrdersData.cs" />
     <Compile Include="clsExcelHelper.cs" />
     <Compile Include="clsLaborerRecord.cs" />
     <Compile Include="clsUserRecord.cs" />

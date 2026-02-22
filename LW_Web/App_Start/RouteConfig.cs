@@ -8,7 +8,7 @@ namespace LW_Web
         public static void RegisterRoutes(RouteCollection routes)
         {
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
-            //routes.MapMvcAttributeRoutes();
+            routes.MapMvcAttributeRoutes();
 
             routes.MapRoute(
                 name: "Import",
@@ -19,6 +19,12 @@ namespace LW_Web
                 name: "ReportPage",
                 url: "ReportPage/{action}/{filetype}",
                 defaults: new { controller = "ReportPage", action = "Index", filetype = UrlParameter.Optional });
+
+            routes.MapRoute(
+                name: "ApiWorkOrdersQuery",
+                url: "api/work-orders/query",
+                defaults: new { controller = "WorkOrdersApi", action = "Query" },
+                constraints: new { httpMethod = new HttpMethodConstraint("POST") });
 
             routes.MapRoute(
                 name: "Default",

@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Web.Mvc;
 using LW_Data;
+using LW_Web.ActionResults;
 
 namespace LW_Web.Controllers
 {
@@ -86,7 +87,8 @@ namespace LW_Web.Controllers
                     }
                 }
 
-                return Json(workOrders, JsonRequestBehavior.AllowGet);
+                // Use JSON.NET streaming to avoid JavaScriptSerializer maxJsonLength failures on large responses.
+                return new MyJsonResult { Data = workOrders };
             }
             catch (Exception ex)
             {

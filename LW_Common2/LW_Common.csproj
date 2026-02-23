@@ -67,6 +67,7 @@
     <Compile Include="clsWebFormHelper.cs" />
     <Compile Include="SyncfusionDocumentEngine.cs" />
     <Compile Include="FileStorageService.cs" />
+    <Compile Include="JsonHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

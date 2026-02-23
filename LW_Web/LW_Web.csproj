@@ -197,8 +197,6 @@
       <DependentUpon>Web.config</DependentUpon>
     </None>
     <Content Include="_Templates\_Template - VacancyCoverSheet.xlsx" />
-    <Content Include="_PowerShell_Scripts\importSortly.ps1" />
-    <Content Include="_PowerShell_Scripts\importYardiCheck.ps1" />
     <Content Include="_Templates\_Template - Tenant_Arrears.xlsx" />
     <Content Include="_Templates\Lease-Renewal-Docs\RenewalDemo_Addendum.docx" />
     <Content Include="_Templates\Lease-Renewal-Docs\RenewalDemo_CoverPage.docx" />

@@ -32,7 +32,7 @@
                     {
                         <div class="row mb">
                             <div class="col-10">
-                                <p><strong>Enter any date.</strong> If the exact snapshot date isn’t available, the report uses the closest prior available snapshot date and includes both requested and resolved As-Of dates in the export.</p>
+                                <p><strong>Enter any date.</strong> Requests within the last 90 days use daily snapshots; older requests use month-end snapshots. If the exact date isn’t available, the report uses the closest prior available snapshot date and shows requested/resolved dates in the export.</p>
                                 @Html.LabelFor(m => m.ArrearsReportDate, new { @class = "form-label" })
                                 @Html.TextBoxFor(m => m.ArrearsReportDate, new { @class = "form-control" })
                             </div>

@@ -125,10 +125,16 @@ namespace LW_Common
                         break;
                 }
             }
-            cmd.Parameters.AddWithValue("@AsOfDate", AsOfDate);
+            DateTime requestedAsOfDate = (AsOfDate ?? DateTime.Today).Date;
+            DateTime dailyCutoff = DateTime.Today.Date.AddDays(-90);
+            string arrearsSP = requestedAsOfDate >= dailyCutoff
+                ? "spReport_ArrearsTracker_Daily"
+                : "spReport_ArrearsTracker";
+
+            cmd.Parameters.AddWithValue("@AsOfDate", requestedAsOfDate);
 
             //  PAGE 1. Fill in the full report
-            E.FillExcelRangeFromSP(ref xlWorkbook, "spReport_ArrearsTracker", 1, 13, 1, cmd);
+            E.FillExcelRangeFromSP(ref xlWorkbook, arrearsSP, 1, 13, 1, cmd);
 
             // Close Excel Session
             E.CleanUpExcelSession(ref xlApp, ref xlWorkbook, TargetPathAndFileName);

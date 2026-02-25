@@ -69,7 +69,8 @@ BEGIN
         u.LeaseEndDate,
         @RequestedAsOfDate AS RequestedAsOfDate,
         @ResolvedSnapshotAsOfDate AS ResolvedSnapshotAsOfDate,
-        CASE WHEN @ResolvedSnapshotAsOfDate = @RequestedAsOfDate THEN CAST(0 AS bit) ELSE CAST(1 AS bit) END AS IsResolvedFromPriorSnapshot
+        CASE WHEN @ResolvedSnapshotAsOfDate = @RequestedAsOfDate THEN CAST(0 AS bit) ELSE CAST(1 AS bit) END AS IsResolvedFromPriorSnapshot,
+        'MONTH-END' AS ModeUsed
     FROM dbo.tblTenants_Snapshots s
     INNER JOIN dbo.tblProperties p
         ON p.yardiPropertyRowID = s.yardiPropertyRowID

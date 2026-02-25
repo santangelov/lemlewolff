@@ -8,7 +8,7 @@ Run this script in the target database to ensure the procedure signature include
 */
 
 CREATE OR ALTER PROCEDURE [dbo].[spReport_ArrearsTracker]
-    @AsOfDate                    date = NULL,
+    @AsOfDate                    date,
     @BuildingCode                varchar(20) = NULL,
     @FilterOnlyExcel             bit = 1,
     @FilterIsList_Posting        bit = 0,
@@ -22,7 +22,16 @@ BEGIN
     DECLARE @ResolvedSnapshotAsOfDate date;
 
     IF @AsOfDate IS NULL
-        SET @AsOfDate = CAST(GETDATE() AS date);
+    BEGIN
+        RAISERROR('spReport_ArrearsTracker: AsOfDate is required.', 16, 1);
+        RETURN;
+    END
+
+    IF @AsOfDate < '2000-01-01' OR @AsOfDate > DATEADD(DAY, 1, CAST(GETDATE() AS date))
+    BEGIN
+        RAISERROR('spReport_ArrearsTracker: AsOfDate is outside the supported range.', 16, 1);
+        RETURN;
+    END
 
     SET @RequestedAsOfDate = @AsOfDate;
 

@@ -27,14 +27,13 @@ BEGIN
     SET @RequestedAsOfDate = @AsOfDate;
 
     -- Resolve to closest available tenant snapshot date at or before request.
-    -- tblTenants_Snapshots is month-end based in production.
     SELECT @ResolvedSnapshotAsOfDate = MAX(CAST(ValidFrom AS date))
     FROM dbo.tblTenants_Snapshots
     WHERE CAST(ValidFrom AS date) <= @RequestedAsOfDate;
 
     IF @ResolvedSnapshotAsOfDate IS NULL
     BEGIN
-        RAISERROR('spReport_ArrearsTracker: Could not resolve snapshot date from tblTenants_Snapshots.', 16, 1);
+        RAISERROR('spReport_ArrearsTracker: No snapshot exists on or before requested AsOfDate.', 16, 1);
         RETURN;
     END
 
@@ -58,7 +57,11 @@ BEGIN
         '' AS ExclusionReason,
         t.[status] AS TenantStatus,
         u.LeaseStartDate,
-        u.LeaseEndDate
+        u.LeaseEndDate,
+        @RequestedAsOfDate AS RequestedAsOfDate,
+        @ResolvedSnapshotAsOfDate AS ResolvedSnapshotAsOfDate,
+        CASE WHEN @ResolvedSnapshotAsOfDate = @RequestedAsOfDate THEN CAST(0 AS bit) ELSE CAST(1 AS bit) END AS IsResolvedFromPriorSnapshot,
+        'MONTH-END' AS ModeUsed
     FROM dbo.tblTenants_Snapshots s
     INNER JOIN dbo.tblProperties p
         ON p.yardiPropertyRowID = s.yardiPropertyRowID

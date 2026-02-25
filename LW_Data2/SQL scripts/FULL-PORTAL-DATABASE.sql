@@ -629,7 +629,7 @@ RETURN
   ),
   legal_at_end AS (
     SELECT s.yardiPersonRowID,
-           COALESCE(NULLIF(LTRIM(RTRIM(s.LegalDisplay)),N''), N'Open â€“ status missing') AS [Legal Status]
+           COALESCE(NULLIF(LTRIM(RTRIM(s.LegalDisplay)),N''), N'Open Ã¢Â€Â“ status missing') AS [Legal Status]
     FROM dbo.tblTenants_Snapshots s
     CROSS JOIN bounds b
     WHERE b.EndME BETWEEN s.ValidFrom AND ISNULL(s.ValidTo,'9999-12-31')
@@ -2198,7 +2198,7 @@ BEGIN
         s.dtLastModified
       FROM dbo.tblStg_LegalCasesActions s
     ),
-    /* De-dupe: one “best” row per legalActionRowID */
+    /* De-dupe: one Â“bestÂ” row per legalActionRowID */
     S AS (
       SELECT d.*
       FROM (
@@ -3972,7 +3972,7 @@ BEGIN
         SET @FailReason = 'Resolved TenantSnapAsOf_Resolved has 0 rows.';
     END
 
-    -- Extra strict checks for MONTH-END mode (this is what catches “out of whack” history)
+    -- Extra strict checks for MONTH-END mode (this is what catches Â“out of whackÂ” history)
     IF @Pass = 1 AND @ResolutionMode LIKE 'MONTH-END%'
     BEGIN
         IF @ARAsOf_Resolved <> @RequestedMonthEnd
@@ -4060,7 +4060,7 @@ Run this script in the target database to ensure the procedure signature include
 */
 
 CREATE   PROCEDURE [dbo].[spReport_ArrearsTracker]
-    @AsOfDate                    date = NULL,
+    @AsOfDate                    date,
     @BuildingCode                varchar(20) = NULL,
     @FilterOnlyExcel             bit = 1,
     @FilterIsList_Posting        bit = 0,
@@ -4074,19 +4074,27 @@ BEGIN
     DECLARE @ResolvedSnapshotAsOfDate date;
 
     IF @AsOfDate IS NULL
-        SET @AsOfDate = CAST(GETDATE() AS date);
+    BEGIN
+        RAISERROR('spReport_ArrearsTracker: AsOfDate is required.', 16, 1);
+        RETURN;
+    END
+
+    IF @AsOfDate < '2000-01-01' OR @AsOfDate > DATEADD(DAY, 1, CAST(GETDATE() AS date))
+    BEGIN
+        RAISERROR('spReport_ArrearsTracker: AsOfDate is outside the supported range.', 16, 1);
+        RETURN;
+    END
 
     SET @RequestedAsOfDate = @AsOfDate;
 
     -- Resolve to closest available tenant snapshot date at or before request.
-    -- tblTenants_Snapshots is month-end based in production.
     SELECT @ResolvedSnapshotAsOfDate = MAX(CAST(ValidFrom AS date))
     FROM dbo.tblTenants_Snapshots
     WHERE CAST(ValidFrom AS date) <= @RequestedAsOfDate;
 
     IF @ResolvedSnapshotAsOfDate IS NULL
     BEGIN
-        RAISERROR('spReport_ArrearsTracker: Could not resolve snapshot date from tblTenants_Snapshots.', 16, 1);
+        RAISERROR('spReport_ArrearsTracker: No snapshot exists on or before requested AsOfDate.', 16, 1);
         RETURN;
     END
 
@@ -4110,7 +4118,10 @@ BEGIN
         '' AS ExclusionReason,
         t.[status] AS TenantStatus,
         u.LeaseStartDate,
-        u.LeaseEndDate
+        u.LeaseEndDate,
+        @RequestedAsOfDate AS RequestedAsOfDate,
+        @ResolvedSnapshotAsOfDate AS ResolvedSnapshotAsOfDate,
+        CASE WHEN @ResolvedSnapshotAsOfDate = @RequestedAsOfDate THEN CAST(0 AS bit) ELSE CAST(1 AS bit) END AS IsResolvedFromPriorSnapshot
     FROM dbo.tblTenants_Snapshots s
     INNER JOIN dbo.tblProperties p
         ON p.yardiPropertyRowID = s.yardiPropertyRowID
@@ -4242,14 +4253,14 @@ GO
    spRptBuilder_Inventory_01_Import
 
    CHANGES:
-     • Preserve ReceivedDate as imported from Yardi
+     Â• Preserve ReceivedDate as imported from Yardi
        (may remain NULL if not provided).
-     • Use ISNULL(ReceivedDate, OrderDate) for DateOfSale
+     Â• Use ISNULL(ReceivedDate, OrderDate) for DateOfSale
        so reporting has a usable date even when ReceivedDate is NULL.
-     • PO UPDATE logic compares:
+     Â• PO UPDATE logic compares:
          - it.ReceivedDate  vs imp.ReceivedDate
          - it.DateOfSale    vs ISNULL(imp.ReceivedDate, imp.OrderDate)
-     • PO HEADERS now UPSERT into tblPurchaseOrders:
+     Â• PO HEADERS now UPSERT into tblPurchaseOrders:
          - Aggregate from tblImport_Inv_Yardi_POItems (POAgg CTE)
          - UPDATE existing rows when any header fields change
          - INSERT new rows for PONumbers not present yet
@@ -4408,7 +4419,7 @@ BEGIN
         OR ISNULL(po.TotalCostOfItems, 0.00)       <> ISNULL(a.TotalCostsOfItems, 0.00);
 
 
-    -- 2) INSERT new PO headers that don’t exist yet
+    -- 2) INSERT new PO headers that donÂ’t exist yet
     INSERT INTO tblPurchaseOrders
         (PONumber, WONumber, VendorName, OrderDate, ReceivedDate, ExpenseType, TotalCostOfItems)
     SELECT 
@@ -4745,7 +4756,7 @@ BEGIN
 
     DECLARE @ignoreCategory varchar(100) = 'CABINETS';
 
-    -- STEP 1: Per-item seed logic — find most recent physical inventory snapshot before @StartDate
+    -- STEP 1: Per-item seed logic Â— find most recent physical inventory snapshot before @StartDate
     IF OBJECT_ID('tempdb..#LatestSeedDates') IS NOT NULL DROP TABLE #LatestSeedDates;
     SELECT 
         Code, 
@@ -6272,7 +6283,7 @@ BEGIN
 
     ----------------------------------------------------------------------
     -- Normalize ReceivedDate key
-    -- NULL means NULL — preserve exactly as Yardi gave it.
+    -- NULL means NULL Â— preserve exactly as Yardi gave it.
     ----------------------------------------------------------------------
     DECLARE @FinalReceivedDate DATE =
         CASE WHEN @ReceivedDate IS NOT NULL 

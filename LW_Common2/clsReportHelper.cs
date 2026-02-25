@@ -85,7 +85,8 @@ namespace LW_Common
             if (string.IsNullOrEmpty(BuildingOrListCode)) return false;   // Building Code is required. "": no longer valid as an option
 
             string TargetPathAndFileName = WOAnalysisReportDownloadPath + "\\" + NewFileName;
-            AsOfDate = clsFunc.GetEndOfMonth(AsOfDate);   // Default to end of current month if not provided
+            // Legal arrears should honor the user-selected date as-is.
+            // Snapshot resolution (closest prior available date) is handled in SQL.
 
             // Delete any existing file of the same name
             try

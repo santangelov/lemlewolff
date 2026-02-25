@@ -8,7 +8,7 @@ Run this script in the target database to ensure the procedure signature include
 */
 
 CREATE OR ALTER PROCEDURE [dbo].[spReport_ArrearsTracker]
-    @AsOfDate                    date = NULL,
+    @AsOfDate                    date,
     @BuildingCode                varchar(20) = NULL,
     @FilterOnlyExcel             bit = 1,
     @FilterIsList_Posting        bit = 0,
@@ -22,19 +22,27 @@ BEGIN
     DECLARE @ResolvedSnapshotAsOfDate date;
 
     IF @AsOfDate IS NULL
-        SET @AsOfDate = CAST(GETDATE() AS date);
+    BEGIN
+        RAISERROR('spReport_ArrearsTracker: AsOfDate is required.', 16, 1);
+        RETURN;
+    END
+
+    IF @AsOfDate < '2000-01-01' OR @AsOfDate > DATEADD(DAY, 1, CAST(GETDATE() AS date))
+    BEGIN
+        RAISERROR('spReport_ArrearsTracker: AsOfDate is outside the supported range.', 16, 1);
+        RETURN;
+    END
 
     SET @RequestedAsOfDate = @AsOfDate;
 
     -- Resolve to closest available tenant snapshot date at or before request.
-    -- tblTenants_Snapshots is month-end based in production.
     SELECT @ResolvedSnapshotAsOfDate = MAX(CAST(ValidFrom AS date))
     FROM dbo.tblTenants_Snapshots
     WHERE CAST(ValidFrom AS date) <= @RequestedAsOfDate;
 
     IF @ResolvedSnapshotAsOfDate IS NULL
     BEGIN
-        RAISERROR('spReport_ArrearsTracker: Could not resolve snapshot date from tblTenants_Snapshots.', 16, 1);
+        RAISERROR('spReport_ArrearsTracker: No snapshot exists on or before requested AsOfDate.', 16, 1);
         RETURN;
     END
 
@@ -58,7 +66,10 @@ BEGIN
         '' AS ExclusionReason,
         t.[status] AS TenantStatus,
         u.LeaseStartDate,
-        u.LeaseEndDate
+        u.LeaseEndDate,
+        @RequestedAsOfDate AS RequestedAsOfDate,
+        @ResolvedSnapshotAsOfDate AS ResolvedSnapshotAsOfDate,
+        CASE WHEN @ResolvedSnapshotAsOfDate = @RequestedAsOfDate THEN CAST(0 AS bit) ELSE CAST(1 AS bit) END AS IsResolvedFromPriorSnapshot
     FROM dbo.tblTenants_Snapshots s
     INNER JOIN dbo.tblProperties p
         ON p.yardiPropertyRowID = s.yardiPropertyRowID

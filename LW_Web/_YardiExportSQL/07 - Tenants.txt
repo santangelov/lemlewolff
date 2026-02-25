@@ -1,7 +1,29 @@
-/* (07) Tenants changed in the last 3 days
+/* (07) Tenants export — FIXED
    Maps to Portal: tblStg_Tenants
+
+   Includes:
+   A) Tenants changed in last 3 months (existing behavior)
+   B) Tenants who are CURRENT tenants on any active property / non-excluded unit
+      (prevents CurrentTenantYardiID from pointing to tenants missing from tblStg_Tenants)
 */
 
+;WITH Cutoff AS
+(
+    SELECT CAST(DATEADD(MONTH, -3, GETDATE()) AS date) AS d
+),
+CurrentUnitTenants AS
+(
+    SELECT DISTINCT
+        t.HMYPERSON AS yardiPersonRowID
+    FROM tenant t
+    INNER JOIN tenStatus ts ON t.iStatus = ts.iStatus
+    INNER JOIN unit u ON t.HUNIT = u.HMY
+    INNER JOIN property p ON u.HPROPERTY = p.HMY
+    WHERE ts.STATUS LIKE 'Current%'
+      AND ISNULL(p.bInactive, 0) = 0
+      AND ISNULL(u.exclude, 0) = 0
+      AND (t.DTMOVEOUT IS NULL OR t.DTMOVEOUT >= GETDATE())
+)
 SELECT
     t.HMYPERSON      AS yardiPersonRowID,
     t.SCODE          AS tenantCode,
@@ -15,11 +37,10 @@ SELECT
     t.SEMAIL         AS email
 FROM tenant t
 LEFT JOIN tenStatus ts ON t.iStatus = ts.iStatus
-CROSS JOIN (
-    SELECT CAST(DATEADD(MONTH, -3, GETDATE()) AS date) AS d
-) AS c
+CROSS JOIN Cutoff c
 WHERE
       (t.dtLastModified IS NOT NULL AND CAST(t.dtLastModified AS date) >= c.d)
    OR (t.DTMOVEIN       IS NOT NULL AND CAST(t.DTMOVEIN       AS date) >= c.d)
    OR (t.DTMOVEOUT      IS NOT NULL AND CAST(t.DTMOVEOUT      AS date) >= c.d)
+   OR (t.HMYPERSON IN (SELECT yardiPersonRowID FROM CurrentUnitTenants))
 ORDER BY t.HMYPERSON;

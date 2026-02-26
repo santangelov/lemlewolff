@@ -143,14 +143,15 @@ BEGIN
         END AS [Exclusion Reasons],
         CASE WHEN t.yardiPersonRowID IS NULL THEN 'Unknown' ELSE t.[status] END AS [Tenent Status],
         u.LeaseStartDate AS [Lease Start Date],
-        u.LeaseEndDate AS [Lease End Date],
+        u.LeaseEndDate AS [Lease End Date]--,
 
-        -- Extra columns not in the Excel template (kept at the end)
-        u.CurrentTenantYardiID,
-        @RequestedAsOfDate AS RequestedAsOfDate,
-        @ResolvedSnapshotAsOfDate AS ResolvedSnapshotAsOfDate,
-        CASE WHEN @ResolvedSnapshotAsOfDate = @RequestedAsOfDate THEN CAST(0 AS bit) ELSE CAST(1 AS bit) END AS IsResolvedFromPriorSnapshot,
-        'MONTH-END' AS ModeUsed
+        -- DEBUG COLUMNS
+		-- Extra columns not in the Excel template (kept at the end)
+        --u.CurrentTenantYardiID,
+        --@RequestedAsOfDate AS RequestedAsOfDate,
+        --@ResolvedSnapshotAsOfDate AS ResolvedSnapshotAsOfDate,
+        --CASE WHEN @ResolvedSnapshotAsOfDate = @RequestedAsOfDate THEN CAST(0 AS bit) ELSE CAST(1 AS bit) END AS IsResolvedFromPriorSnapshot,
+        --'MONTH-END' AS ModeUsed
 FROM dbo.tblTenants_Snapshots s
         INNER JOIN dbo.tblProperties p
             ON p.yardiPropertyRowID = s.yardiPropertyRowID

@@ -145,20 +145,17 @@ BEGIN
         u.LeaseStartDate AS [Lease Start Date],
         u.LeaseEndDate AS [Lease End Date]--,
 
-        -- DEBUG COLUMNS
+        /*-- DEBUG COLUMNS
 		-- Extra columns not in the Excel template (kept at the end)
-        --u.CurrentTenantYardiID,
-        --@RequestedAsOfDate AS RequestedAsOfDate,
-        --@ResolvedSnapshotAsOfDate AS ResolvedSnapshotAsOfDate,
-        --CASE WHEN @ResolvedSnapshotAsOfDate = @RequestedAsOfDate THEN CAST(0 AS bit) ELSE CAST(1 AS bit) END AS IsResolvedFromPriorSnapshot,
-        --'MONTH-END' AS ModeUsed
+        u.CurrentTenantYardiID,
+        @RequestedAsOfDate AS RequestedAsOfDate,
+        @ResolvedSnapshotAsOfDate AS ResolvedSnapshotAsOfDate,
+        CASE WHEN @ResolvedSnapshotAsOfDate = @RequestedAsOfDate THEN CAST(0 AS bit) ELSE CAST(1 AS bit) END AS IsResolvedFromPriorSnapshot,
+        'MONTH-END' AS ModeUsed */
 FROM dbo.tblTenants_Snapshots s
-        INNER JOIN dbo.tblProperties p
-            ON p.yardiPropertyRowID = s.yardiPropertyRowID
-        LEFT JOIN dbo.tblPropertyUnits u
-            ON u.yardiUnitRowID = s.yardiUnitRowID
-        LEFT JOIN dbo.tblTenants t
-            ON t.yardiPersonRowID = s.yardiPersonRowID
+        INNER JOIN dbo.tblProperties p ON p.yardiPropertyRowID = s.yardiPropertyRowID
+        LEFT JOIN dbo.tblPropertyUnits u ON u.yardiUnitRowID = s.yardiUnitRowID
+        LEFT JOIN dbo.tblTenants t ON t.yardiPersonRowID = s.yardiPersonRowID
 
         /* Attorney/LawFirm resolution match preference (best match per row):
            1) legal match (s.legalID_yardi)

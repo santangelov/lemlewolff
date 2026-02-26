@@ -72,24 +72,6 @@
     <Reference Include="System.EnterpriseServices" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="WindowsBase" />
-    <Reference Include="System.Web.Helpers">
-      <HintPath>$(NuGetPackageRoot)microsoft.aspnet.webpages\3.2.9\lib\net45\System.Web.Helpers.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Web.Mvc">
-      <HintPath>$(NuGetPackageRoot)microsoft.aspnet.mvc\5.2.9\lib\net45\System.Web.Mvc.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Web.Razor">
-      <HintPath>$(NuGetPackageRoot)microsoft.aspnet.razor\3.2.9\lib\net45\System.Web.Razor.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Web.WebPages">
-      <HintPath>$(NuGetPackageRoot)microsoft.aspnet.webpages\3.2.9\lib\net45\System.Web.WebPages.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Web.WebPages.Deployment">
-      <HintPath>$(NuGetPackageRoot)microsoft.aspnet.webpages\3.2.9\lib\net45\System.Web.WebPages.Deployment.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Web.WebPages.Razor">
-      <HintPath>$(NuGetPackageRoot)microsoft.aspnet.webpages\3.2.9\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="assets\css\app-modern.min.css" />

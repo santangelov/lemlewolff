@@ -157,25 +157,20 @@ BEGIN
         END AS [Exclusion Reasons],
         CASE WHEN t.yardiPersonRowID IS NULL THEN 'Unknown' ELSE t.[status] END AS [Tenent Status],
         u.LeaseStartDate AS [Lease Start Date],
-        u.LeaseEndDate AS [Lease End Date]--,
+        u.LeaseEndDate AS [Lease End Date] --,
 
-        -- DEBUG COLUMNS
+        /*-- DEBUG COLUMNS
 		-- Extra columns not in the Excel template (kept at the end)
-        --u.CurrentTenantYardiID,
-        --@RequestedAsOfDate AS RequestedAsOfDate,
-        --@ResolvedAsOfDate AS ResolvedSnapshotAsOfDate,
-        --CASE WHEN @ResolvedAsOfDate = @RequestedAsOfDate THEN CAST(0 AS bit) ELSE CAST(1 AS bit) END AS IsResolvedFromPriorSnapshot,
-        --'DAILY' AS ModeUsed
+        u.CurrentTenantYardiID,
+        @RequestedAsOfDate AS RequestedAsOfDate,
+        @ResolvedAsOfDate AS ResolvedSnapshotAsOfDate,
+        CASE WHEN @ResolvedAsOfDate = @RequestedAsOfDate THEN CAST(0 AS bit) ELSE CAST(1 AS bit) END AS IsResolvedFromPriorSnapshot,
+        'DAILY' AS ModeUsed */
 FROM dbo.tblTenantAR_DailySnapshot s
-        INNER JOIN dbo.tblProperties p
-            ON p.yardiPropertyRowID = s.yardiPropertyRowID
-        LEFT JOIN dbo.tblPropertyUnits u
-            ON u.yardiUnitRowID = s.yardiUnitRowID
-        LEFT JOIN dbo.tblTenants t
-            ON t.yardiPersonRowID = s.yardiPersonRowID
-        LEFT JOIN dbo.tblTenants_Snapshots ts
-            ON ts.yardiPersonRowID = s.yardiPersonRowID
-           AND CAST(ts.ValidFrom AS date) = @TenantSnapAsOf_Resolved
+        INNER JOIN dbo.tblProperties p ON p.yardiPropertyRowID = s.yardiPropertyRowID
+        LEFT JOIN dbo.tblPropertyUnits u ON u.yardiUnitRowID = s.yardiUnitRowID
+        LEFT JOIN dbo.tblTenants t ON t.yardiPersonRowID = s.yardiPersonRowID
+        LEFT JOIN dbo.tblTenants_Snapshots ts ON ts.yardiPersonRowID = s.yardiPersonRowID AND CAST(ts.ValidFrom AS date) = @TenantSnapAsOf_Resolved
 
         /* Attorney/LawFirm resolution match preference (best match per row):
            1) legal match (if ts.legalID_yardi is available)

@@ -121,17 +121,10 @@ BEGIN
     CREATE NONCLUSTERED INDEX IX_AR_Prop     ON #AttorneyResolved(yardiPropertyRowID) INCLUDE (AttorneyLabel, LawFirmName, yardiPersonRowID, yardiLegalRowID, yardiUnitRowID);
 
     SELECT
-        ISNULL(p.portfolioName, '') AS Portfolio,
-        p.buildingCode AS Property,
-        u.AptNumber AS Unit,
-
-        -- Helpful tracing field (used to explain unit-only rows when tenant import is missing).
-        u.CurrentTenantYardiID,
-
-        -- Tenant placeholder when missing
-        COALESCE(t.tenantCode, '(unit-only / no tenant)') AS Tenant,
-
-        -- Name placeholder when missing
+        ISNULL(p.portfolioName, '') AS [Portfolio],
+        p.buildingCode AS [Property],
+        u.AptNumber AS [Unit],
+        COALESCE(t.tenantCode, '(unit-only / no tenant)') AS [Tenant Account],
         CASE
             WHEN t.yardiPersonRowID IS NULL THEN '(unit-only / no tenant)'
             ELSE CONCAT(
@@ -140,23 +133,17 @@ BEGIN
                 ISNULL(t.firstName, '')
             )
         END AS [Name],
-
-        s.endingBalance,
-        ISNULL(NULLIF(LTRIM(RTRIM(ts.LegalDisplay)), ''), '') AS CurrentLegalStatus,
+        s.endingBalance AS [Ending Balance],
+        ISNULL(NULLIF(LTRIM(RTRIM(ts.LegalDisplay)), ''), '') AS [Current Legal Status],
         CASE
             WHEN ts.lastLegalNoteDate IS NULL OR ts.lastLegalNoteDate = '19000101' THEN ''
             ELSE CONVERT(varchar(20), ts.lastLegalNoteDate, 120)
-        END AS LastLegalNote,
-        ts.dayCounter,
-
-        /* Attorney / Law Firm resolved from #AttorneyResolved (source: tblLegalRepresentation via fnAttorneyResolve). */
-        ISNULL(ar.AttorneyLabel, '') AS Attorney,
+        END AS [Last Legal Note],
+        ts.dayCounter AS [Day Counter],
+        ISNULL(ar.AttorneyLabel, '') AS [Attorney],
         ISNULL(ar.LawFirmName, '')   AS [Law Firm],
-
-        CASE WHEN ISNULL(NULLIF(LTRIM(RTRIM(ts.LegalDisplay)), ''), '') = '' THEN 'No' ELSE 'Yes' END AS Legal_Active,
-        CASE WHEN @ResolvedAsOfDate = @RequestedAsOfDate THEN 'Present' ELSE 'Resolved' END AS PresentAsOf,
-
-        -- ExclusionReason when tenant join missing (keep row; label it)
+        CASE WHEN ISNULL(NULLIF(LTRIM(RTRIM(ts.LegalDisplay)), ''), '') = '' THEN 'No' ELSE 'Yes' END AS [Legal Active],
+        CASE WHEN @ResolvedAsOfDate = @RequestedAsOfDate THEN 'Present' ELSE 'Resolved' END AS [Present As Of],
         CASE
             WHEN t.yardiPersonRowID IS NULL AND u.CurrentTenantYardiID IS NOT NULL
                 THEN CONCAT(
@@ -167,19 +154,18 @@ BEGIN
             WHEN t.yardiPersonRowID IS NULL AND u.CurrentTenantYardiID IS NULL
                 THEN 'Missing tenant in import. (unit-only / no tenant) No CurrentTenantYardiID available on unit.'
             ELSE ''
-        END AS ExclusionReason,
+        END AS [Exclusion Reasons],
+        CASE WHEN t.yardiPersonRowID IS NULL THEN 'Unknown' ELSE t.[status] END AS [Tenent Status],
+        u.LeaseStartDate AS [Lease Start Date],
+        u.LeaseEndDate AS [Lease End Date],
 
-        -- TenantStatus fallback
-        CASE WHEN t.yardiPersonRowID IS NULL THEN 'Unknown' ELSE t.[status] END AS TenantStatus,
-
-        u.LeaseStartDate,
-        u.LeaseEndDate,
+        -- Extra columns not in the Excel template (kept at the end)
+        u.CurrentTenantYardiID,
         @RequestedAsOfDate AS RequestedAsOfDate,
         @ResolvedAsOfDate AS ResolvedSnapshotAsOfDate,
         CASE WHEN @ResolvedAsOfDate = @RequestedAsOfDate THEN CAST(0 AS bit) ELSE CAST(1 AS bit) END AS IsResolvedFromPriorSnapshot,
         'DAILY' AS ModeUsed
-
-    FROM dbo.tblTenantAR_DailySnapshot s
+FROM dbo.tblTenantAR_DailySnapshot s
         INNER JOIN dbo.tblProperties p
             ON p.yardiPropertyRowID = s.yardiPropertyRowID
         LEFT JOIN dbo.tblPropertyUnits u

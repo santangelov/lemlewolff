@@ -1,10 +1,13 @@
 USE [lemlewolff]
 GO
 
+/****** Object:  StoredProcedure [dbo].[spReport_ArrearsTracker]    Script Date: 2/27/2026 8:46:44 PM ******/
 SET ANSI_NULLS ON
 GO
+
 SET QUOTED_IDENTIFIER ON
 GO
+
 
 /*
 Month-end Legal Arrears report (monthly snapshot mode).
@@ -48,8 +51,7 @@ ALTER   PROCEDURE [dbo].[spReport_ArrearsTracker]
     @BuildingCode                varchar(20) = NULL,
     @FilterOnlyExcel             bit = 1,
     @FilterIsList_Posting        bit = 0,
-    @FilterIsList_Aquinas        bit = 0,
-    @FilterIsList_Posting3536    bit = 0
+    @FilterIsList_Aquinas        bit = 0
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -191,14 +193,11 @@ FROM dbo.tblTenants_Snapshots s
       AND (@BuildingCode IS NULL OR p.buildingCode = @BuildingCode)
       AND (@FilterIsList_Posting = 0 OR p.isInList_Posting = 1)
       AND (@FilterIsList_Aquinas = 0 OR p.isInList_Aquinas = 1)
-      AND (
-            @FilterIsList_Posting3536 = 0
-            OR p.isInList_Posting = 1
-            OR p.buildingCode IN ('3651', '3655')
-            OR (TRY_CONVERT(int, p.buildingCode) BETWEEN 3500 AND 3572)
-          )
       AND (@FilterOnlyExcel = 0 OR s.endingBalance > 0)
     ORDER BY p.buildingCode, u.AptNumber;
 
 END;
+
 GO
+
+

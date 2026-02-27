@@ -1,6 +1,6 @@
 USE [master]
 GO
-/****** Object:  Database [lemlewolff]    Script Date: 2/26/2026 12:56:43 PM ******/
+/****** Object:  Database [lemlewolff]    Script Date: 2/27/2026 9:28:20 PM ******/
 CREATE DATABASE [lemlewolff]
  CONTAINMENT = NONE
  ON  PRIMARY 
@@ -77,33 +77,33 @@ ALTER DATABASE [lemlewolff] SET QUERY_STORE = OFF
 GO
 USE [lemlewolff]
 GO
-/****** Object:  User [lemwolffRW]    Script Date: 2/26/2026 12:56:45 PM ******/
+/****** Object:  User [lemwolffRW]    Script Date: 2/27/2026 9:28:22 PM ******/
 CREATE USER [lemwolffRW] FOR LOGIN [lemwolffRW] WITH DEFAULT_SCHEMA=[dbo]
 GO
-/****** Object:  User [lemwolffRO]    Script Date: 2/26/2026 12:56:45 PM ******/
+/****** Object:  User [lemwolffRO]    Script Date: 2/27/2026 9:28:22 PM ******/
 CREATE USER [lemwolffRO] FOR LOGIN [lemwolffRO] WITH DEFAULT_SCHEMA=[dbo]
 GO
-/****** Object:  User [lempbiondo]    Script Date: 2/26/2026 12:56:45 PM ******/
+/****** Object:  User [lempbiondo]    Script Date: 2/27/2026 9:28:22 PM ******/
 CREATE USER [lempbiondo] FOR LOGIN [lempbiondo] WITH DEFAULT_SCHEMA=[dbo]
 GO
-/****** Object:  DatabaseRole [report_reader]    Script Date: 2/26/2026 12:56:45 PM ******/
+/****** Object:  DatabaseRole [report_reader]    Script Date: 2/27/2026 9:28:23 PM ******/
 CREATE ROLE [report_reader]
 GO
-/****** Object:  DatabaseRole [etl_loader]    Script Date: 2/26/2026 12:56:46 PM ******/
+/****** Object:  DatabaseRole [etl_loader]    Script Date: 2/27/2026 9:28:23 PM ******/
 CREATE ROLE [etl_loader]
 GO
 ALTER ROLE [db_owner] ADD MEMBER [lemwolffRW]
 GO
 ALTER ROLE [db_datareader] ADD MEMBER [lempbiondo]
 GO
-/****** Object:  UserDefinedTableType [dbo].[TT_ADPImportKeys]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  UserDefinedTableType [dbo].[TT_ADPImportKeys]    Script Date: 2/27/2026 9:28:24 PM ******/
 CREATE TYPE [dbo].[TT_ADPImportKeys] AS TABLE(
 	[PayrollName] [varchar](100) NOT NULL,
 	[PayDate] [datetime] NOT NULL,
 	[WONumber] [varchar](10) NOT NULL
 )
 GO
-/****** Object:  Table [dbo].[tblAttorneys]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Table [dbo].[tblAttorneys]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -125,7 +125,7 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[tblAttorneysLawFirms]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Table [dbo].[tblAttorneysLawFirms]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -143,7 +143,7 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[tblLegalRepresentation]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Table [dbo].[tblLegalRepresentation]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -166,7 +166,7 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[tblLawFirms]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Table [dbo].[tblLawFirms]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -191,7 +191,7 @@ CREATE TABLE [dbo].[tblLawFirms](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[tblTenants]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Table [dbo].[tblTenants]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -219,7 +219,7 @@ UNIQUE NONCLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  UserDefinedFunction [dbo].[ufn_AttorneyOrFirm_AsOf]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  UserDefinedFunction [dbo].[ufn_AttorneyOrFirm_AsOf]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -279,7 +279,7 @@ RETURN
   ) af
 );
 GO
-/****** Object:  UserDefinedFunction [dbo].[fnAttorneyResolve]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  UserDefinedFunction [dbo].[fnAttorneyResolve]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -368,7 +368,7 @@ RETURN
   WHERE rn = 1
 );
 GO
-/****** Object:  Table [dbo].[tblLegalCasesActions]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Table [dbo].[tblLegalCasesActions]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -392,7 +392,7 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[tblLegalCases]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Table [dbo].[tblLegalCases]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -416,7 +416,7 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  View [dbo].[vwLegalNoteCounts_ByPerson]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  View [dbo].[vwLegalNoteCounts_ByPerson]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -437,7 +437,7 @@ SELECT
 FROM base
 GROUP BY yardiPersonRowID;
 GO
-/****** Object:  View [dbo].[vw_AttorneyOrFirm_Today]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  View [dbo].[vw_AttorneyOrFirm_Today]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -450,7 +450,7 @@ CREATE   VIEW [dbo].[vw_AttorneyOrFirm_Today]
 AS
 SELECT * FROM dbo.ufn_AttorneyOrFirm_AsOf(CONVERT(date, GETDATE()));
 GO
-/****** Object:  Table [dbo].[tblTenants_Snapshots]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Table [dbo].[tblTenants_Snapshots]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -483,7 +483,7 @@ CREATE TABLE [dbo].[tblTenants_Snapshots](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[tblPropertyUnits]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Table [dbo].[tblPropertyUnits]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -513,7 +513,7 @@ CREATE TABLE [dbo].[tblPropertyUnits](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[tblProperties]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Table [dbo].[tblProperties]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -545,7 +545,7 @@ CREATE TABLE [dbo].[tblProperties](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[tblTenantAR_DailySnapshot]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Table [dbo].[tblTenantAR_DailySnapshot]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -570,7 +570,7 @@ CREATE TABLE [dbo].[tblTenantAR_DailySnapshot](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  UserDefinedFunction [dbo].[fnReceivableSummaryByTenant_Range]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  UserDefinedFunction [dbo].[fnReceivableSummaryByTenant_Range]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -650,7 +650,7 @@ RETURN
   LEFT JOIN legal_at_end lg ON lg.yardiPersonRowID = r.yardiPersonRowID
 );
 GO
-/****** Object:  Table [dbo].[tblLaborers]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Table [dbo].[tblLaborers]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -675,7 +675,7 @@ CREATE TABLE [dbo].[tblLaborers](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[tblWorkOrders]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Table [dbo].[tblWorkOrders]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -734,7 +734,7 @@ CREATE TABLE [dbo].[tblWorkOrders](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[tblADP]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Table [dbo].[tblADP]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -766,7 +766,7 @@ CREATE TABLE [dbo].[tblADP](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  View [dbo].[vwADPWOHoursByLaborer]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  View [dbo].[vwADPWOHoursByLaborer]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -782,7 +782,7 @@ AS
 	from tblADP
 	group by WONumber, LaborerID
 GO
-/****** Object:  Table [dbo].[tblLookupValues]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Table [dbo].[tblLookupValues]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -799,7 +799,7 @@ CREATE TABLE [dbo].[tblLookupValues](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  View [dbo].[vwWorkOrderLaborers]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  View [dbo].[vwWorkOrderLaborers]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -837,7 +837,7 @@ AS
   GROUP BY a.WONumber, a.LaborerID, l.BonusFactor, bfTot.sumBonusFactorsForWO, 
            wo.FinalSalePrice, wo.TotalMaterialPricing, l.BonusFactor, bfTot.sumBonusFactorsForWO;
 GO
-/****** Object:  Table [dbo].[tblImport_Yardi_POs]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Table [dbo].[tblImport_Yardi_POs]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -868,7 +868,7 @@ CREATE TABLE [dbo].[tblImport_Yardi_POs](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[tblVendors]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Table [dbo].[tblVendors]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -885,7 +885,7 @@ CREATE TABLE [dbo].[tblVendors](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  View [dbo].[vwPO_GroupLaborMaterialsVendor]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  View [dbo].[vwPO_GroupLaborMaterialsVendor]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -930,7 +930,7 @@ AS
 	--WHERE WONumber=498109
 	GROUP BY a.WONumber, WOAndInvoiceAmt
 GO
-/****** Object:  Table [dbo].[tblImport_Yardi_WOList]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Table [dbo].[tblImport_Yardi_WOList]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -966,7 +966,7 @@ CREATE TABLE [dbo].[tblImport_Yardi_WOList](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  View [dbo].[vwWO_DistinctWOs]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  View [dbo].[vwWO_DistinctWOs]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -982,7 +982,7 @@ AS
 	from tblImport_Yardi_WOList wo
 	GROUP BY wo.WONumber
 GO
-/****** Object:  View [dbo].[vwWorkOrderLaborerNames]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  View [dbo].[vwWorkOrderLaborerNames]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1005,7 +1005,7 @@ AS
 		left join tblLaborers l on wol.LaborerID = l.LaborerID
 	group by WONumber
 GO
-/****** Object:  View [dbo].[vwUnitOccupancy]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  View [dbo].[vwUnitOccupancy]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1035,7 +1035,7 @@ AS
 	from tblPropertyUnits u
 
 GO
-/****** Object:  View [dbo].[vwWOTeamGroups]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  View [dbo].[vwWOTeamGroups]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1076,7 +1076,7 @@ GROUP BY
 	wo.category
 
 GO
-/****** Object:  View [dbo].[vwPropertyUnitCount]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  View [dbo].[vwPropertyUnitCount]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1095,7 +1095,7 @@ CREATE VIEW [dbo].[vwPropertyUnitCount] AS
 	GROUP BY 
 		p.yardiPropertyRowID
 GO
-/****** Object:  Table [dbo].[tblAdminApps]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Table [dbo].[tblAdminApps]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1111,7 +1111,7 @@ CREATE TABLE [dbo].[tblAdminApps](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[tblChargeCodes]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Table [dbo].[tblChargeCodes]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1126,7 +1126,7 @@ CREATE TABLE [dbo].[tblChargeCodes](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[tblFileStore]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Table [dbo].[tblFileStore]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1151,7 +1151,7 @@ CREATE TABLE [dbo].[tblFileStore](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[tblImport_Inv_Yardi_POItems]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Table [dbo].[tblImport_Inv_Yardi_POItems]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1185,7 +1185,7 @@ CREATE TABLE [dbo].[tblImport_Inv_Yardi_POItems](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[tblImport_Inv_Yardi_WOItems]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Table [dbo].[tblImport_Inv_Yardi_WOItems]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1210,7 +1210,7 @@ CREATE TABLE [dbo].[tblImport_Inv_Yardi_WOItems](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[tblImport_Sortly]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Table [dbo].[tblImport_Sortly]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1242,7 +1242,7 @@ CREATE TABLE [dbo].[tblImport_Sortly](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[tblImportDates]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Table [dbo].[tblImportDates]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1259,7 +1259,7 @@ CREATE TABLE [dbo].[tblImportDates](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[tblInvalidPOItems]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Table [dbo].[tblInvalidPOItems]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1277,7 +1277,7 @@ CREATE TABLE [dbo].[tblInvalidPOItems](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[tblInventoryTracking]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Table [dbo].[tblInventoryTracking]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1309,7 +1309,7 @@ CREATE TABLE [dbo].[tblInventoryTracking](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[tblLegalCases_History]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Table [dbo].[tblLegalCases_History]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1339,7 +1339,7 @@ CREATE TABLE [dbo].[tblLegalCases_History](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[tblPhysicalInventory]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Table [dbo].[tblPhysicalInventory]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1360,7 +1360,7 @@ CREATE TABLE [dbo].[tblPhysicalInventory](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[tblPrintHistory]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Table [dbo].[tblPrintHistory]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1382,7 +1382,7 @@ CREATE TABLE [dbo].[tblPrintHistory](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[tblPurchaseOrders]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Table [dbo].[tblPurchaseOrders]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1406,7 +1406,7 @@ CREATE TABLE [dbo].[tblPurchaseOrders](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[tblPurchaseOrders_Details]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Table [dbo].[tblPurchaseOrders_Details]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1431,7 +1431,7 @@ CREATE TABLE [dbo].[tblPurchaseOrders_Details](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[tblSortlyInventory]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Table [dbo].[tblSortlyInventory]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1449,7 +1449,7 @@ CREATE TABLE [dbo].[tblSortlyInventory](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[tblStg_Attornys]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Table [dbo].[tblStg_Attornys]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1461,7 +1461,7 @@ CREATE TABLE [dbo].[tblStg_Attornys](
 	[AttyCode] [varchar](20) NULL
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[tblStg_LegalCases]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Table [dbo].[tblStg_LegalCases]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1478,7 +1478,7 @@ CREATE TABLE [dbo].[tblStg_LegalCases](
 	[legalDisplay] [varchar](100) NULL
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[tblStg_LegalCasesActions]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Table [dbo].[tblStg_LegalCasesActions]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1498,7 +1498,7 @@ CREATE TABLE [dbo].[tblStg_LegalCasesActions](
 	[dtLastModified] [datetime] NULL
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[tblStg_PropertyPortfolio]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Table [dbo].[tblStg_PropertyPortfolio]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1509,7 +1509,7 @@ CREATE TABLE [dbo].[tblStg_PropertyPortfolio](
 	[ownerName] [varchar](128) NULL
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[tblStg_TenantARSummary]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Table [dbo].[tblStg_TenantARSummary]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1525,7 +1525,7 @@ CREATE TABLE [dbo].[tblStg_TenantARSummary](
 	[endingBalance] [decimal](12, 2) NULL
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[tblStg_Tenants]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Table [dbo].[tblStg_Tenants]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1543,7 +1543,7 @@ CREATE TABLE [dbo].[tblStg_Tenants](
 	[email] [varchar](400) NULL
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[tblTenantARSummary]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Table [dbo].[tblTenantARSummary]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1568,7 +1568,7 @@ CREATE TABLE [dbo].[tblTenantARSummary](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[tblUsers]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Table [dbo].[tblUsers]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1592,7 +1592,7 @@ CREATE TABLE [dbo].[tblUsers](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[tblWorkOrderItems]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Table [dbo].[tblWorkOrderItems]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1611,7 +1611,7 @@ CREATE TABLE [dbo].[tblWorkOrderItems](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[tmp_POBackfill]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Table [dbo].[tmp_POBackfill]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1628,7 +1628,7 @@ CREATE TABLE [dbo].[tmp_POBackfill](
 	[ItemCode] [varchar](50) NOT NULL
 ) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_tblAttorneysLawFirms_Attorney_Current]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Index [IX_tblAttorneysLawFirms_Attorney_Current]    Script Date: 2/27/2026 9:28:24 PM ******/
 CREATE NONCLUSTERED INDEX [IX_tblAttorneysLawFirms_Attorney_Current] ON [dbo].[tblAttorneysLawFirms]
 (
 	[AttorneyID] ASC,
@@ -1637,7 +1637,7 @@ CREATE NONCLUSTERED INDEX [IX_tblAttorneysLawFirms_Attorney_Current] ON [dbo].[t
 )
 INCLUDE([LawFirmID]) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
-/****** Object:  Index [UX_tblAttorneysLawFirms_AttorneyFirmStart]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Index [UX_tblAttorneysLawFirms_AttorneyFirmStart]    Script Date: 2/27/2026 9:28:24 PM ******/
 CREATE UNIQUE NONCLUSTERED INDEX [UX_tblAttorneysLawFirms_AttorneyFirmStart] ON [dbo].[tblAttorneysLawFirms]
 (
 	[AttorneyID] ASC,
@@ -1645,37 +1645,37 @@ CREATE UNIQUE NONCLUSTERED INDEX [UX_tblAttorneysLawFirms_AttorneyFirmStart] ON 
 	[EffectiveFrom] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_tblFileStore_BuildingID]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Index [IX_tblFileStore_BuildingID]    Script Date: 2/27/2026 9:28:24 PM ******/
 CREATE NONCLUSTERED INDEX [IX_tblFileStore_BuildingID] ON [dbo].[tblFileStore]
 (
 	[BuildingID] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_tblFileStore_CreatedDate]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Index [IX_tblFileStore_CreatedDate]    Script Date: 2/27/2026 9:28:24 PM ******/
 CREATE NONCLUSTERED INDEX [IX_tblFileStore_CreatedDate] ON [dbo].[tblFileStore]
 (
 	[CreatedDate] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_tblFileStore_TenantID]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Index [IX_tblFileStore_TenantID]    Script Date: 2/27/2026 9:28:24 PM ******/
 CREATE NONCLUSTERED INDEX [IX_tblFileStore_TenantID] ON [dbo].[tblFileStore]
 (
 	[TenantID] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_tblFileStore_UnitID]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Index [IX_tblFileStore_UnitID]    Script Date: 2/27/2026 9:28:24 PM ******/
 CREATE NONCLUSTERED INDEX [IX_tblFileStore_UnitID] ON [dbo].[tblFileStore]
 (
 	[UnitID] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_tblImport_Yardi_POs]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Index [IX_tblImport_Yardi_POs]    Script Date: 2/27/2026 9:28:24 PM ******/
 CREATE NONCLUSTERED INDEX [IX_tblImport_Yardi_POs] ON [dbo].[tblImport_Yardi_POs]
 (
 	[WONumber] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_tblInventoryTracking_YardiDetailID]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Index [IX_tblInventoryTracking_YardiDetailID]    Script Date: 2/27/2026 9:28:24 PM ******/
 CREATE NONCLUSTERED INDEX [IX_tblInventoryTracking_YardiDetailID] ON [dbo].[tblInventoryTracking]
 (
 	[YardiMM2PODetID] DESC
@@ -1683,14 +1683,14 @@ CREATE NONCLUSTERED INDEX [IX_tblInventoryTracking_YardiDetailID] ON [dbo].[tblI
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [IX_tblLaborers]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Index [IX_tblLaborers]    Script Date: 2/27/2026 9:28:24 PM ******/
 CREATE UNIQUE NONCLUSTERED INDEX [IX_tblLaborers] ON [dbo].[tblLaborers]
 (
 	[FirstName] ASC,
 	[LastName] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_tblLegalCases_Open_ByPerson_Mod]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Index [IX_tblLegalCases_Open_ByPerson_Mod]    Script Date: 2/27/2026 9:28:24 PM ******/
 CREATE NONCLUSTERED INDEX [IX_tblLegalCases_Open_ByPerson_Mod] ON [dbo].[tblLegalCases]
 (
 	[yardiPersonRowID] ASC,
@@ -1703,21 +1703,21 @@ WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [IX_tblLegalCases_RowHash]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Index [IX_tblLegalCases_RowHash]    Script Date: 2/27/2026 9:28:24 PM ******/
 CREATE NONCLUSTERED INDEX [IX_tblLegalCases_RowHash] ON [dbo].[tblLegalCases]
 (
 	[RowHash] ASC
 )
 INCLUDE([yardiLegalRowID]) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_tblLegalCases_Tenant]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Index [IX_tblLegalCases_Tenant]    Script Date: 2/27/2026 9:28:24 PM ******/
 CREATE NONCLUSTERED INDEX [IX_tblLegalCases_Tenant] ON [dbo].[tblLegalCases]
 (
 	[yardiPersonRowID] ASC,
 	[yardiLegalRowID] DESC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_tblLegalCases_History_Open]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Index [IX_tblLegalCases_History_Open]    Script Date: 2/27/2026 9:28:24 PM ******/
 CREATE NONCLUSTERED INDEX [IX_tblLegalCases_History_Open] ON [dbo].[tblLegalCases_History]
 (
 	[yardiLegalRowID] ASC
@@ -1726,7 +1726,7 @@ INCLUDE([validFrom],[validTo])
 WHERE ([validTo] IS NULL)
 WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_tblLegalRep_CurrentByCase]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Index [IX_tblLegalRep_CurrentByCase]    Script Date: 2/27/2026 9:28:24 PM ******/
 CREATE NONCLUSTERED INDEX [IX_tblLegalRep_CurrentByCase] ON [dbo].[tblLegalRepresentation]
 (
 	[yardiLegalRowID] ASC,
@@ -1737,7 +1737,7 @@ CREATE NONCLUSTERED INDEX [IX_tblLegalRep_CurrentByCase] ON [dbo].[tblLegalRepre
 WHERE ([yardiLegalRowID] IS NOT NULL)
 WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_tblLegalRep_CurrentByPerson]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Index [IX_tblLegalRep_CurrentByPerson]    Script Date: 2/27/2026 9:28:24 PM ******/
 CREATE NONCLUSTERED INDEX [IX_tblLegalRep_CurrentByPerson] ON [dbo].[tblLegalRepresentation]
 (
 	[yardiPersonRowID] ASC,
@@ -1748,7 +1748,7 @@ CREATE NONCLUSTERED INDEX [IX_tblLegalRep_CurrentByPerson] ON [dbo].[tblLegalRep
 WHERE ([yardiPersonRowID] IS NOT NULL)
 WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_tblLegalRep_CurrentByProperty]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Index [IX_tblLegalRep_CurrentByProperty]    Script Date: 2/27/2026 9:28:24 PM ******/
 CREATE NONCLUSTERED INDEX [IX_tblLegalRep_CurrentByProperty] ON [dbo].[tblLegalRepresentation]
 (
 	[yardiPropertyRowID] ASC,
@@ -1759,7 +1759,7 @@ CREATE NONCLUSTERED INDEX [IX_tblLegalRep_CurrentByProperty] ON [dbo].[tblLegalR
 WHERE ([yardiPropertyRowID] IS NOT NULL)
 WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_tblLegalRep_CurrentByUnit]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Index [IX_tblLegalRep_CurrentByUnit]    Script Date: 2/27/2026 9:28:24 PM ******/
 CREATE NONCLUSTERED INDEX [IX_tblLegalRep_CurrentByUnit] ON [dbo].[tblLegalRepresentation]
 (
 	[yardiUnitRowID] ASC,
@@ -1770,7 +1770,7 @@ CREATE NONCLUSTERED INDEX [IX_tblLegalRep_CurrentByUnit] ON [dbo].[tblLegalRepre
 WHERE ([yardiUnitRowID] IS NOT NULL)
 WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
-/****** Object:  Index [UX_tblLegalRep_Case]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Index [UX_tblLegalRep_Case]    Script Date: 2/27/2026 9:28:24 PM ******/
 CREATE UNIQUE NONCLUSTERED INDEX [UX_tblLegalRep_Case] ON [dbo].[tblLegalRepresentation]
 (
 	[yardiLegalRowID] ASC,
@@ -1779,7 +1779,7 @@ CREATE UNIQUE NONCLUSTERED INDEX [UX_tblLegalRep_Case] ON [dbo].[tblLegalReprese
 WHERE ([yardiLegalRowID] IS NOT NULL)
 WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
-/****** Object:  Index [UX_tblLegalRep_Person]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Index [UX_tblLegalRep_Person]    Script Date: 2/27/2026 9:28:24 PM ******/
 CREATE UNIQUE NONCLUSTERED INDEX [UX_tblLegalRep_Person] ON [dbo].[tblLegalRepresentation]
 (
 	[yardiPersonRowID] ASC,
@@ -1788,7 +1788,7 @@ CREATE UNIQUE NONCLUSTERED INDEX [UX_tblLegalRep_Person] ON [dbo].[tblLegalRepre
 WHERE ([yardiPersonRowID] IS NOT NULL)
 WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
-/****** Object:  Index [UX_tblLegalRep_Property]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Index [UX_tblLegalRep_Property]    Script Date: 2/27/2026 9:28:24 PM ******/
 CREATE UNIQUE NONCLUSTERED INDEX [UX_tblLegalRep_Property] ON [dbo].[tblLegalRepresentation]
 (
 	[yardiPropertyRowID] ASC,
@@ -1797,7 +1797,7 @@ CREATE UNIQUE NONCLUSTERED INDEX [UX_tblLegalRep_Property] ON [dbo].[tblLegalRep
 WHERE ([yardiPropertyRowID] IS NOT NULL)
 WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
-/****** Object:  Index [UX_tblLegalRep_Unit]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Index [UX_tblLegalRep_Unit]    Script Date: 2/27/2026 9:28:24 PM ******/
 CREATE UNIQUE NONCLUSTERED INDEX [UX_tblLegalRep_Unit] ON [dbo].[tblLegalRepresentation]
 (
 	[yardiUnitRowID] ASC,
@@ -1808,45 +1808,45 @@ WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNOR
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [IX_tblSeedInventory]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Index [IX_tblSeedInventory]    Script Date: 2/27/2026 9:28:24 PM ******/
 CREATE NONCLUSTERED INDEX [IX_tblSeedInventory] ON [dbo].[tblPhysicalInventory]
 (
 	[AsOfDate] ASC,
 	[Code] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_tblPrintHistory_BuildingID]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Index [IX_tblPrintHistory_BuildingID]    Script Date: 2/27/2026 9:28:24 PM ******/
 CREATE NONCLUSTERED INDEX [IX_tblPrintHistory_BuildingID] ON [dbo].[tblPrintHistory]
 (
 	[BuildingID] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_tblPrintHistory_CreatedDate]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Index [IX_tblPrintHistory_CreatedDate]    Script Date: 2/27/2026 9:28:24 PM ******/
 CREATE NONCLUSTERED INDEX [IX_tblPrintHistory_CreatedDate] ON [dbo].[tblPrintHistory]
 (
 	[CreatedDate] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_tblPrintHistory_UnitID]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Index [IX_tblPrintHistory_UnitID]    Script Date: 2/27/2026 9:28:24 PM ******/
 CREATE NONCLUSTERED INDEX [IX_tblPrintHistory_UnitID] ON [dbo].[tblPrintHistory]
 (
 	[UnitID] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_tblPropertyUnits]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Index [IX_tblPropertyUnits]    Script Date: 2/27/2026 9:28:24 PM ******/
 CREATE NONCLUSTERED INDEX [IX_tblPropertyUnits] ON [dbo].[tblPropertyUnits]
 (
 	[yardiPropertyRowID] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_tblPropertyUnits_1]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Index [IX_tblPropertyUnits_1]    Script Date: 2/27/2026 9:28:24 PM ******/
 CREATE NONCLUSTERED INDEX [IX_tblPropertyUnits_1] ON [dbo].[tblPropertyUnits]
 (
 	[yardiPropertyRowID] ASC,
 	[yardiUnitRowID] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_tblPropertyUnits_yUnit]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Index [IX_tblPropertyUnits_yUnit]    Script Date: 2/27/2026 9:28:24 PM ******/
 CREATE NONCLUSTERED INDEX [IX_tblPropertyUnits_yUnit] ON [dbo].[tblPropertyUnits]
 (
 	[yardiUnitRowID] ASC
@@ -1855,19 +1855,19 @@ INCLUDE([AptNumber],[isExcluded]) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE 
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [IX_tblSortlyInventory_ItemCode]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Index [IX_tblSortlyInventory_ItemCode]    Script Date: 2/27/2026 9:28:24 PM ******/
 CREATE UNIQUE NONCLUSTERED INDEX [IX_tblSortlyInventory_ItemCode] ON [dbo].[tblSortlyInventory]
 (
 	[itemCode] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_tblTenantAR_DailySnapshot_AsOfDate]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Index [IX_tblTenantAR_DailySnapshot_AsOfDate]    Script Date: 2/27/2026 9:28:24 PM ******/
 CREATE NONCLUSTERED INDEX [IX_tblTenantAR_DailySnapshot_AsOfDate] ON [dbo].[tblTenantAR_DailySnapshot]
 (
 	[AsOfDate] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_tblTenantAR_DailySnapshot_Tenant_AsOfDate]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Index [IX_tblTenantAR_DailySnapshot_Tenant_AsOfDate]    Script Date: 2/27/2026 9:28:24 PM ******/
 CREATE NONCLUSTERED INDEX [IX_tblTenantAR_DailySnapshot_Tenant_AsOfDate] ON [dbo].[tblTenantAR_DailySnapshot]
 (
 	[yardiPersonRowID] ASC,
@@ -1875,7 +1875,7 @@ CREATE NONCLUSTERED INDEX [IX_tblTenantAR_DailySnapshot_Tenant_AsOfDate] ON [dbo
 )
 INCLUDE([yardiPropertyRowID],[yardiUnitRowID],[endingBalance]) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_tblTenantARSummary_Property_AsOfDate]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Index [IX_tblTenantARSummary_Property_AsOfDate]    Script Date: 2/27/2026 9:28:24 PM ******/
 CREATE NONCLUSTERED INDEX [IX_tblTenantARSummary_Property_AsOfDate] ON [dbo].[tblTenantARSummary]
 (
 	[yardiPropertyRowID] ASC,
@@ -1883,25 +1883,25 @@ CREATE NONCLUSTERED INDEX [IX_tblTenantARSummary_Property_AsOfDate] ON [dbo].[tb
 )
 INCLUDE([yardiUnitRowID],[yardiPersonRowID],[balanceFwd],[charges],[receipts],[endingBalance]) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_Tenants_Person]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Index [IX_Tenants_Person]    Script Date: 2/27/2026 9:28:24 PM ******/
 CREATE NONCLUSTERED INDEX [IX_Tenants_Person] ON [dbo].[tblTenants]
 (
 	[yardiPersonRowID] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_tblWorkOrderItems]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Index [IX_tblWorkOrderItems]    Script Date: 2/27/2026 9:28:24 PM ******/
 CREATE NONCLUSTERED INDEX [IX_tblWorkOrderItems] ON [dbo].[tblWorkOrderItems]
 (
 	[WONumber] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_tblWorkOrderItems_1]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Index [IX_tblWorkOrderItems_1]    Script Date: 2/27/2026 9:28:24 PM ******/
 CREATE UNIQUE NONCLUSTERED INDEX [IX_tblWorkOrderItems_1] ON [dbo].[tblWorkOrderItems]
 (
 	[YardiWODetailRowID] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_tblMasterWOReview]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  Index [IX_tblMasterWOReview]    Script Date: 2/27/2026 9:28:24 PM ******/
 CREATE NONCLUSTERED INDEX [IX_tblMasterWOReview] ON [dbo].[tblWorkOrders]
 (
 	[WONumber] ASC
@@ -1991,7 +1991,7 @@ ALTER TABLE [dbo].[tblVendors] ADD  CONSTRAINT [DF_tblVendors_createDate]  DEFAU
 GO
 ALTER TABLE [dbo].[tblWorkOrders] ADD  CONSTRAINT [DF_tblWorkOrders_rowCreateDate]  DEFAULT (getdate()) FOR [rowCreateDate]
 GO
-/****** Object:  StoredProcedure [dbo].[sp_AttorneyAssignments_LoadFromStg]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  StoredProcedure [dbo].[sp_AttorneyAssignments_LoadFromStg]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -2087,7 +2087,7 @@ BEGIN
   --SELECT TOP 100 * FROM #MissingTenants ORDER BY TenantAccount; -- TenantIDs not in dbo.tblTenants
 END;
 GO
-/****** Object:  StoredProcedure [dbo].[sp_AttorneyMaster_SyncFromStg]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  StoredProcedure [dbo].[sp_AttorneyMaster_SyncFromStg]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -2152,7 +2152,7 @@ BEGIN
   WHERE x.AttorneysLawFirmsID IS NULL;
 END
 GO
-/****** Object:  StoredProcedure [dbo].[sp_Load_LegalActions_FromStaging]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  StoredProcedure [dbo].[sp_Load_LegalActions_FromStaging]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -2252,7 +2252,7 @@ BEGIN
   END CATCH
 END
 GO
-/****** Object:  StoredProcedure [dbo].[sp_Load_LegalCases_FromStaging]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  StoredProcedure [dbo].[sp_Load_LegalCases_FromStaging]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -2445,7 +2445,7 @@ BEGIN
   END CATCH
 END
 GO
-/****** Object:  StoredProcedure [dbo].[sp_Load_TenantARSummary_FromStaging]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  StoredProcedure [dbo].[sp_Load_TenantARSummary_FromStaging]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -2533,7 +2533,7 @@ BEGIN
   END CATCH
 END
 GO
-/****** Object:  StoredProcedure [dbo].[sp_Load_Tenants_FromStaging]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  StoredProcedure [dbo].[sp_Load_Tenants_FromStaging]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -2605,7 +2605,7 @@ BEGIN
   END CATCH
 END
 GO
-/****** Object:  StoredProcedure [dbo].[sp_Snapshot_Tenants_SCD_Range]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  StoredProcedure [dbo].[sp_Snapshot_Tenants_SCD_Range]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -2940,7 +2940,7 @@ BEGIN
   END CATCH
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spADP]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  StoredProcedure [dbo].[spADP]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -2965,7 +2965,7 @@ BEGIN
 
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spADP_DeletionsBeforeImport]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  StoredProcedure [dbo].[spADP_DeletionsBeforeImport]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -3016,7 +3016,7 @@ BEGIN
       AND CONVERT(date, a.PayDate) = d.PayDateOnly;
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spADP_MissingFromAnalysisReport]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  StoredProcedure [dbo].[spADP_MissingFromAnalysisReport]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -3044,7 +3044,7 @@ BEGIN
 
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spADPUpdate]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  StoredProcedure [dbo].[spADPUpdate]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -3152,7 +3152,7 @@ BEGIN
 
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spAR_Snapshots_Cleanup]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  StoredProcedure [dbo].[spAR_Snapshots_Cleanup]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -3176,7 +3176,7 @@ BEGIN
       AND AsOfDate <> EOMONTH(AsOfDate);
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spAR_Snapshots_GetLatestAsOfDate]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  StoredProcedure [dbo].[spAR_Snapshots_GetLatestAsOfDate]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -3191,7 +3191,7 @@ BEGIN
     FROM dbo.tblTenantAR_DailySnapshot;
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spAR_Snapshots_GetNearestPriorAsOfDate]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  StoredProcedure [dbo].[spAR_Snapshots_GetNearestPriorAsOfDate]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -3214,7 +3214,7 @@ BEGIN
     WHERE AsOfDate < @AsOfDate;
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spAR_Snapshots_RunNightly]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  StoredProcedure [dbo].[spAR_Snapshots_RunNightly]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -3259,7 +3259,7 @@ BEGIN
     END
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spAR_Snapshots_UpsertFromStaging]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  StoredProcedure [dbo].[spAR_Snapshots_UpsertFromStaging]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -3334,7 +3334,7 @@ BEGIN
       AND ISNULL(u.isExcluded, 0) = 0;
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spBonusReport]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  StoredProcedure [dbo].[spBonusReport]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -3426,7 +3426,7 @@ BEGIN
     DROP TABLE #tmpJobs;
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spImport_Delete]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  StoredProcedure [dbo].[spImport_Delete]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -3461,7 +3461,7 @@ BEGIN
 
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spImportDates]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  StoredProcedure [dbo].[spImportDates]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -3493,7 +3493,7 @@ WHERE
 	AND (@ExportFileNum is null or (@ExportFileNum is not null and ExportFileNum = @ExportFileNum))
 
 GO
-/****** Object:  StoredProcedure [dbo].[spImportDatesUpdate]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  StoredProcedure [dbo].[spImportDatesUpdate]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -3529,7 +3529,7 @@ ELSE
 
 SELECT * FROM tblImportDates WHERE DateKey = @DateKey
 GO
-/****** Object:  StoredProcedure [dbo].[spPagesTranslations_ExportJson]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  StoredProcedure [dbo].[spPagesTranslations_ExportJson]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -3582,7 +3582,7 @@ BEGIN
     FOR JSON PATH, WITHOUT_ARRAY_WRAPPER;
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spPhysicalInventoryUpdate]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  StoredProcedure [dbo].[spPhysicalInventoryUpdate]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -3653,7 +3653,7 @@ BEGIN
 
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spPOInventoryItemReport]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  StoredProcedure [dbo].[spPOInventoryItemReport]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -3693,7 +3693,7 @@ BEGIN
 END
 
 GO
-/****** Object:  StoredProcedure [dbo].[spPropertyUnitUpdate]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  StoredProcedure [dbo].[spPropertyUnitUpdate]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -3772,7 +3772,7 @@ BEGIN
 
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spPropertyUpdate]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  StoredProcedure [dbo].[spPropertyUpdate]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -3847,7 +3847,7 @@ BEGIN
 
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spPurchaseOrders_Import]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  StoredProcedure [dbo].[spPurchaseOrders_Import]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -3896,7 +3896,7 @@ FROM tblWorkOrders wo
 		group by wonumber) as a on wo.WONumber = a.WONumber
 WHERE wo.POVendors is null
 GO
-/****** Object:  StoredProcedure [dbo].[spQA_ArrearsTracker_DateResolution]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  StoredProcedure [dbo].[spQA_ArrearsTracker_DateResolution]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -4048,7 +4048,7 @@ BEGIN
         @FailReason               AS FailReason;
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spReceivableSummaryByTenant_Range]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  StoredProcedure [dbo].[spReceivableSummaryByTenant_Range]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -4084,11 +4084,12 @@ BEGIN
   ORDER BY r.Property, r.Unit, r.Tenant;
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spReport_ArrearsTracker]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  StoredProcedure [dbo].[spReport_ArrearsTracker]    Script Date: 2/27/2026 9:28:24 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+
 
 /*
 Month-end Legal Arrears report (monthly snapshot mode).
@@ -4132,11 +4133,12 @@ CREATE   PROCEDURE [dbo].[spReport_ArrearsTracker]
     @BuildingCode                varchar(20) = NULL,
     @FilterOnlyExcel             bit = 1,
     @FilterIsList_Posting        bit = 0,
-    @FilterIsList_Aquinas        bit = 0,
-    @FilterIsList_Posting3536    bit = 0
+    @FilterIsList_Aquinas        bit = 0
 AS
 BEGIN
     SET NOCOUNT ON;
+
+	--SET @FilterOnlyExcel=0;
 
     DECLARE @RequestedAsOfDate date;
     DECLARE @ResolvedSnapshotAsOfDate date;
@@ -4191,17 +4193,10 @@ BEGIN
     CREATE NONCLUSTERED INDEX IX_AR_Prop     ON #AttorneyResolved(yardiPropertyRowID) INCLUDE (AttorneyLabel, LawFirmName, yardiPersonRowID, yardiLegalRowID, yardiUnitRowID);
 
     SELECT
-        ISNULL(p.portfolioName, '') AS Portfolio,
-        p.buildingCode AS Property,
-        u.AptNumber AS Unit,
-
-        -- Helpful tracing field (used to explain unit-only rows when tenant import is missing).
-        u.CurrentTenantYardiID,
-
-        -- Tenant placeholder when missing
-        COALESCE(t.tenantCode, '(unit-only / no tenant)') AS Tenant,
-
-        -- Name placeholder when missing
+        ISNULL(p.portfolioName, '') AS [Portfolio],
+        p.buildingCode AS [Property],
+        u.AptNumber AS [Unit],
+        COALESCE(t.tenantCode, '(unit-only / no tenant)') AS [Tenant Account],
         CASE
             WHEN t.yardiPersonRowID IS NULL THEN '(unit-only / no tenant)'
             ELSE CONCAT(
@@ -4210,23 +4205,17 @@ BEGIN
                 ISNULL(t.firstName, '')
             )
         END AS [Name],
-
-        s.endingBalance,
-        ISNULL(NULLIF(LTRIM(RTRIM(s.LegalDisplay)), ''), '') AS CurrentLegalStatus,
+        s.endingBalance AS [Ending Balance],
+        ISNULL(NULLIF(LTRIM(RTRIM(s.LegalDisplay)), ''), '') AS [Current Legal Status],
         CASE
             WHEN s.lastLegalNoteDate IS NULL OR s.lastLegalNoteDate = '19000101' THEN ''
             ELSE CONVERT(varchar(20), s.lastLegalNoteDate, 120)
-        END AS LastLegalNote,
-        s.dayCounter,
-
-        /* Attorney / Law Firm resolved from #AttorneyResolved (source: tblLegalRepresentation via fnAttorneyResolve). */
-        ISNULL(ar.AttorneyLabel, '') AS Attorney,
+        END AS [Last Legal Note],
+        s.dayCounter AS [Day Counter],
+        ISNULL(ar.AttorneyLabel, '') AS [Attorney],
         ISNULL(ar.LawFirmName, '')   AS [Law Firm],
-
-        CASE WHEN ISNULL(NULLIF(LTRIM(RTRIM(s.LegalDisplay)), ''), '') = '' THEN 'No' ELSE 'Yes' END AS Legal_Active,
-        CASE WHEN @ResolvedSnapshotAsOfDate = @RequestedAsOfDate THEN 'Present' ELSE 'Resolved' END AS PresentAsOf,
-
-        -- ExclusionReason when tenant join missing (keep row; label it)
+        CASE WHEN ISNULL(NULLIF(LTRIM(RTRIM(s.LegalDisplay)), ''), '') = '' THEN 'No' ELSE 'Yes' END AS [Legal Active],
+        CASE WHEN @ResolvedSnapshotAsOfDate = @RequestedAsOfDate THEN 'Present' ELSE 'Resolved' END AS [Present As Of],
         CASE
             WHEN t.yardiPersonRowID IS NULL AND u.CurrentTenantYardiID IS NOT NULL
                 THEN CONCAT(
@@ -4237,24 +4226,22 @@ BEGIN
             WHEN t.yardiPersonRowID IS NULL AND u.CurrentTenantYardiID IS NULL
                 THEN 'Missing tenant in import. (unit-only / no tenant) No CurrentTenantYardiID available on unit.'
             ELSE ''
-        END AS ExclusionReason,
+        END AS [Exclusion Reasons],
+        CASE WHEN t.yardiPersonRowID IS NULL THEN 'Unknown' ELSE t.[status] END AS [Tenent Status],
+        u.LeaseStartDate AS [Lease Start Date],
+        u.LeaseEndDate AS [Lease End Date]
 
-        -- TenantStatus fallback
-        CASE WHEN t.yardiPersonRowID IS NULL THEN 'Unknown' ELSE t.[status] END AS TenantStatus,
-
-        u.LeaseStartDate,
-        u.LeaseEndDate,
-        @RequestedAsOfDate AS RequestedAsOfDate,
-        @ResolvedSnapshotAsOfDate AS ResolvedSnapshotAsOfDate,
-        CASE WHEN @ResolvedSnapshotAsOfDate = @RequestedAsOfDate THEN CAST(0 AS bit) ELSE CAST(1 AS bit) END AS IsResolvedFromPriorSnapshot,
-        'MONTH-END' AS ModeUsed
-    FROM dbo.tblTenants_Snapshots s
-        INNER JOIN dbo.tblProperties p
-            ON p.yardiPropertyRowID = s.yardiPropertyRowID
-        LEFT JOIN dbo.tblPropertyUnits u
-            ON u.yardiUnitRowID = s.yardiUnitRowID
-        LEFT JOIN dbo.tblTenants t
-            ON t.yardiPersonRowID = s.yardiPersonRowID
+        -- DEBUG COLUMNS
+		-- Extra columns not in the Excel template (kept at the end)
+        ,u.CurrentTenantYardiID
+        ,@RequestedAsOfDate AS RequestedAsOfDate
+        ,@ResolvedSnapshotAsOfDate AS ResolvedSnapshotAsOfDate
+        ,CASE WHEN @ResolvedSnapshotAsOfDate = @RequestedAsOfDate THEN CAST(0 AS bit) ELSE CAST(1 AS bit) END AS IsResolvedFromPriorSnapshot
+        ,'MONTH-END' AS ModeUsed 
+FROM dbo.tblTenants_Snapshots s
+        INNER JOIN dbo.tblProperties p ON p.yardiPropertyRowID = s.yardiPropertyRowID
+        LEFT JOIN dbo.tblPropertyUnits u ON u.yardiUnitRowID = s.yardiUnitRowID
+        LEFT JOIN dbo.tblTenants t ON t.yardiPersonRowID = s.yardiPersonRowID
 
         /* Attorney/LawFirm resolution match preference (best match per row):
            1) legal match (s.legalID_yardi)
@@ -4288,22 +4275,18 @@ BEGIN
       AND (@BuildingCode IS NULL OR p.buildingCode = @BuildingCode)
       AND (@FilterIsList_Posting = 0 OR p.isInList_Posting = 1)
       AND (@FilterIsList_Aquinas = 0 OR p.isInList_Aquinas = 1)
-      AND (
-            @FilterIsList_Posting3536 = 0
-            OR p.isInList_Posting = 1
-            OR p.buildingCode IN ('3651', '3655')
-            OR (TRY_CONVERT(int, p.buildingCode) BETWEEN 3500 AND 3572)
-          )
       AND (@FilterOnlyExcel = 0 OR s.endingBalance > 0)
     ORDER BY p.buildingCode, u.AptNumber;
 
 END;
+
 GO
-/****** Object:  StoredProcedure [dbo].[spReport_ArrearsTracker_Daily]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  StoredProcedure [dbo].[spReport_ArrearsTracker_Daily]    Script Date: 2/27/2026 9:28:25 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+
 
 /*
 Daily-mode Legal Arrears report (rolling 90-day window).
@@ -4352,11 +4335,12 @@ CREATE   PROCEDURE [dbo].[spReport_ArrearsTracker_Daily]
     @BuildingCode                varchar(20) = NULL,
     @FilterOnlyExcel             bit = 1,
     @FilterIsList_Posting        bit = 0,
-    @FilterIsList_Aquinas        bit = 0,
-    @FilterIsList_Posting3536    bit = 0
+    @FilterIsList_Aquinas        bit = 0
 AS
 BEGIN
     SET NOCOUNT ON;
+
+	--SET @FilterOnlyExcel=1;
 
     DECLARE @RequestedAsOfDate date;
     DECLARE @Cutoff90 date;
@@ -4420,17 +4404,10 @@ BEGIN
     CREATE NONCLUSTERED INDEX IX_AR_Prop     ON #AttorneyResolved(yardiPropertyRowID) INCLUDE (AttorneyLabel, LawFirmName, yardiPersonRowID, yardiLegalRowID, yardiUnitRowID);
 
     SELECT
-        ISNULL(p.portfolioName, '') AS Portfolio,
-        p.buildingCode AS Property,
-        u.AptNumber AS Unit,
-
-        -- Helpful tracing field (used to explain unit-only rows when tenant import is missing).
-        u.CurrentTenantYardiID,
-
-        -- Tenant placeholder when missing
-        COALESCE(t.tenantCode, '(unit-only / no tenant)') AS Tenant,
-
-        -- Name placeholder when missing
+        ISNULL(p.portfolioName, '') AS [Portfolio],
+        p.buildingCode AS [Property],
+        u.AptNumber AS [Unit],
+        COALESCE(t.tenantCode, '(unit-only / no tenant)') AS [Tenant Account],
         CASE
             WHEN t.yardiPersonRowID IS NULL THEN '(unit-only / no tenant)'
             ELSE CONCAT(
@@ -4439,23 +4416,17 @@ BEGIN
                 ISNULL(t.firstName, '')
             )
         END AS [Name],
-
-        s.endingBalance,
-        ISNULL(NULLIF(LTRIM(RTRIM(ts.LegalDisplay)), ''), '') AS CurrentLegalStatus,
+        s.endingBalance AS [Ending Balance],
+        ISNULL(NULLIF(LTRIM(RTRIM(ts.LegalDisplay)), ''), '') AS [Current Legal Status],
         CASE
             WHEN ts.lastLegalNoteDate IS NULL OR ts.lastLegalNoteDate = '19000101' THEN ''
             ELSE CONVERT(varchar(20), ts.lastLegalNoteDate, 120)
-        END AS LastLegalNote,
-        ts.dayCounter,
-
-        /* Attorney / Law Firm resolved from #AttorneyResolved (source: tblLegalRepresentation via fnAttorneyResolve). */
-        ISNULL(ar.AttorneyLabel, '') AS Attorney,
+        END AS [Last Legal Note],
+        ts.dayCounter AS [Day Counter],
+        ISNULL(ar.AttorneyLabel, '') AS [Attorney],
         ISNULL(ar.LawFirmName, '')   AS [Law Firm],
-
-        CASE WHEN ISNULL(NULLIF(LTRIM(RTRIM(ts.LegalDisplay)), ''), '') = '' THEN 'No' ELSE 'Yes' END AS Legal_Active,
-        CASE WHEN @ResolvedAsOfDate = @RequestedAsOfDate THEN 'Present' ELSE 'Resolved' END AS PresentAsOf,
-
-        -- ExclusionReason when tenant join missing (keep row; label it)
+        CASE WHEN ISNULL(NULLIF(LTRIM(RTRIM(ts.LegalDisplay)), ''), '') = '' THEN 'No' ELSE 'Yes' END AS [Legal Active],
+        CASE WHEN @ResolvedAsOfDate = @RequestedAsOfDate THEN 'Present' ELSE 'Resolved' END AS [Present As Of],
         CASE
             WHEN t.yardiPersonRowID IS NULL AND u.CurrentTenantYardiID IS NOT NULL
                 THEN CONCAT(
@@ -4466,28 +4437,23 @@ BEGIN
             WHEN t.yardiPersonRowID IS NULL AND u.CurrentTenantYardiID IS NULL
                 THEN 'Missing tenant in import. (unit-only / no tenant) No CurrentTenantYardiID available on unit.'
             ELSE ''
-        END AS ExclusionReason,
+        END AS [Exclusion Reasons],
+        CASE WHEN t.yardiPersonRowID IS NULL THEN 'Unknown' ELSE t.[status] END AS [Tenent Status],
+        u.LeaseStartDate AS [Lease Start Date],
+        u.LeaseEndDate AS [Lease End Date]
 
-        -- TenantStatus fallback
-        CASE WHEN t.yardiPersonRowID IS NULL THEN 'Unknown' ELSE t.[status] END AS TenantStatus,
-
-        u.LeaseStartDate,
-        u.LeaseEndDate,
-        @RequestedAsOfDate AS RequestedAsOfDate,
-        @ResolvedAsOfDate AS ResolvedSnapshotAsOfDate,
-        CASE WHEN @ResolvedAsOfDate = @RequestedAsOfDate THEN CAST(0 AS bit) ELSE CAST(1 AS bit) END AS IsResolvedFromPriorSnapshot,
-        'DAILY' AS ModeUsed
-
-    FROM dbo.tblTenantAR_DailySnapshot s
-        INNER JOIN dbo.tblProperties p
-            ON p.yardiPropertyRowID = s.yardiPropertyRowID
-        LEFT JOIN dbo.tblPropertyUnits u
-            ON u.yardiUnitRowID = s.yardiUnitRowID
-        LEFT JOIN dbo.tblTenants t
-            ON t.yardiPersonRowID = s.yardiPersonRowID
-        LEFT JOIN dbo.tblTenants_Snapshots ts
-            ON ts.yardiPersonRowID = s.yardiPersonRowID
-           AND CAST(ts.ValidFrom AS date) = @TenantSnapAsOf_Resolved
+        -- DEBUG COLUMNS
+		-- Extra columns not in the Excel template (kept at the end)
+        ,u.CurrentTenantYardiID
+        ,@RequestedAsOfDate AS RequestedAsOfDate
+        ,@ResolvedAsOfDate AS ResolvedSnapshotAsOfDate
+        ,CASE WHEN @ResolvedAsOfDate = @RequestedAsOfDate THEN CAST(0 AS bit) ELSE CAST(1 AS bit) END AS IsResolvedFromPriorSnapshot
+        ,'DAILY' AS ModeUsed 
+FROM dbo.tblTenantAR_DailySnapshot s
+        INNER JOIN dbo.tblProperties p ON p.yardiPropertyRowID = s.yardiPropertyRowID
+        LEFT JOIN dbo.tblPropertyUnits u ON u.yardiUnitRowID = s.yardiUnitRowID
+        LEFT JOIN dbo.tblTenants t ON t.yardiPersonRowID = s.yardiPersonRowID
+        LEFT JOIN dbo.tblTenants_Snapshots ts ON ts.yardiPersonRowID = s.yardiPersonRowID AND CAST(ts.ValidFrom AS date) = @TenantSnapAsOf_Resolved
 
         /* Attorney/LawFirm resolution match preference (best match per row):
            1) legal match (if ts.legalID_yardi is available)
@@ -4521,18 +4487,13 @@ BEGIN
       AND (@BuildingCode IS NULL OR p.buildingCode = @BuildingCode)
       AND (@FilterIsList_Posting = 0 OR p.isInList_Posting = 1)
       AND (@FilterIsList_Aquinas = 0 OR p.isInList_Aquinas = 1)
-      AND (
-            @FilterIsList_Posting3536 = 0
-            OR p.isInList_Posting = 1
-            OR p.buildingCode IN ('3651', '3655')
-            OR (TRY_CONVERT(int, p.buildingCode) BETWEEN 3500 AND 3572)
-          )
       AND (@FilterOnlyExcel = 0 OR s.endingBalance > 0)
     ORDER BY p.buildingCode, u.AptNumber;
 
 END;
+
 GO
-/****** Object:  StoredProcedure [dbo].[spRptBuilder_AR_DailySnapshot_Build]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  StoredProcedure [dbo].[spRptBuilder_AR_DailySnapshot_Build]    Script Date: 2/27/2026 9:28:25 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -4630,7 +4591,7 @@ BEGIN
         );
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spRptBuilder_Inventory_01_Import]    Script Date: 2/26/2026 12:56:47 PM ******/
+/****** Object:  StoredProcedure [dbo].[spRptBuilder_Inventory_01_Import]    Script Date: 2/27/2026 9:28:25 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -4962,7 +4923,7 @@ BEGIN
 
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spRptBuilder_Inventory_FullInventory]    Script Date: 2/26/2026 12:56:48 PM ******/
+/****** Object:  StoredProcedure [dbo].[spRptBuilder_Inventory_FullInventory]    Script Date: 2/27/2026 9:28:25 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -5112,7 +5073,7 @@ DROP TABLE #tmpSeed
 
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spRptBuilder_Inventory_PivotByDay]    Script Date: 2/26/2026 12:56:48 PM ******/
+/****** Object:  StoredProcedure [dbo].[spRptBuilder_Inventory_PivotByDay]    Script Date: 2/27/2026 9:28:25 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -5402,7 +5363,7 @@ DROP TABLE IF EXISTS #ItemSummary;
 
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spRptBuilder_Vacancy_Cover]    Script Date: 2/26/2026 12:56:48 PM ******/
+/****** Object:  StoredProcedure [dbo].[spRptBuilder_Vacancy_Cover]    Script Date: 2/27/2026 9:28:25 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -5444,7 +5405,7 @@ AS
 	order by p.buildingCode, u.AptNumber
 
 GO
-/****** Object:  StoredProcedure [dbo].[spRptBuilder_Vacancy_Cover_pt2]    Script Date: 2/26/2026 12:56:48 PM ******/
+/****** Object:  StoredProcedure [dbo].[spRptBuilder_Vacancy_Cover_pt2]    Script Date: 2/27/2026 9:28:25 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -5486,7 +5447,7 @@ ORDER BY Category
 
 
 GO
-/****** Object:  StoredProcedure [dbo].[spRptBuilder_WOReview_01_WOs]    Script Date: 2/26/2026 12:56:48 PM ******/
+/****** Object:  StoredProcedure [dbo].[spRptBuilder_WOReview_01_WOs]    Script Date: 2/27/2026 9:28:25 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -5614,7 +5575,7 @@ BEGIN
 END
 
 GO
-/****** Object:  StoredProcedure [dbo].[spRptBuilder_WOReview_02_POs]    Script Date: 2/26/2026 12:56:48 PM ******/
+/****** Object:  StoredProcedure [dbo].[spRptBuilder_WOReview_02_POs]    Script Date: 2/27/2026 9:28:25 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -5654,7 +5615,7 @@ WHERE
 
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spRptBuilder_WOReview_03_Labor]    Script Date: 2/26/2026 12:56:48 PM ******/
+/****** Object:  StoredProcedure [dbo].[spRptBuilder_WOReview_03_Labor]    Script Date: 2/27/2026 9:28:25 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -5744,7 +5705,7 @@ BEGIN
 
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spRptBuilder_WOReview_04_SortlyFixes]    Script Date: 2/26/2026 12:56:48 PM ******/
+/****** Object:  StoredProcedure [dbo].[spRptBuilder_WOReview_04_SortlyFixes]    Script Date: 2/27/2026 9:28:25 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -5791,7 +5752,7 @@ EXEC spSortlyFillInventoryTable
 END
 
 GO
-/****** Object:  StoredProcedure [dbo].[spRptBuilder_WOReview_05_Materials]    Script Date: 2/26/2026 12:56:48 PM ******/
+/****** Object:  StoredProcedure [dbo].[spRptBuilder_WOReview_05_Materials]    Script Date: 2/27/2026 9:28:25 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -5828,7 +5789,7 @@ BEGIN
 
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spRptBuilder_WOReview_06_Calcs]    Script Date: 2/26/2026 12:56:48 PM ******/
+/****** Object:  StoredProcedure [dbo].[spRptBuilder_WOReview_06_Calcs]    Script Date: 2/27/2026 9:28:25 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -5935,7 +5896,7 @@ BEGIN
 
 END		
 GO
-/****** Object:  StoredProcedure [dbo].[spSortlyFillInventoryTable]    Script Date: 2/26/2026 12:56:48 PM ******/
+/****** Object:  StoredProcedure [dbo].[spSortlyFillInventoryTable]    Script Date: 2/27/2026 9:28:25 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -5979,7 +5940,7 @@ BEGIN
 
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spSortlyWorkOrderUpdate]    Script Date: 2/26/2026 12:56:48 PM ******/
+/****** Object:  StoredProcedure [dbo].[spSortlyWorkOrderUpdate]    Script Date: 2/27/2026 9:28:25 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -6028,7 +5989,7 @@ BEGIN
 
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spTenantAR_DailySnapshot_RetentionCleanup]    Script Date: 2/26/2026 12:56:48 PM ******/
+/****** Object:  StoredProcedure [dbo].[spTenantAR_DailySnapshot_RetentionCleanup]    Script Date: 2/27/2026 9:28:25 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -6051,7 +6012,7 @@ BEGIN
     WHERE AsOfDate < @CutoffDate;
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spUsers]    Script Date: 2/26/2026 12:56:48 PM ******/
+/****** Object:  StoredProcedure [dbo].[spUsers]    Script Date: 2/27/2026 9:28:25 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -6090,7 +6051,7 @@ AS
 	order by FirstName, LastName
 
 GO
-/****** Object:  StoredProcedure [dbo].[spUserUpdate]    Script Date: 2/26/2026 12:56:48 PM ******/
+/****** Object:  StoredProcedure [dbo].[spUserUpdate]    Script Date: 2/27/2026 9:28:25 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -6160,7 +6121,7 @@ BEGIN
 
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spWOAnalysisReport]    Script Date: 2/26/2026 12:56:48 PM ******/
+/****** Object:  StoredProcedure [dbo].[spWOAnalysisReport]    Script Date: 2/27/2026 9:28:25 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -6234,7 +6195,7 @@ BEGIN
 
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spWOAnalysisReport_Labor]    Script Date: 2/26/2026 12:56:48 PM ******/
+/****** Object:  StoredProcedure [dbo].[spWOAnalysisReport_Labor]    Script Date: 2/27/2026 9:28:25 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -6284,7 +6245,7 @@ BEGIN
 
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spWOAnalysisReport_LaborerTeamSubtotals]    Script Date: 2/26/2026 12:56:48 PM ******/
+/****** Object:  StoredProcedure [dbo].[spWOAnalysisReport_LaborerTeamSubtotals]    Script Date: 2/27/2026 9:28:25 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -6323,7 +6284,7 @@ BEGIN
 
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spWOAnalysisReport_Lookup_Laborers]    Script Date: 2/26/2026 12:56:48 PM ******/
+/****** Object:  StoredProcedure [dbo].[spWOAnalysisReport_Lookup_Laborers]    Script Date: 2/27/2026 9:28:25 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -6334,7 +6295,7 @@ AS
 		LWMaterialRate, BonusFactor --isnull(TeamCode,'') as TeamCode
 	from tblLaborers order by LastName, FirstName
 GO
-/****** Object:  StoredProcedure [dbo].[spWOAnalysisReport_LookupValues]    Script Date: 2/26/2026 12:56:48 PM ******/
+/****** Object:  StoredProcedure [dbo].[spWOAnalysisReport_LookupValues]    Script Date: 2/27/2026 9:28:25 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -6344,7 +6305,7 @@ AS
 	select Category, KeyString, isnull(KeyString2,''), KeyValue 
 	from tblLookupValues order by category, keystring, KeyString2
 GO
-/****** Object:  StoredProcedure [dbo].[spWorkOrderItems]    Script Date: 2/26/2026 12:56:48 PM ******/
+/****** Object:  StoredProcedure [dbo].[spWorkOrderItems]    Script Date: 2/27/2026 9:28:25 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -6414,7 +6375,7 @@ BEGIN
           );
 END;
 GO
-/****** Object:  StoredProcedure [dbo].[spWorkOrders]    Script Date: 2/26/2026 12:56:48 PM ******/
+/****** Object:  StoredProcedure [dbo].[spWorkOrders]    Script Date: 2/27/2026 9:28:25 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -6470,7 +6431,7 @@ BEGIN
           );
 END;
 GO
-/****** Object:  StoredProcedure [dbo].[spWorkOrderUpdate]    Script Date: 2/26/2026 12:56:48 PM ******/
+/****** Object:  StoredProcedure [dbo].[spWorkOrderUpdate]    Script Date: 2/27/2026 9:28:25 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -6528,7 +6489,7 @@ BEGIN
 			)
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spYardiPODetailsUpdate]    Script Date: 2/26/2026 12:56:48 PM ******/
+/****** Object:  StoredProcedure [dbo].[spYardiPODetailsUpdate]    Script Date: 2/27/2026 9:28:25 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -6615,7 +6576,7 @@ BEGIN
 		END
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spYardiPOs]    Script Date: 2/26/2026 12:56:48 PM ******/
+/****** Object:  StoredProcedure [dbo].[spYardiPOs]    Script Date: 2/27/2026 9:28:25 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -6642,7 +6603,7 @@ BEGIN
 
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spYardiPOsInvItemsUpdate]    Script Date: 2/26/2026 12:56:48 PM ******/
+/****** Object:  StoredProcedure [dbo].[spYardiPOsInvItemsUpdate]    Script Date: 2/27/2026 9:28:25 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -6800,7 +6761,7 @@ BEGIN
 
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spYardiPOsUpdate]    Script Date: 2/26/2026 12:56:48 PM ******/
+/****** Object:  StoredProcedure [dbo].[spYardiPOsUpdate]    Script Date: 2/27/2026 9:28:25 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -6875,7 +6836,7 @@ BEGIN
 
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spYardiWOs]    Script Date: 2/26/2026 12:56:48 PM ******/
+/****** Object:  StoredProcedure [dbo].[spYardiWOs]    Script Date: 2/27/2026 9:28:25 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -6901,7 +6862,7 @@ BEGIN
 
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spYardiWOsInvItemsUpdate]    Script Date: 2/26/2026 12:56:48 PM ******/
+/****** Object:  StoredProcedure [dbo].[spYardiWOsInvItemsUpdate]    Script Date: 2/27/2026 9:28:25 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -6951,7 +6912,7 @@ BEGIN
 
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spYardiWOsUpdate]    Script Date: 2/26/2026 12:56:48 PM ******/
+/****** Object:  StoredProcedure [dbo].[spYardiWOsUpdate]    Script Date: 2/27/2026 9:28:25 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON

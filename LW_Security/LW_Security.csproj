@@ -54,10 +54,6 @@
       <Project>{a1382675-953d-42ca-ad30-8431f89368c4}</Project>
       <Name>LW_Data</Name>
     </ProjectReference>
-    <ProjectReference Include="..\LW_Settings\LW_Global.csproj">
-      <Project>{bb244bc2-b81b-420b-860c-855beedfc0ed}</Project>
-      <Name>LW_Global</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

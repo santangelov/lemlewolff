@@ -312,7 +312,7 @@ namespace LW_Common
                     }
                 }
             }
-            catch (Exception exQa)
+            catch 
             {
                 // We do not want this QA to interfere with the import pipeline.
                 // If it errors out, log it and move on.

@@ -233,7 +233,6 @@
     <Content Include="Views\Shared\ExternalApps.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="App_Data\" />
     <Folder Include="_document-store\" />
     <Folder Include="_Logs\" />
   </ItemGroup>

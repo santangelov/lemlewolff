@@ -114,9 +114,6 @@ namespace LW_Common
                     case "Posting":
                         cmd.Parameters.AddWithValue("@FilterIsList_Posting", 1);
                         break;
-                    case "Posting3536":
-                        cmd.Parameters.AddWithValue("@FilterIsList_Posting3536", 1);
-                        break;
                     case "Aquinas":
                         cmd.Parameters.AddWithValue("@FilterIsList_Aquinas", 1);
                         break;

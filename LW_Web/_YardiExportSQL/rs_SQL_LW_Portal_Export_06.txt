@@ -6,6 +6,68 @@ LW Portal Export-File06
 //End Title
 
 //Select
+;WITH RootLists AS
+(
+    SELECT hmy AS RootListHMY, LOWER(scode) AS RootListCode
+    FROM property
+    WHERE LOWER(scode) IN ('posting','aquinas')
+),
+ListParents AS
+(
+    SELECT DISTINCT hproplist AS ListHMY
+    FROM listprop
+),
+Edges AS
+(
+    SELECT hproplist AS ParentHMY, hproperty AS ChildHMY
+    FROM listprop
+),
+MembersDepth1 AS
+(
+    SELECT rl.RootListCode, e.ChildHMY
+    FROM RootLists rl
+    JOIN Edges e ON e.ParentHMY = rl.RootListHMY
+),
+MembersDepth2 AS
+(
+    SELECT d1.RootListCode, e2.ChildHMY
+    FROM MembersDepth1 d1
+    JOIN ListParents lp ON lp.ListHMY = d1.ChildHMY
+    JOIN Edges e2 ON e2.ParentHMY = d1.ChildHMY
+),
+MembersDepth3 AS
+(
+    SELECT d2.RootListCode, e3.ChildHMY
+    FROM MembersDepth2 d2
+    JOIN ListParents lp ON lp.ListHMY = d2.ChildHMY
+    JOIN Edges e3 ON e3.ParentHMY = d2.ChildHMY
+),
+MembersDepth4 AS
+(
+    SELECT d3.RootListCode, e4.ChildHMY
+    FROM MembersDepth3 d3
+    JOIN ListParents lp ON lp.ListHMY = d3.ChildHMY
+    JOIN Edges e4 ON e4.ParentHMY = d3.ChildHMY
+),
+AllMembers AS
+(
+    SELECT RootListCode, ChildHMY FROM MembersDepth1
+    UNION
+    SELECT RootListCode, ChildHMY FROM MembersDepth2
+    UNION
+    SELECT RootListCode, ChildHMY FROM MembersDepth3
+    UNION
+    SELECT RootListCode, ChildHMY FROM MembersDepth4
+),
+ListFlagsByProperty AS
+(
+    SELECT
+        ChildHMY AS PropertyHMY,
+        MAX(CASE WHEN RootListCode = 'posting' THEN 1 ELSE 0 END) AS isInList_Posting,
+        MAX(CASE WHEN RootListCode = 'aquinas' THEN 1 ELSE 0 END) AS isInList_Aquinas
+    FROM AllMembers
+    GROUP BY ChildHMY
+)
 SELECT 
     u.hMy as yardiUnitRowID, 
     p.hMy as yardiPropertyRowID,
@@ -24,87 +86,68 @@ SELECT
     us.LastMoveInDate,
     us.LastMoveOutDate,
     u.DSQFT as SqFt,
-    ISNULL(p.bInactive,0) as isPropertyInactive,  
+    ISNULL(p.bInactive,0) as isPropertyInactive,
     p.dtInactive as propertyInactiveDate,
-    ISNULL(u.exclude,0) as isUnitExcluded,   
+    ISNULL(u.exclude,0) as isUnitExcluded,
     t.LastTenantRent,
     ut.sDesc as UnitTypeDesc,
-    CASE WHEN EXISTS (
-        SELECT 1 
-        FROM LISTPROP lst
-        JOIN PROPERTY prop ON prop.HMY = lst.HPROPLIST
-        WHERE prop.SCODE = 'Posting' 
-          AND lst.HPROPERTY = p.hMy
-      ) THEN 1 ELSE 0 END AS isInList_Posting,
-    CASE WHEN EXISTS (
-        SELECT 1 
-        FROM LISTPROP lst
-        JOIN PROPERTY prop ON prop.HMY = lst.HPROPLIST
-        WHERE prop.SCODE = 'Aquinas' 
-          AND lst.HPROPERTY = p.hMy
-      ) THEN 1 ELSE 0 END AS isInList_Aquinas,	  
+    ISNULL(lf.isInList_Posting, 0) AS isInList_Posting,
+    ISNULL(lf.isInList_Aquinas, 0) AS isInList_Aquinas,
     ct.LeaseStartDate,
     ct.LeaseEndDate,
     ct.CurrentTenantID as CurrentTenantYardiID 
- 	
 FROM unit u
-    INNER JOIN property p ON u.hproperty = p.hMy
-    
-    LEFT JOIN (
-        SELECT hUnit, 
-               MAX(dtMoveIn)  AS LastMoveInDate, 
-               MAX(dtMoveOut) AS LastMoveOutDate 
-        FROM unit_status 
-        WHERE hUnit > 0 
-        GROUP BY hUnit
-    ) AS us ON u.hMy = us.hUnit
-    
-    LEFT JOIN (
-        SELECT hUnit, sRent AS LastTenantRent
-        FROM (
-            SELECT hUnit, sRent,
-                   ROW_NUMBER() OVER (PARTITION BY hUnit ORDER BY dtLeaseFrom DESC) AS rn
-            FROM tenant
-        ) AS x
-        WHERE x.rn = 1
-    ) AS t ON u.hMy = t.hUnit
-    
-    LEFT JOIN (
+INNER JOIN property p ON u.hproperty = p.hMy
+LEFT JOIN ListFlagsByProperty lf ON lf.PropertyHMY = p.hMy
+LEFT JOIN (
+    SELECT hUnit, 
+           MAX(dtMoveIn)  AS LastMoveInDate, 
+           MAX(dtMoveOut) AS LastMoveOutDate 
+    FROM unit_status 
+    WHERE hUnit > 0 
+    GROUP BY hUnit
+) AS us ON u.hMy = us.hUnit
+LEFT JOIN (
+    SELECT hUnit, sRent AS LastTenantRent
+    FROM (
+        SELECT hUnit, sRent,
+               ROW_NUMBER() OVER (PARTITION BY hUnit ORDER BY dtLeaseFrom DESC) AS rn
+        FROM tenant
+    ) AS x
+    WHERE x.rn = 1
+) AS t ON u.hMy = t.hUnit
+LEFT JOIN (
+    SELECT 
+        hUnit,
+        dtLeaseFrom AS LeaseStartDate,
+        dtLeaseTo AS LeaseEndDate,
+        hMyPerson AS CurrentTenantID
+    FROM (
         SELECT 
             hUnit,
-            dtLeaseFrom AS LeaseStartDate,
-            dtLeaseTo AS LeaseEndDate,
-            hMyPerson AS CurrentTenantID
-        FROM (
-            SELECT 
-                hUnit,
-                dtLeaseFrom,
-                dtLeaseTo,
-                hMyPerson,
-                ROW_NUMBER() OVER (
-                    PARTITION BY hUnit 
-                    ORDER BY 
-                        CASE WHEN iStatus < 6 THEN 0 ELSE 1 END,  
-                        dtLeaseFrom DESC,  
-                        hMyPerson DESC      
-                ) AS rn
-            FROM tenant
-            WHERE iStatus < 6  
-              AND (dtMoveOut IS NULL OR dtMoveOut >= GETDATE())  
-        ) AS ActiveTenants
-        WHERE rn = 1
-    ) AS ct ON u.hMy = ct.hUnit
-    
-    LEFT JOIN unittype ut ON u.hUnitType = ut.hMy
-    
+            dtLeaseFrom,
+            dtLeaseTo,
+            hMyPerson,
+            ROW_NUMBER() OVER (
+                PARTITION BY hUnit 
+                ORDER BY 
+                    CASE WHEN iStatus < 6 THEN 0 ELSE 1 END,
+                    dtLeaseFrom DESC,
+                    hMyPerson DESC
+            ) AS rn
+        FROM tenant
+        WHERE iStatus < 6
+          AND (dtMoveOut IS NULL OR dtMoveOut >= GETDATE())
+    ) AS ActiveTenants
+    WHERE rn = 1
+) AS ct ON u.hMy = ct.hUnit
+LEFT JOIN unittype ut ON u.hUnitType = ut.hMy
 WHERE 
     u.hMy IS NOT NULL
     AND p.hMy IS NOT NULL
     AND u.scode IS NOT NULL 
     AND p.scode IS NOT NULL
-	
 ORDER BY p.scode, u.scode
-	
 //End Select
 
 //COLUMNS

@@ -1,6 +1,84 @@
-﻿/*  (6) - All Unit and Property Details - placed into tblProperties and tblPropertyUnits
-    UPDATED: Now includes LeaseStartDate and LeaseEndDate from current tenant
+﻿/* (06) Property-Unit export
+   Fix: Posting/Aquinas membership must include nested lists (list -> list -> building).
+   Depth supported: direct + up to 3 nested list hops.
+
+   Optimization:
+     1) ListParents = all HMYs that are actually used as a parent list in LISTPROP.
+     2) Only expand deeper levels if the previous node is a known list parent (prevents expanding from leaf nodes).
 */
+
+;WITH RootLists AS
+(
+    -- Root list codes we export flags for
+    SELECT hmy AS RootListHMY, LOWER(scode) AS RootListCode
+    FROM property
+    WHERE LOWER(scode) IN ('posting','aquinas')
+),
+ListParents AS
+(
+    -- Any HMY that appears as a parent list in LISTPROP is a "real" list node
+    SELECT DISTINCT hproplist AS ListHMY
+    FROM listprop
+),
+Edges AS
+(
+    -- Parent list -> child node (child can be a building OR another list)
+    SELECT hproplist AS ParentHMY, hproperty AS ChildHMY
+    FROM listprop
+),
+MembersDepth1 AS
+(
+    -- Direct: RootList -> Child
+    SELECT rl.RootListCode, e.ChildHMY
+    FROM RootLists rl
+    JOIN Edges e ON e.ParentHMY = rl.RootListHMY
+),
+MembersDepth2 AS
+(
+    -- Nested 1: RootList -> List -> Child
+    -- Only expand if the intermediate node is a real list parent
+    SELECT d1.RootListCode, e2.ChildHMY
+    FROM MembersDepth1 d1
+    JOIN ListParents lp ON lp.ListHMY = d1.ChildHMY
+    JOIN Edges e2 ON e2.ParentHMY = d1.ChildHMY
+),
+MembersDepth3 AS
+(
+    -- Nested 2: RootList -> List -> List -> Child
+    SELECT d2.RootListCode, e3.ChildHMY
+    FROM MembersDepth2 d2
+    JOIN ListParents lp ON lp.ListHMY = d2.ChildHMY
+    JOIN Edges e3 ON e3.ParentHMY = d2.ChildHMY
+),
+MembersDepth4 AS
+(
+    -- Nested 3: RootList -> List -> List -> List -> Child
+    SELECT d3.RootListCode, e4.ChildHMY
+    FROM MembersDepth3 d3
+    JOIN ListParents lp ON lp.ListHMY = d3.ChildHMY
+    JOIN Edges e4 ON e4.ParentHMY = d3.ChildHMY
+),
+AllMembers AS
+(
+    -- Membership up to 3 nested levels
+    SELECT RootListCode, ChildHMY FROM MembersDepth1
+    UNION
+    SELECT RootListCode, ChildHMY FROM MembersDepth2
+    UNION
+    SELECT RootListCode, ChildHMY FROM MembersDepth3
+    UNION
+    SELECT RootListCode, ChildHMY FROM MembersDepth4
+),
+ListFlagsByProperty AS
+(
+    -- One row per PropertyHMY with flags for the root lists
+    SELECT
+        ChildHMY AS PropertyHMY,
+        MAX(CASE WHEN RootListCode = 'posting' THEN 1 ELSE 0 END) AS isInList_Posting,
+        MAX(CASE WHEN RootListCode = 'aquinas' THEN 1 ELSE 0 END) AS isInList_Aquinas
+    FROM AllMembers
+    GROUP BY ChildHMY
+)
 SELECT 
     u.hMy as yardiUnitRowID, 
     p.hMy as yardiPropertyRowID,
@@ -19,29 +97,14 @@ SELECT
     us.LastMoveInDate,
     us.LastMoveOutDate,
     u.DSQFT as SqFt,
-    ISNULL(p.bInactive,0) as isPropertyInactive,  -- -1 = True/Inactive
+    ISNULL(p.bInactive,0) as isPropertyInactive,
     p.dtInactive as propertyInactiveDate,
-    ISNULL(u.exclude,0) as isUnitExcluded,        -- -1 = True/Excluded
+    ISNULL(u.exclude,0) as isUnitExcluded,
     t.LastTenantRent,
     ut.sDesc as UnitTypeDesc,
-    
-    -- Safe check for Posting list using hardcoded SCODE = 'Posting' (HPROPLIST = 1881)
-    CASE WHEN EXISTS (
-        SELECT 1 
-        FROM LISTPROP lst
-        JOIN PROPERTY prop ON prop.HMY = lst.HPROPLIST
-        WHERE prop.SCODE = 'Posting' 
-          AND lst.HPROPERTY = p.hMy
-      ) THEN 1 ELSE 0 END AS isInList_Posting,
 
-    -- Safe check for Posting list using hardcoded SCODE = 'Aquinas' 
-    CASE WHEN EXISTS (
-        SELECT 1 
-        FROM LISTPROP lst
-        JOIN PROPERTY prop ON prop.HMY = lst.HPROPLIST
-        WHERE prop.SCODE = 'Aquinas' 
-          AND lst.HPROPERTY = p.hMy
-      ) THEN 1 ELSE 0 END AS isInList_Aquinas,
+    ISNULL(lf.isInList_Posting, 0) AS isInList_Posting,
+    ISNULL(lf.isInList_Aquinas, 0) AS isInList_Aquinas,
 
     ct.LeaseStartDate,
     ct.LeaseEndDate,
@@ -49,8 +112,8 @@ SELECT
  	
 FROM unit u
     INNER JOIN property p ON u.hproperty = p.hMy
+    LEFT JOIN ListFlagsByProperty lf ON lf.PropertyHMY = p.hMy
     
-    -- Last move in/out per unit
     LEFT JOIN (
         SELECT hUnit, 
                MAX(dtMoveIn)  AS LastMoveInDate, 
@@ -60,7 +123,6 @@ FROM unit u
         GROUP BY hUnit
     ) AS us ON u.hMy = us.hUnit
     
-    -- Last tenant rent per unit
     LEFT JOIN (
         SELECT hUnit, sRent AS LastTenantRent
         FROM (
@@ -71,7 +133,6 @@ FROM unit u
         WHERE x.rn = 1
     ) AS t ON u.hMy = t.hUnit
     
-    -- NEW: Current tenant's lease dates
     LEFT JOIN (
         SELECT 
             hUnit,
@@ -87,13 +148,13 @@ FROM unit u
                 ROW_NUMBER() OVER (
                     PARTITION BY hUnit 
                     ORDER BY 
-                        CASE WHEN iStatus < 6 THEN 0 ELSE 1 END,  -- Active tenants first
-                        dtLeaseFrom DESC,  -- Most recent lease
-                        hMyPerson DESC      -- Tie-breaker
+                        CASE WHEN iStatus < 6 THEN 0 ELSE 1 END,
+                        dtLeaseFrom DESC,
+                        hMyPerson DESC
                 ) AS rn
             FROM tenant
-            WHERE iStatus < 6  -- Exclude denied and higher status codes
-              AND (dtMoveOut IS NULL OR dtMoveOut >= GETDATE())  -- Not moved out yet
+            WHERE iStatus < 6
+              AND (dtMoveOut IS NULL OR dtMoveOut >= GETDATE())
         ) AS ActiveTenants
         WHERE rn = 1
     ) AS ct ON u.hMy = ct.hUnit

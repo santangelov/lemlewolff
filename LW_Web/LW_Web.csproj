@@ -138,11 +138,6 @@
     <Content Include="assets\images\AppLogos\vacancytracker.png" />
     <Content Include="_Downloads\placeholder.txt" />
     <Content Include="_FileUploads\placeholder.txt" />
-    <Content Include="_YardiExportSQL\01 - WO List.txt" />
-    <Content Include="_YardiExportSQL\02 - PO List.txt" />
-    <Content Include="_YardiExportSQL\03 - WO Inventory List.txt" />
-    <Content Include="_YardiExportSQL\04 - PO Inventory List.txt" />
-    <Content Include="_YardiExportSQL\05 - WorkOrderGeneral.txt" />
     <Content Include="_Templates\_Template - Inventory Daily Pivot_WithDollars.xlsx" />
     <Content Include="_Templates\_Template - WOAnalysis_01 - MMM-MMM.xlsm" />
     <Content Include="_Templates\_Template - InvItemReview.xlsx" />
@@ -150,28 +145,13 @@
     <Content Include="Documents\LW Portal User Manual.docx" />
     <Content Include="Views\Shared\VendorList.cshtml" />
     <Content Include="Views\Shared\LaborerEdit.cshtml" />
-    <Content Include="_YardiExportSQL\06 - Property-Unit.txt" />
     <Content Include="Views\Shared\Dashboard.cshtml" />
     <Content Include="Views\Shared\ForgotPassword.cshtml" />
     <Content Include="Views\Shared\ChangePassword.cshtml" />
-    <Content Include="_YardiExportSQL\07 - Tenants.txt" />
-    <Content Include="_YardiExportSQL\08 - LegalCaseActions.txt" />
-    <Content Include="_YardiExportSQL\09 - LegalCaseHeaders.txt" />
-    <Content Include="_YardiExportSQL\10 - DailyARbyTenant.txt" />
-    <Content Include="_YardiExportSQL\rs_SQL_LW_Portal_Export_01.txt" />
-    <Content Include="_YardiExportSQL\rs_SQL_LW_Portal_Export_02.txt" />
-    <Content Include="_YardiExportSQL\rs_SQL_LW_Portal_Export_03.txt" />
-    <Content Include="_YardiExportSQL\rs_SQL_LW_Portal_Export_04.txt" />
-    <Content Include="_YardiExportSQL\rs_SQL_LW_Portal_Export_05.txt" />
-    <Content Include="_YardiExportSQL\rs_SQL_LW_Portal_Export_06.txt" />
     <Content Include="Views\DocumentPackageDemo\Index.cshtml" />
     <Content Include="Views\ExternalApps\Index.cshtml" />
     <Content Include="Views\Shared\LegalReportingPage.cshtml" />
     <Content Include="bin\roslyn\csc.rsp" />
-    <Content Include="_YardiExportSQL\rs_SQL_LW_Portal_Export_07.txt" />
-    <Content Include="_YardiExportSQL\rs_SQL_LW_Portal_Export_08.txt" />
-    <Content Include="_YardiExportSQL\rs_SQL_LW_Portal_Export_09.txt" />
-    <Content Include="_YardiExportSQL\rs_SQL_LW_Portal_Export_10.txt" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

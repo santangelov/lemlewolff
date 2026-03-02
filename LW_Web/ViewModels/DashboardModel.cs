@@ -1,6 +1,9 @@
 using LW_Common;
-using LW_Data;
 using System;
+using System.ComponentModel;
+using System.IO;
+using System.Linq;
+using System.Web;
 
 namespace LW_Web.ViewModels
 {
@@ -18,27 +21,40 @@ namespace LW_Web.ViewModels
             ADPDateRangeLoaded = clsReportHelper.GetFileDateRangeValues("ADP").DateRangeAsString;
 
             DashboardAsOfTimestamp = DateTime.Now.ToString("M/d/yy h:mm tt");
-            SetArrearsDataCoverageDates();
+            SetArrearsReportingTimestamps();
         }
 
-        private void SetArrearsDataCoverageDates()
+        private void SetArrearsReportingTimestamps()
         {
-            ArrearsDataLoadedThrough = "No snapshot found";
-
-            clsDataHelper H = new clsDataHelper();
-            H.cmd.Parameters.AddWithValue("@RequestedAsOfDate", DateTime.Today);
-            var row = H.GetDataRow("spQA_ArrearsTracker_DateResolution");
-
-            if (row == null)
+            string downloadsPath = HttpContext.Current.Server.MapPath("~/_Downloads");
+            if (!Directory.Exists(downloadsPath))
             {
+                ArrearsLatestReportDate = "No report found";
+                ArrearsLatestGeneratedAt = "No report found";
+                ArrearsLatestFileName = "No report found";
                 return;
             }
 
-            if (DateTime.TryParse(row["LatestDaily"]?.ToString(), out DateTime latestDailyDate))
+            FileInfo latestArrearsFile = new DirectoryInfo(downloadsPath)
+                .GetFiles("Tenant_Arrears_*.xlsx")
+                .OrderByDescending(f => f.LastWriteTime)
+                .FirstOrDefault();
+
+            if (latestArrearsFile == null)
             {
-                ArrearsDataLoadedThrough = latestDailyDate.ToString("M/d/yy");
+                ArrearsLatestReportDate = "No report found";
+                ArrearsLatestGeneratedAt = "No report found";
+                ArrearsLatestFileName = "No report found";
+                return;
             }
 
+            ArrearsLatestGeneratedAt = latestArrearsFile.LastWriteTime.ToString("M/d/yy h:mm tt");
+            ArrearsLatestFileName = latestArrearsFile.Name;
+
+            string reportDateText = Path.GetFileNameWithoutExtension(latestArrearsFile.Name).Replace("Tenant_Arrears_", "");
+            ArrearsLatestReportDate = DateTime.TryParse(reportDateText, out DateTime parsedDate)
+                ? parsedDate.ToString("M/d/yy")
+                : reportDateText;
         }
 
         public string SortlyDateRangeLoaded { get; set; }

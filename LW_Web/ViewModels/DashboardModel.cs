@@ -67,9 +67,7 @@ namespace LW_Web.ViewModels
         public string ADPDateRangeLoaded { get; set; }
 
         public string DashboardAsOfTimestamp { get; set; }
-        public string ArrearsLatestReportDate { get; set; }
-        public string ArrearsLatestGeneratedAt { get; set; }
-        public string ArrearsLatestFileName { get; set; }
+        public string ArrearsDataLoadedThrough { get; set; }
 
         public string ErrorMsg { get; set; }
     }

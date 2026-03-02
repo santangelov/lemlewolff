@@ -6,23 +6,6 @@ LW Portal Export-File07
 //End Title
 
 //Select
-;WITH Cutoff AS
-(
-    SELECT CAST(DATEADD(MONTH, -3, GETDATE()) AS date) AS d
-),
-CurrentUnitTenants AS
-(
-    SELECT DISTINCT
-        t.HMYPERSON AS yardiPersonRowID
-    FROM tenant t
-    INNER JOIN tenStatus ts ON t.iStatus = ts.iStatus
-    INNER JOIN unit u ON t.HUNIT = u.HMY
-    INNER JOIN property p ON u.HPROPERTY = p.HMY
-    WHERE ts.STATUS LIKE 'Current%'
-      AND ISNULL(p.bInactive, 0) = 0
-      AND ISNULL(u.exclude, 0) = 0
-      AND (t.DTMOVEOUT IS NULL OR t.DTMOVEOUT >= GETDATE())
-)
 SELECT
     t.HMYPERSON      AS yardiPersonRowID,
     t.SCODE          AS tenantCode,
@@ -36,13 +19,23 @@ SELECT
     t.SEMAIL         AS email
 FROM tenant t
 LEFT JOIN tenStatus ts ON t.iStatus = ts.iStatus
-CROSS JOIN Cutoff c
+CROSS JOIN (SELECT CAST(DATEADD(MONTH, -3, GETDATE()) AS date) AS d) c
 WHERE
       (t.dtLastModified IS NOT NULL AND CAST(t.dtLastModified AS date) >= c.d)
    OR (t.DTMOVEIN       IS NOT NULL AND CAST(t.DTMOVEIN       AS date) >= c.d)
    OR (t.DTMOVEOUT      IS NOT NULL AND CAST(t.DTMOVEOUT      AS date) >= c.d)
-   OR (t.HMYPERSON IN (SELECT yardiPersonRowID FROM CurrentUnitTenants))
-ORDER BY t.HMYPERSON;
+   OR (t.HMYPERSON IN
+      (
+          SELECT DISTINCT t2.HMYPERSON
+          FROM tenant t2
+          INNER JOIN tenStatus ts2 ON t2.iStatus = ts2.iStatus
+          INNER JOIN unit u2 ON t2.HUNIT = u2.HMY
+          INNER JOIN property p2 ON u2.HPROPERTY = p2.HMY
+          WHERE ts2.STATUS LIKE 'Current%'
+            AND ISNULL(p2.bInactive, 0) = 0
+            AND ISNULL(u2.exclude, 0) = 0
+            AND (t2.DTMOVEOUT IS NULL OR t2.DTMOVEOUT >= GETDATE())
+      ))
 //End Select
 
 //COLUMNS

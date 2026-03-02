@@ -18,7 +18,8 @@ namespace LW_Web.ViewModels
             ADPDateRangeLoaded = clsReportHelper.GetFileDateRangeValues("ADP").DateRangeAsString;
 
             DashboardAsOfTimestamp = DateTime.Now.ToString("M/d/yy h:mm tt");
-            System.Data.DataRow arrearsDateResolution = clsEmailImport.GetArrearsDateResolution(DateTime.Today);
+            
+            System.Data.DataRow arrearsDateResolution = EmailImporter.GetArrearsDateResolution(DateTime.Today);
             object resolvedDateValue = arrearsDateResolution == null ? null : arrearsDateResolution["ARAsOf_Resolved"];
             DateTime resolvedDate = clsFunc.CastToDateTime(resolvedDateValue, DateTime.MinValue);
             ArrearsDataLoadedThrough = resolvedDate == DateTime.MinValue ? "Not available" : resolvedDate.ToString("M/d/yy");

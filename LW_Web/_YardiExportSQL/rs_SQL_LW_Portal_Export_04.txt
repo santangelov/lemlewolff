@@ -1,4 +1,8 @@
-//Notes		
+//Notes
+PO Inventory List report (purchase-order line detail).
+Returns PO detail rows with PO/WO linkage, vendor, quantities, unit/total cost, item metadata, client/property, and receive/order dates.
+Window: rolling 14-month extract for vendor code all2 based on PO ordered/received and WO context.
+Use: tracks ordered-vs-received inventory spend and supports PO line-level reconciliation and audit review.
 //End Notes
 
 //Title

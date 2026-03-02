@@ -7,6 +7,7 @@
 
 ## Maintenance updates
 - ✅ DONE: Arrears guardrail email remediation guidance + schedule update.
+- 📝 REMINDER (future cleanup): Re-evaluate whether Yardi "Monthly" email exports (4-file path) are still needed now that daily exports run all files every day. Confirm first that monthly-related cleanup/recon behavior in snapshot stored procedures remains covered before removing monthly importer exceptions.
 
 ## Final signoff snapshot (audit trail)
 - **Environment:** lemlewolff / WEB2\PMSQL

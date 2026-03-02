@@ -23,6 +23,10 @@
             <div class="card">
                 <div class="card-body">
                     <h4 class="header-title">Most Recent Loads</h4>
+                    <div class="mb-2" style="font-size:0.9rem; color:#4a5568;">
+                        <span><strong>As of:</strong> @Model.DashboardAsOfTimestamp</span>
+                        <span class="ms-3"><strong>Arrears loaded through:</strong> @Model.ArrearsDataLoadedThrough</span>
+                    </div>
                     <table class="dateLoadTable">
                         <tr><td><strong>ADP: </strong></td><td>@Html.Raw(Model.ADPDateRangeLoaded)</td><td><strong>Sortly: </strong></td><td>@Html.Raw(Model.SortlyDateRangeLoaded)</td><td><strong>(1) Yardi WO: </strong></td><td>@Html.Raw(Model.YardiWODateRangeLoaded)</td></tr>
                         <tr><td><strong>(2) Yardi PO: </strong></td><td>@Html.Raw(Model.YardiPODateRangeLoaded)</td><td><strong>(3) Yardi WO Inv: </strong></td><td>@Html.Raw(Model.YardiWO2DateRangeLoaded)</td><td><strong>(4) Yardi PO Inv: </strong></td><td>@Html.Raw(Model.YardiPO2DateRangeLoaded)</td></tr>

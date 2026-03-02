@@ -475,6 +475,15 @@ namespace LW_Common
             return result;
         }
 
+        public static DataRow GetArrearsDateResolution(DateTime requestedAsOfDate)
+        {
+            using (SqlConnection conn = clsDataHelper.sqlconn(true))
+            {
+                if (conn.State != ConnectionState.Open) conn.Open();
+                return ExecArrearsQaRow(conn, requestedAsOfDate.Date);
+            }
+        }
+
         private static DataRow ExecArrearsQaRow(SqlConnection conn, DateTime requestedAsOfDate)
         {
             using (SqlCommand cmd = new SqlCommand("dbo.spQA_ArrearsTracker_DateResolution", conn))

@@ -68,7 +68,7 @@ namespace LW_Web.Controllers
                 return View("LegalReportingPage", model);
             }
 
-            string NewFileName = "Tenant_Arrears_" + ReportDateDTTM.ToString("yyyy-MM") + ".xlsx";
+            string NewFileName = "Tenant_Arrears_" + ReportDateDTTM.ToString("yyyy-MM-dd") + ".xlsx";
             string fileNameAndPath = Server.MapPath("~/_Downloads/" + NewFileName);
 
             if (R.FillExcel_TenantArrearsReport(NewFileName, ReportDateDTTM, model.selectedBuildingCode))

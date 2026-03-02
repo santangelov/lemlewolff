@@ -1,8 +1,9 @@
-﻿using LW_Common;
-using System.Collections.Generic;
+using LW_Common;
+using System;
 using System.ComponentModel;
+using System.IO;
+using System.Linq;
 using System.Web;
-using System.Web.Mvc;
 
 namespace LW_Web.ViewModels
 {
@@ -10,8 +11,6 @@ namespace LW_Web.ViewModels
     {
         public DashboardModel()
         {
-            // Look up the Import Dates
-            clsReportHelper RH = new clsReportHelper();
             SortlyDateRangeLoaded = clsReportHelper.GetFileDateRangeValues("Sortly").DateRangeAsString;
             YardiWODateRangeLoaded = clsReportHelper.GetFileDateRangeValues("YardiWO_File").DateRangeAsString;
             YardiPODateRangeLoaded = clsReportHelper.GetFileDateRangeValues("YardiPO_File").DateRangeAsString;
@@ -20,33 +19,58 @@ namespace LW_Web.ViewModels
             YardiWOGeneralDateRangeLoaded = clsReportHelper.GetFileDateRangeValues("YardiWO_GeneralFile").DateRangeAsString;
             YardiPropertyAndUnitDateRangeLoaded = clsReportHelper.GetFileDateRangeValues("YardiPropertyFile").DateRangeAsString;
             ADPDateRangeLoaded = clsReportHelper.GetFileDateRangeValues("ADP").DateRangeAsString;
+
+            DashboardAsOfTimestamp = DateTime.Now.ToString("M/d/yy h:mm tt");
+            SetArrearsReportingTimestamps();
         }
 
-        [DisplayName("Sortly Date Range Loaded")]
+        private void SetArrearsReportingTimestamps()
+        {
+            string downloadsPath = HttpContext.Current.Server.MapPath("~/_Downloads");
+            if (!Directory.Exists(downloadsPath))
+            {
+                ArrearsLatestReportDate = "No report found";
+                ArrearsLatestGeneratedAt = "No report found";
+                ArrearsLatestFileName = "No report found";
+                return;
+            }
+
+            FileInfo latestArrearsFile = new DirectoryInfo(downloadsPath)
+                .GetFiles("Tenant_Arrears_*.xlsx")
+                .OrderByDescending(f => f.LastWriteTime)
+                .FirstOrDefault();
+
+            if (latestArrearsFile == null)
+            {
+                ArrearsLatestReportDate = "No report found";
+                ArrearsLatestGeneratedAt = "No report found";
+                ArrearsLatestFileName = "No report found";
+                return;
+            }
+
+            ArrearsLatestGeneratedAt = latestArrearsFile.LastWriteTime.ToString("M/d/yy h:mm tt");
+            ArrearsLatestFileName = latestArrearsFile.Name;
+
+            string reportDateText = Path.GetFileNameWithoutExtension(latestArrearsFile.Name).Replace("Tenant_Arrears_", "");
+            ArrearsLatestReportDate = DateTime.TryParse(reportDateText, out DateTime parsedDate)
+                ? parsedDate.ToString("M/d/yy")
+                : reportDateText;
+        }
+
         public string SortlyDateRangeLoaded { get; set; }
-
-        [DisplayName("Yardi WO Date Range Loaded")]
         public string YardiWODateRangeLoaded { get; set; }
-
-        [DisplayName("Yardi WO Date Range Loaded")]
         public string YardiPODateRangeLoaded { get; set; }
-
-        [DisplayName("Yardi WO Date Range Loaded")]
         public string YardiWO2DateRangeLoaded { get; set; }
-
-        [DisplayName("Yardi WO Date Range Loaded")]
         public string YardiPO2DateRangeLoaded { get; set; }
-
-        [DisplayName("Yardi WO General Date Range Loaded")]
         public string YardiWOGeneralDateRangeLoaded { get; set; }
-
-        [DisplayName("Yardi Property and Unit File Loaded")]
         public string YardiPropertyAndUnitDateRangeLoaded { get; set; }
-
-        [DisplayName("ADP Date Range Loaded")]
         public string ADPDateRangeLoaded { get; set; }
 
-        public string ErrorMsg { get; set; }    
+        public string DashboardAsOfTimestamp { get; set; }
+        public string ArrearsLatestReportDate { get; set; }
+        public string ArrearsLatestGeneratedAt { get; set; }
+        public string ArrearsLatestFileName { get; set; }
 
+        public string ErrorMsg { get; set; }
     }
 }

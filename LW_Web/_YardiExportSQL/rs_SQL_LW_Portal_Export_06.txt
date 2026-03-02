@@ -1,4 +1,8 @@
-//Notes		
+//Notes
+Property-Unit report (unit master + occupancy context).
+Returns property and unit identifiers plus address, rent, unit status, bedrooms, and move-in/move-out history markers.
+Window: full active reference set with latest occupancy context per unit for mapped properties/units.
+Use: dimensional lookup feed that normalizes building/unit references for WO, tenant, vacancy, and legal reporting joins.
 //End Notes
 
 //Title

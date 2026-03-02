@@ -1,5 +1,8 @@
 //Notes
-Work Order List
+Work Order List report for LW Portal imports.
+Returns work order header + detail line data (WO number, building/unit, status/category, dates, employee, stock/item, pricing, and batch/posting metadata).
+Window: rolling 14-month extract based on call date, completion date, batch created date, or related trans occurred date for vendor code all2.
+Use: primary WO detail feed used to support job history review, cost analysis, and reconciliation against Yardi batches.
 //End Notes
 
 //Title

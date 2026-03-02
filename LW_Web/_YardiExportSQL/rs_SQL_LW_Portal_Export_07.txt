@@ -1,4 +1,8 @@
 //Notes
+Tenants report (tenant profile delta feed).
+Returns tenant identity/location fields (tenant code, property/unit ids, name, status, move-in/out, email).
+Window: last 3 months based on tenant last-modified or move-in date.
+Use: incremental tenant synchronization for contact, occupancy, and downstream legal/arrears correlation.
 //End Notes
 
 //Title

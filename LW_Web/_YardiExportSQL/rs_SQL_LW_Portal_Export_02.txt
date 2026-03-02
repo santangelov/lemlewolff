@@ -1,4 +1,8 @@
-//Notes		
+//Notes
+PO List report tied to work orders.
+Returns PO header/detail with WO linkage, vendor info, invoice timing, GL account/category, PO totals, WO/invoice comparison values, and order metadata.
+Window: rolling 14-month data set scoped to vendor code all2 and refreshed off PO/WO activity dates.
+Use: supports purchasing oversight, invoice-to-PO matching, labor vs materials spend analysis, and exception checks.
 //End Notes
 
 //Title

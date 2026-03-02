@@ -1,4 +1,8 @@
 //Notes
+DailyARbyTenant report (accounts-receivable daily snapshot by tenant).
+Returns tenant-level AR balances and reconciliation-support fields under configurable run modes (Nightly/Backfill-style parameters and retention windows).
+Window: parameter-driven as-of date range with controls for nightly cadence, historical retention, recent-period exclusions, and reconciliation cutoff.
+Use: core arrears monitoring extract used for delinquency tracking, legal escalation support, and trend analytics in LW Portal.
 //End Notes
 
 //Title

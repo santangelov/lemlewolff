@@ -1,4 +1,8 @@
 //Notes
+LegalCaseHeaders report (legal case summary feed).
+Returns legal case-level metadata including tenant linkage, legal status/flash/display descriptors, closed flag, and create/modify timestamps.
+Window: month-end anchored lookback (default 3 months) using prior month end as reporting as-of reference.
+Use: provides case header dimension for joining legal actions and presenting consolidated legal case status in reports.
 //End Notes
 
 //Title

@@ -1,4 +1,8 @@
-//Notes		
+//Notes
+WorkOrderGeneral report (WO header status feed).
+Returns work order summary fields including status, category, key lifecycle dates (call/scheduled/completed), batch id, expense type, and Yardi create/update stamps.
+Window: rolling 14-month update-based extract for vendor code all2 using WO last-update timestamps.
+Use: lightweight WO status snapshot for incremental sync logic and dashboard-level operational reporting.
 //End Notes
 
 //Title

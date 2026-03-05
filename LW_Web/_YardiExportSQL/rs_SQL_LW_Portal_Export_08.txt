@@ -1,4 +1,8 @@
 //Notes
+LegalCaseActions report (legal action/event detail).
+Returns legal action rows with legal case linkage, begin/due dates, action/event descriptors, notes/check flags, fees/amounts, and create/modify timestamps.
+Window: configurable lookback (default 3 months) based on legal action last-modified/create activity.
+Use: captures legal timeline milestones for case monitoring, workflow tracking, and reporting in the portal.
 //End Notes
 
 //Title

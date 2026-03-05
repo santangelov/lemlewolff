@@ -1,4 +1,8 @@
-//Notes		
+//Notes
+Property-Unit report (unit master + occupancy context).
+Returns property and unit identifiers plus address, rent, unit status, bedrooms, and move-in/move-out history markers.
+Window: full active reference set with latest occupancy context per unit for mapped properties/units.
+Use: dimensional lookup feed that normalizes building/unit references for WO, tenant, vacancy, and legal reporting joins.
 //End Notes
 
 //Title
@@ -6,68 +10,6 @@ LW Portal Export-File06
 //End Title
 
 //Select
-;WITH RootLists AS
-(
-    SELECT hmy AS RootListHMY, LOWER(scode) AS RootListCode
-    FROM property
-    WHERE LOWER(scode) IN ('posting','aquinas')
-),
-ListParents AS
-(
-    SELECT DISTINCT hproplist AS ListHMY
-    FROM listprop
-),
-Edges AS
-(
-    SELECT hproplist AS ParentHMY, hproperty AS ChildHMY
-    FROM listprop
-),
-MembersDepth1 AS
-(
-    SELECT rl.RootListCode, e.ChildHMY
-    FROM RootLists rl
-    JOIN Edges e ON e.ParentHMY = rl.RootListHMY
-),
-MembersDepth2 AS
-(
-    SELECT d1.RootListCode, e2.ChildHMY
-    FROM MembersDepth1 d1
-    JOIN ListParents lp ON lp.ListHMY = d1.ChildHMY
-    JOIN Edges e2 ON e2.ParentHMY = d1.ChildHMY
-),
-MembersDepth3 AS
-(
-    SELECT d2.RootListCode, e3.ChildHMY
-    FROM MembersDepth2 d2
-    JOIN ListParents lp ON lp.ListHMY = d2.ChildHMY
-    JOIN Edges e3 ON e3.ParentHMY = d2.ChildHMY
-),
-MembersDepth4 AS
-(
-    SELECT d3.RootListCode, e4.ChildHMY
-    FROM MembersDepth3 d3
-    JOIN ListParents lp ON lp.ListHMY = d3.ChildHMY
-    JOIN Edges e4 ON e4.ParentHMY = d3.ChildHMY
-),
-AllMembers AS
-(
-    SELECT RootListCode, ChildHMY FROM MembersDepth1
-    UNION
-    SELECT RootListCode, ChildHMY FROM MembersDepth2
-    UNION
-    SELECT RootListCode, ChildHMY FROM MembersDepth3
-    UNION
-    SELECT RootListCode, ChildHMY FROM MembersDepth4
-),
-ListFlagsByProperty AS
-(
-    SELECT
-        ChildHMY AS PropertyHMY,
-        MAX(CASE WHEN RootListCode = 'posting' THEN 1 ELSE 0 END) AS isInList_Posting,
-        MAX(CASE WHEN RootListCode = 'aquinas' THEN 1 ELSE 0 END) AS isInList_Aquinas
-    FROM AllMembers
-    GROUP BY ChildHMY
-)
 SELECT 
     u.hMy as yardiUnitRowID, 
     p.hMy as yardiPropertyRowID,
@@ -98,7 +40,98 @@ SELECT
     ct.CurrentTenantID as CurrentTenantYardiID 
 FROM unit u
 INNER JOIN property p ON u.hproperty = p.hMy
-LEFT JOIN ListFlagsByProperty lf ON lf.PropertyHMY = p.hMy
+LEFT JOIN
+(
+    SELECT
+        am.ChildHMY AS PropertyHMY,
+        MAX(CASE WHEN am.RootListCode = 'posting' THEN 1 ELSE 0 END) AS isInList_Posting,
+        MAX(CASE WHEN am.RootListCode = 'aquinas' THEN 1 ELSE 0 END) AS isInList_Aquinas
+    FROM
+    (
+        SELECT DISTINCT RootListCode, ChildHMY
+        FROM
+        (
+            SELECT rl.RootListCode, lp1.hproperty AS ChildHMY
+            FROM
+            (
+                SELECT hmy AS RootListHMY, LOWER(scode) AS RootListCode
+                FROM property
+                WHERE LOWER(scode) IN ('posting','aquinas')
+            ) rl
+            INNER JOIN listprop lp1 ON lp1.hproplist = rl.RootListHMY
+
+            UNION
+
+            SELECT d1.RootListCode, lp2.hproperty AS ChildHMY
+            FROM
+            (
+                SELECT rl.RootListCode, lp1.hproperty AS ChildHMY
+                FROM
+                (
+                    SELECT hmy AS RootListHMY, LOWER(scode) AS RootListCode
+                    FROM property
+                    WHERE LOWER(scode) IN ('posting','aquinas')
+                ) rl
+                INNER JOIN listprop lp1 ON lp1.hproplist = rl.RootListHMY
+            ) d1
+            INNER JOIN listprop lp2 ON lp2.hproplist = d1.ChildHMY
+            WHERE EXISTS (SELECT 1 FROM listprop x WHERE x.hproplist = d1.ChildHMY)
+
+            UNION
+
+            SELECT d2.RootListCode, lp3.hproperty AS ChildHMY
+            FROM
+            (
+                SELECT d1.RootListCode, lp2.hproperty AS ChildHMY
+                FROM
+                (
+                    SELECT rl.RootListCode, lp1.hproperty AS ChildHMY
+                    FROM
+                    (
+                        SELECT hmy AS RootListHMY, LOWER(scode) AS RootListCode
+                        FROM property
+                        WHERE LOWER(scode) IN ('posting','aquinas')
+                    ) rl
+                    INNER JOIN listprop lp1 ON lp1.hproplist = rl.RootListHMY
+                ) d1
+                INNER JOIN listprop lp2 ON lp2.hproplist = d1.ChildHMY
+                WHERE EXISTS (SELECT 1 FROM listprop x WHERE x.hproplist = d1.ChildHMY)
+            ) d2
+            INNER JOIN listprop lp3 ON lp3.hproplist = d2.ChildHMY
+            WHERE EXISTS (SELECT 1 FROM listprop y WHERE y.hproplist = d2.ChildHMY)
+
+            UNION
+
+            SELECT d3.RootListCode, lp4.hproperty AS ChildHMY
+            FROM
+            (
+                SELECT d2.RootListCode, lp3.hproperty AS ChildHMY
+                FROM
+                (
+                    SELECT d1.RootListCode, lp2.hproperty AS ChildHMY
+                    FROM
+                    (
+                        SELECT rl.RootListCode, lp1.hproperty AS ChildHMY
+                        FROM
+                        (
+                            SELECT hmy AS RootListHMY, LOWER(scode) AS RootListCode
+                            FROM property
+                            WHERE LOWER(scode) IN ('posting','aquinas')
+                        ) rl
+                        INNER JOIN listprop lp1 ON lp1.hproplist = rl.RootListHMY
+                    ) d1
+                    INNER JOIN listprop lp2 ON lp2.hproplist = d1.ChildHMY
+                    WHERE EXISTS (SELECT 1 FROM listprop x WHERE x.hproplist = d1.ChildHMY)
+                ) d2
+                INNER JOIN listprop lp3 ON lp3.hproplist = d2.ChildHMY
+                WHERE EXISTS (SELECT 1 FROM listprop y WHERE y.hproplist = d2.ChildHMY)
+            ) d3
+            INNER JOIN listprop lp4 ON lp4.hproplist = d3.ChildHMY
+            WHERE EXISTS (SELECT 1 FROM listprop z WHERE z.hproplist = d3.ChildHMY)
+        ) uall
+    ) am
+    GROUP BY am.ChildHMY
+) lf ON lf.PropertyHMY = p.hMy
 LEFT JOIN (
     SELECT hUnit, 
            MAX(dtMoveIn)  AS LastMoveInDate, 
@@ -147,7 +180,6 @@ WHERE
     AND p.hMy IS NOT NULL
     AND u.scode IS NOT NULL 
     AND p.scode IS NOT NULL
-ORDER BY p.scode, u.scode
 //End Select
 
 //COLUMNS

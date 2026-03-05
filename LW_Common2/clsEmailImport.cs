@@ -3,9 +3,7 @@ using MailKit;
 using MailKit.Net.Imap;
 using MailKit.Search;
 using MailKit.Security;
-using Microsoft.Office.Interop.Excel;
 using MimeKit;
-using Org.BouncyCastle.Asn1.X509;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -13,14 +11,10 @@ using System.Data;
 using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security.Authentication;
-using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web.Hosting;
-using System.Web.UI.WebControls;
 
 namespace LW_Common
 {
@@ -473,6 +467,15 @@ namespace LW_Common
             result.Pass = !anyFail;
             result.HtmlBody = BuildArrearsGuardrailEmailHtml(runDate, rowsForEmail, failNotes, REGEX_CLEANUP_PATTERN);
             return result;
+        }
+
+        public static DataRow GetArrearsDateResolution(DateTime requestedAsOfDate)
+        {
+            using (SqlConnection conn = clsDataHelper.sqlconn(true))
+            {
+                if (conn.State != ConnectionState.Open) conn.Open();
+                return ExecArrearsQaRow(conn, requestedAsOfDate.Date);
+            }
         }
 
         private static DataRow ExecArrearsQaRow(SqlConnection conn, DateTime requestedAsOfDate)

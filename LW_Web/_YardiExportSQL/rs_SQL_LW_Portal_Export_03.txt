@@ -1,4 +1,8 @@
-//Notes		
+//Notes
+WO Inventory List report (work order material usage detail).
+Returns inventory/itemized WO detail including item code/description, quantity, unit price, extended amount, vendor, client/property, and completion context.
+Window: rolling 14-month extract for vendor code all2 driven by work-order completion activity.
+Use: validates inventory consumption and costs posted to work orders and feeds operational spend reporting.
 //End Notes
 
 //Title

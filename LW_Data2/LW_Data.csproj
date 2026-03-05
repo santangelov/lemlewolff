@@ -73,6 +73,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="clsSortlyModels.cs" />
     <Compile Include="clsAdminAppRecord.cs" />
+    <Compile Include="clsWorkerRecord.cs" />
+    <Compile Include="clsWorkersData.cs" />
+    <Compile Include="clsPurchaseOrdersData.cs" />
+    <Compile Include="clsDataMappingHelper.cs" />
+    <Compile Include="clsWorkOrderDto.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

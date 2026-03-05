@@ -5,30 +5,25 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Web.Mvc;
 using LW_Data;
+using LW_Common;
 using LW_Web.ActionResults;
 
 namespace LW_Web.Controllers
 {
-    /*
-     Findings mini-audit:
-     - tblWorkOrders completion-date column is [CompletedDate] [date] NULL.
-     - tblWorkOrderItems columns are: WOItemRowID, YardiWODetailRowID, WONumber, ItemCode, Quantity, PayAmount, FullDescription.
-     - Vacancy API credentials come from Web.config appSettings keys VacancyApiAccountId and VacancyApiPassword; auth is enforced by IsAuthorized() with Basic header parsing and WWW-Authenticate on 401.
-     - ItemCode master source investigation: tblSortlyInventory (itemCode/itemName) exists and is joined in some procedures, but there is no FK from tblWorkOrderItems.ItemCode, datatype/length differs (varchar(50) vs varchar(10)), and tblPhysicalInventory is date-snapshot based (Code/Description by AsOfDate). Not a definitive single source-of-truth for all WO item descriptions, so no enrichment is applied.
-     - Public API organization: this controller, VacancyApiController, and the Properties API controller file now live under Controllers/PublicAPI. The Properties API class name remains ApiController to preserve existing /Api/Properties route behavior.
-    */
     [RoutePrefix("api/work-orders")]
     public class WorkOrdersApiController : Controller
     {
         private readonly string _accountId;
         private readonly string _password;
         private readonly clsWorkOrdersData _workOrdersData;
+        private readonly clsPurchaseOrdersData _purchaseOrdersData;
 
         public WorkOrdersApiController()
         {
             _accountId = ConfigurationManager.AppSettings["VacancyApiAccountId"];
             _password = ConfigurationManager.AppSettings["VacancyApiPassword"];
             _workOrdersData = new clsWorkOrdersData();
+            _purchaseOrdersData = new clsPurchaseOrdersData();
         }
 
         [HttpPost]
@@ -48,14 +43,15 @@ namespace LW_Web.Controllers
                 request.CompletionDateIsBlank.HasValue ||
                 request.WONumber.HasValue ||
                 (request.BuildingNums != null && request.BuildingNums.Any(x => !string.IsNullOrWhiteSpace(x))) ||
-                !string.IsNullOrWhiteSpace(request.JobStatus);
+                !string.IsNullOrWhiteSpace(request.JobStatus) ||
+                request.IsAssigned.HasValue ||
+                request.AssignedToID.HasValue;
 
             if (!hasFilters)
             {
                 return JsonError(400,
-                    "At least one filter is required (Categories, CompletionDateIsBlank, WONumber, BuildingNums, or JobStatus). Returning all work orders is not allowed.");
+                    "At least one filter is required (Categories, CompletionDateIsBlank, WONumber, BuildingNums, JobStatus, IsAssigned, or AssignedToID). Returning all work orders is not allowed.");
             }
-
 
             try
             {
@@ -87,12 +83,96 @@ namespace LW_Web.Controllers
                     }
                 }
 
-                // Use JSON.NET streaming to avoid JavaScriptSerializer maxJsonLength failures on large responses.
+                if (request.IncludePOs.GetValueOrDefault(false) && workOrders.Count > 0)
+                {
+                    var poCacheByWONumber = new Dictionary<string, List<Dictionary<string, object>>>(StringComparer.OrdinalIgnoreCase);
+
+                    foreach (var workOrder in workOrders)
+                    {
+                        string woNumber = workOrder.ContainsKey("WONumber") && workOrder["WONumber"] != null
+                            ? Convert.ToString(workOrder["WONumber"])
+                            : null;
+
+                        if (string.IsNullOrWhiteSpace(woNumber))
+                        {
+                            workOrder["PurchaseOrders"] = new List<Dictionary<string, object>>();
+                            continue;
+                        }
+
+                        if (!poCacheByWONumber.ContainsKey(woNumber))
+                        {
+                            poCacheByWONumber[woNumber] = _purchaseOrdersData.GetByWONumber(woNumber);
+                        }
+
+                        workOrder["PurchaseOrders"] = poCacheByWONumber[woNumber];
+                    }
+                }
+
                 return new MyJsonResult { Data = workOrders };
             }
             catch (Exception ex)
             {
                 return JsonError(500, "Unexpected error while processing request.", ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("assign")]
+        public ActionResult Assign(WorkOrderAssignRequest request)
+        {
+            if (!IsAuthorized(Request.Headers["Authorization"]))
+            {
+                Response.AddHeader("WWW-Authenticate", "Basic realm=\"WorkOrderAPI\"");
+                return new HttpStatusCodeResult(401, "Unauthorized");
+            }
+
+            if (request == null || string.IsNullOrWhiteSpace(request.WONumber))
+            {
+                return JsonError(400, "woNumber is required.");
+            }
+
+            try
+            {
+                int rowsAffected = _workOrdersData.AssignByWONumber(request.WONumber.Trim(), request.AssignedToID);
+                return new MyJsonResult
+                {
+                    Data = new
+                    {
+                        woNumber = request.WONumber,
+                        assignedToID = request.AssignedToID,
+                        rowsAffected
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+                return JsonError(500, "Unexpected error while assigning work order.", ex.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("{woNumber}/purchase-orders")]
+        public ActionResult PurchaseOrdersByWorkOrder(string woNumber)
+        {
+            if (!IsAuthorized(Request.Headers["Authorization"]))
+            {
+                Response.AddHeader("WWW-Authenticate", "Basic realm=\"WorkOrderAPI\"");
+                return new HttpStatusCodeResult(401, "Unauthorized");
+            }
+
+            if (string.IsNullOrWhiteSpace(woNumber) || woNumber.Contains(","))
+            {
+                return JsonError(400, "A single woNumber is required.");
+            }
+
+            try
+            {
+                var result = _purchaseOrdersData.GetByWONumber(woNumber.Trim());
+                return new MyJsonResult { Data = result };
+            }
+            catch (Exception ex)
+            {
+                return JsonError(500, "Unexpected error while retrieving purchase orders.", ex.Message);
             }
         }
 
@@ -116,7 +196,9 @@ namespace LW_Web.Controllers
                 BuildingNums = request.BuildingNums,
                 JobStatus = request.JobStatus,
                 ItemCodes = request.ItemCodes,
-                FilterItemCategories = request.FilterItemCategories
+                FilterItemCategories = request.FilterItemCategories,
+                IsAssigned = request.IsAssigned,
+                AssignedToID = request.AssignedToID
             };
         }
 
@@ -135,53 +217,7 @@ namespace LW_Web.Controllers
 
         private bool IsAuthorized(string authorizationHeader)
         {
-            if (string.IsNullOrWhiteSpace(authorizationHeader))
-            {
-                return false;
-            }
-
-            const string basicPrefix = "Basic ";
-            if (!authorizationHeader.StartsWith(basicPrefix, StringComparison.OrdinalIgnoreCase))
-            {
-                return false;
-            }
-
-            string encodedCredentials = authorizationHeader.Substring(basicPrefix.Length).Trim();
-            if (string.IsNullOrWhiteSpace(encodedCredentials))
-            {
-                return false;
-            }
-
-            string decodedCredentials;
-            try
-            {
-                byte[] credentialBytes = Convert.FromBase64String(encodedCredentials);
-                decodedCredentials = System.Text.Encoding.UTF8.GetString(credentialBytes);
-            }
-            catch (FormatException)
-            {
-                decodedCredentials = encodedCredentials;
-            }
-
-            string[] parts = decodedCredentials.Split(new[] { ':' }, 2);
-
-            if (parts.Length != 2 && encodedCredentials.Contains(":"))
-            {
-                parts = encodedCredentials.Split(new[] { ':' }, 2);
-            }
-
-            if (parts.Length != 2)
-            {
-                return false;
-            }
-
-            string providedAccountId = parts[0];
-            string providedPassword = parts[1];
-
-            return !string.IsNullOrEmpty(providedAccountId)
-                && !string.IsNullOrEmpty(providedPassword)
-                && string.Equals(providedAccountId, _accountId)
-                && string.Equals(providedPassword, _password);
+            return clsApiAuthHelper.IsBasicAuthorized(authorizationHeader, _accountId, _password);
         }
     }
 
@@ -195,5 +231,14 @@ namespace LW_Web.Controllers
         public List<string> ItemCodes { get; set; }
         public List<string> FilterItemCategories { get; set; }
         public bool? IncludeWOItems { get; set; }
+        public bool? IsAssigned { get; set; }
+        public int? AssignedToID { get; set; }
+        public bool? IncludePOs { get; set; }
+    }
+
+    public class WorkOrderAssignRequest
+    {
+        public string WONumber { get; set; }
+        public int? AssignedToID { get; set; }
     }
 }

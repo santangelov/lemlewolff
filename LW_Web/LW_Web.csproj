@@ -185,6 +185,7 @@
     <Compile Include="Controllers\PublicAPI\PropertiesApiController.cs" />
     <Compile Include="Controllers\PublicAPI\VacancyApiController.cs" />
     <Compile Include="Controllers\PublicAPI\WorkOrdersApiController.cs" />
+    <Compile Include="Controllers\PublicAPI\WorkersApiController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

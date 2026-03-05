@@ -1,3 +1,10 @@
+USE [LemleWolff]
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
 /*
 API procedures for Work Orders endpoint.
 Supports CSV filters to avoid large per-value SQL parameter lists.
@@ -6,11 +13,13 @@ Supports CSV filters to avoid large per-value SQL parameter lists.
 CREATE OR ALTER PROCEDURE dbo.spWorkOrders
     @CategoriesCsv            varchar(max) = NULL,
     @CompletionDateIsBlank    bit = NULL,
-    @WONumber                int = NULL,
+    @WONumber                 int = NULL,
     @BuildingNumsCsv          varchar(max) = NULL,
     @JobStatus                varchar(50) = NULL,
     @ItemCodesCsv             varchar(max) = NULL,
-    @FilterItemCategoriesCsv  varchar(max) = NULL
+    @FilterItemCategoriesCsv  varchar(max) = NULL,
+    @IsAssigned               bit = NULL,
+    @AssignedToID             int = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -46,6 +55,15 @@ BEGIN
       AND (
             @JobStatus IS NULL
             OR UPPER(wo.JobStatus) = UPPER(@JobStatus)
+          )
+      AND (
+            @IsAssigned IS NULL
+            OR (@IsAssigned = 1 AND wo.AssignedToID IS NOT NULL)
+            OR (@IsAssigned = 0 AND wo.AssignedToID IS NULL)
+          )
+      AND (
+            @AssignedToID IS NULL
+            OR wo.AssignedToID = @AssignedToID
           );
 END;
 GO
@@ -53,19 +71,30 @@ GO
 CREATE OR ALTER PROCEDURE dbo.spWorkOrderItems
     @CategoriesCsv            varchar(max) = NULL,
     @CompletionDateIsBlank    bit = NULL,
-    @WONumber                int = NULL,
+    @WONumber                 int = NULL,
     @BuildingNumsCsv          varchar(max) = NULL,
     @JobStatus                varchar(50) = NULL,
     @ItemCodesCsv             varchar(max) = NULL,
-    @FilterItemCategoriesCsv  varchar(max) = NULL
+    @FilterItemCategoriesCsv  varchar(max) = NULL,
+    @IsAssigned               bit = NULL,
+    @AssignedToID             int = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    SELECT woi.*, si.Category AS ItemCategoryName
+    SELECT
+        woi.WOItemRowID,
+        woi.YardiWODetailRowID,
+        woi.WONumber,
+        woi.ItemCode,
+        woi.Quantity,
+        woi.PayAmount,
+        COALESCE(ic.ItemDesc, woi.FullDescription) AS FullDescription,
+        COALESCE(ic.Category, si.Category) AS ItemCategoryName
     FROM dbo.tblWorkOrderItems woi
     INNER JOIN dbo.tblWorkOrders wo ON wo.WONumber = woi.WONumber
     LEFT JOIN dbo.tblSortlyInventory si ON si.ItemCode = woi.ItemCode
+    LEFT JOIN dbo.tblWorkOrderItemCatalog ic ON ic.ItemCode = woi.ItemCode
     WHERE 1 = 1
       AND (
             @CategoriesCsv IS NULL
@@ -109,12 +138,23 @@ BEGIN
             OR EXISTS (
                 SELECT 1
                 FROM STRING_SPLIT(@FilterItemCategoriesCsv, ',') s
-                WHERE UPPER(LTRIM(RTRIM(s.value))) = UPPER(si.Category)
+                WHERE UPPER(LTRIM(RTRIM(s.value))) = UPPER(COALESCE(ic.Category, si.Category))
             )
+          )
+      AND (
+            @IsAssigned IS NULL
+            OR (@IsAssigned = 1 AND wo.AssignedToID IS NOT NULL)
+            OR (@IsAssigned = 0 AND wo.AssignedToID IS NULL)
+          )
+      AND (
+            @AssignedToID IS NULL
+            OR wo.AssignedToID = @AssignedToID
           );
 END;
 GO
 
-GRANT EXECUTE ON OBJECT::dbo.spWorkOrders TO [lemwolffRO];
-GRANT EXECUTE ON OBJECT::dbo.spWorkOrderItems TO [lemwolffRO];
+GRANT EXECUTE ON OBJECT::dbo.spWorkOrders TO [lemlewolffRO];
+GRANT EXECUTE ON OBJECT::dbo.spWorkOrderItems TO [lemlewolffRO];
+GRANT EXECUTE ON OBJECT::dbo.spWorkOrders TO [lemlewolffRW];
+GRANT EXECUTE ON OBJECT::dbo.spWorkOrderItems TO [lemlewolffRW];
 GO

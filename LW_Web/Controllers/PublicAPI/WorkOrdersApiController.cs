@@ -5,18 +5,11 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Web.Mvc;
 using LW_Data;
+using LW_Common;
 using LW_Web.ActionResults;
 
 namespace LW_Web.Controllers
 {
-    /*
-     Findings mini-audit:
-     - tblWorkOrders completion-date column is [CompletedDate] [date] NULL.
-     - tblWorkOrderItems columns are: WOItemRowID, YardiWODetailRowID, WONumber, ItemCode, Quantity, PayAmount, FullDescription.
-     - Vacancy API credentials come from Web.config appSettings keys VacancyApiAccountId and VacancyApiPassword; auth is enforced by IsAuthorized() with Basic header parsing and WWW-Authenticate on 401.
-     - ItemCode master source investigation: tblSortlyInventory (itemCode/itemName) exists and is joined in some procedures, but there is no FK from tblWorkOrderItems.ItemCode, datatype/length differs (varchar(50) vs varchar(10)), and tblPhysicalInventory is date-snapshot based (Code/Description by AsOfDate). Not a definitive single source-of-truth for all WO item descriptions, so no enrichment is applied.
-     - Public API organization: this controller, VacancyApiController, and the Properties API controller file now live under Controllers/PublicAPI. The Properties API class name remains ApiController to preserve existing /Api/Properties route behavior.
-    */
     [RoutePrefix("api/work-orders")]
     public class WorkOrdersApiController : Controller
     {
@@ -48,47 +41,30 @@ namespace LW_Web.Controllers
                 request.CompletionDateIsBlank.HasValue ||
                 request.WONumber.HasValue ||
                 (request.BuildingNums != null && request.BuildingNums.Any(x => !string.IsNullOrWhiteSpace(x))) ||
-                !string.IsNullOrWhiteSpace(request.JobStatus);
+                !string.IsNullOrWhiteSpace(request.JobStatus) ||
+                request.IsAssigned.HasValue ||
+                request.AssignedToID.HasValue;
 
             if (!hasFilters)
             {
                 return JsonError(400,
-                    "At least one filter is required (Categories, CompletionDateIsBlank, WONumber, BuildingNums, or JobStatus). Returning all work orders is not allowed.");
+                    "At least one filter is required (Categories, CompletionDateIsBlank, WONumber, BuildingNums, JobStatus, IsAssigned, or AssignedToID). Returning all work orders is not allowed.");
             }
-
 
             try
             {
-                var workOrders = GetWorkOrders(request);
+                var workOrders = _workOrdersData.GetWorkOrdersForApi(
+                    ToFilter(request),
+                    request.IncludeWOItems.GetValueOrDefault(false),
+                    request.IncludePOs.GetValueOrDefault(false));
 
-                if (request.IncludeWOItems.GetValueOrDefault(false) && workOrders.Count > 0)
-                {
-                    Dictionary<int, List<Dictionary<string, object>>> itemLookup;
-                    try
-                    {
-                        itemLookup = GetWorkOrderItems(request);
-                    }
-                    catch (SqlException ex) when (ex.Number == 229)
-                    {
-                        return JsonError(403,
-                            "The configured database user does not have permission to read work order items (dbo.tblWorkOrderItems).",
-                            "Grant SELECT on dbo.tblWorkOrderItems, or set IncludeWOItems=false.");
-                    }
-
-                    foreach (var workOrder in workOrders)
-                    {
-                        int woNumber = workOrder.ContainsKey("WONumber") && workOrder["WONumber"] != null
-                            ? Convert.ToInt32(workOrder["WONumber"])
-                            : 0;
-
-                        workOrder["WorkOrderItems"] = itemLookup.ContainsKey(woNumber)
-                            ? itemLookup[woNumber]
-                            : new List<Dictionary<string, object>>();
-                    }
-                }
-
-                // Use JSON.NET streaming to avoid JavaScriptSerializer maxJsonLength failures on large responses.
                 return new MyJsonResult { Data = workOrders };
+            }
+            catch (SqlException ex) when (ex.Number == 229 && request.IncludeWOItems.GetValueOrDefault(false))
+            {
+                return JsonError(403,
+                    "The configured database user does not have permission to read work order items (dbo.tblWorkOrderItems).",
+                    "Grant SELECT on dbo.tblWorkOrderItems, or set IncludeWOItems=false.");
             }
             catch (Exception ex)
             {
@@ -96,15 +72,41 @@ namespace LW_Web.Controllers
             }
         }
 
-        private List<Dictionary<string, object>> GetWorkOrders(WorkOrderSearchRequest request)
+        [HttpPost]
+        [Route("assign")]
+        public ActionResult Assign(WorkOrderAssignRequest request)
         {
-            return _workOrdersData.GetWorkOrders(ToFilter(request));
+            if (!IsAuthorized(Request.Headers["Authorization"]))
+            {
+                Response.AddHeader("WWW-Authenticate", "Basic realm=\"WorkOrderAPI\"");
+                return new HttpStatusCodeResult(401, "Unauthorized");
+            }
+
+            if (request == null || string.IsNullOrWhiteSpace(request.WONumber))
+            {
+                return JsonError(400, "woNumber is required.");
+            }
+
+            try
+            {
+                int rowsAffected = _workOrdersData.AssignByWONumber(request.WONumber.Trim(), request.AssignedToID);
+                return new MyJsonResult
+                {
+                    Data = new
+                    {
+                        woNumber = request.WONumber,
+                        assignedToID = request.AssignedToID,
+                        rowsAffected
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+                return JsonError(500, "Unexpected error while assigning work order.", ex.Message);
+            }
         }
 
-        private Dictionary<int, List<Dictionary<string, object>>> GetWorkOrderItems(WorkOrderSearchRequest request)
-        {
-            return _workOrdersData.GetWorkOrderItems(ToFilter(request));
-        }
+
 
         private static WorkOrderQueryFilter ToFilter(WorkOrderSearchRequest request)
         {
@@ -116,7 +118,9 @@ namespace LW_Web.Controllers
                 BuildingNums = request.BuildingNums,
                 JobStatus = request.JobStatus,
                 ItemCodes = request.ItemCodes,
-                FilterItemCategories = request.FilterItemCategories
+                FilterItemCategories = request.FilterItemCategories,
+                IsAssigned = request.IsAssigned,
+                AssignedToID = request.AssignedToID
             };
         }
 
@@ -135,53 +139,7 @@ namespace LW_Web.Controllers
 
         private bool IsAuthorized(string authorizationHeader)
         {
-            if (string.IsNullOrWhiteSpace(authorizationHeader))
-            {
-                return false;
-            }
-
-            const string basicPrefix = "Basic ";
-            if (!authorizationHeader.StartsWith(basicPrefix, StringComparison.OrdinalIgnoreCase))
-            {
-                return false;
-            }
-
-            string encodedCredentials = authorizationHeader.Substring(basicPrefix.Length).Trim();
-            if (string.IsNullOrWhiteSpace(encodedCredentials))
-            {
-                return false;
-            }
-
-            string decodedCredentials;
-            try
-            {
-                byte[] credentialBytes = Convert.FromBase64String(encodedCredentials);
-                decodedCredentials = System.Text.Encoding.UTF8.GetString(credentialBytes);
-            }
-            catch (FormatException)
-            {
-                decodedCredentials = encodedCredentials;
-            }
-
-            string[] parts = decodedCredentials.Split(new[] { ':' }, 2);
-
-            if (parts.Length != 2 && encodedCredentials.Contains(":"))
-            {
-                parts = encodedCredentials.Split(new[] { ':' }, 2);
-            }
-
-            if (parts.Length != 2)
-            {
-                return false;
-            }
-
-            string providedAccountId = parts[0];
-            string providedPassword = parts[1];
-
-            return !string.IsNullOrEmpty(providedAccountId)
-                && !string.IsNullOrEmpty(providedPassword)
-                && string.Equals(providedAccountId, _accountId)
-                && string.Equals(providedPassword, _password);
+            return clsApiAuthHelper.IsBasicAuthorized(authorizationHeader, _accountId, _password);
         }
     }
 
@@ -195,5 +153,14 @@ namespace LW_Web.Controllers
         public List<string> ItemCodes { get; set; }
         public List<string> FilterItemCategories { get; set; }
         public bool? IncludeWOItems { get; set; }
+        public bool? IsAssigned { get; set; }
+        public int? AssignedToID { get; set; }
+        public bool? IncludePOs { get; set; }
+    }
+
+    public class WorkOrderAssignRequest
+    {
+        public string WONumber { get; set; }
+        public int? AssignedToID { get; set; }
     }
 }

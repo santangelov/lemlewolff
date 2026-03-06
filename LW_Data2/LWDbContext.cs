@@ -15,6 +15,7 @@ namespace LW_Data
         public DbSet<clsPropertyRecord> tblProperties { get; set; }
         public DbSet<clsPropertyUnitRecord> tblPropertyUnits { get; set; }
         public DbSet<clsAdminAppRecord> tblAdminApps { get; set; }
+        public DbSet<clsWorkerRecord> tblWorkers { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -28,6 +29,7 @@ namespace LW_Data
             modelBuilder.Entity<clsPropertyRecord>().ToTable("tblProperties", "dbo");
             modelBuilder.Entity<clsPropertyUnitRecord>().ToTable("tblPropertyUnits", "dbo");
             modelBuilder.Entity<clsAdminAppRecord>().ToTable("tblAdminApps", "dbo");
+            modelBuilder.Entity<clsWorkerRecord>().ToTable("tblWorkers", "dbo");
         }
     }
 }

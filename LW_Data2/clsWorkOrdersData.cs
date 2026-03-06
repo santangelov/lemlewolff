@@ -37,9 +37,78 @@ namespace LW_Data
             return result;
         }
 
+
+        public List<Dictionary<string, object>> GetWorkOrdersForApi(WorkOrderQueryFilter filter, bool includeWOItems, bool includePOs)
+        {
+            var workOrders = GetWorkOrders(filter);
+            if (workOrders.Count == 0)
+            {
+                return workOrders;
+            }
+
+            if (includeWOItems)
+            {
+                var itemLookup = GetWorkOrderItems(filter);
+                foreach (var workOrder in workOrders)
+                {
+                    int woNumber = workOrder.ContainsKey("WONumber") && workOrder["WONumber"] != null
+                        ? Convert.ToInt32(workOrder["WONumber"])
+                        : 0;
+
+                    workOrder["WorkOrderItems"] = itemLookup.ContainsKey(woNumber)
+                        ? itemLookup[woNumber]
+                        : new List<Dictionary<string, object>>();
+                }
+            }
+
+            if (includePOs)
+            {
+                var poCacheByWONumber = new Dictionary<string, List<Dictionary<string, object>>>(StringComparer.OrdinalIgnoreCase);
+                var purchaseOrdersData = new clsPurchaseOrdersData();
+
+                foreach (var workOrder in workOrders)
+                {
+                    string woNumber = workOrder.ContainsKey("WONumber") && workOrder["WONumber"] != null
+                        ? Convert.ToString(workOrder["WONumber"])
+                        : null;
+
+                    if (string.IsNullOrWhiteSpace(woNumber))
+                    {
+                        workOrder["PurchaseOrders"] = new List<Dictionary<string, object>>();
+                        continue;
+                    }
+
+                    if (!poCacheByWONumber.ContainsKey(woNumber))
+                    {
+                        poCacheByWONumber[woNumber] = purchaseOrdersData.GetByWONumber(woNumber);
+                    }
+
+                    workOrder["PurchaseOrders"] = poCacheByWONumber[woNumber];
+                }
+            }
+
+            return workOrders;
+        }
+
+        public int AssignByWONumber(string woNumber, int? assignedToID)
+        {
+            var dh = new clsDataHelper();
+            dh.cmd.Parameters.Add("@WONumber", SqlDbType.VarChar, 50).Value = (object)(woNumber ?? string.Empty);
+            dh.cmd.Parameters.Add("@AssignedToID", SqlDbType.Int).Value = assignedToID.HasValue ? (object)assignedToID.Value : DBNull.Value;
+
+            var dt = dh.GetDataTable("spWorkOrders_AssignByWONumber");
+            if (dt == null || dt.Rows.Count == 0 || !dt.Columns.Contains("RowsAffected"))
+            {
+                return 0;
+            }
+
+            var value = dt.Rows[0]["RowsAffected"];
+            return value == null || value == DBNull.Value ? 0 : Convert.ToInt32(value);
+        }
+
         private static List<Dictionary<string, object>> ExecuteStoredProcedure(string storedProcedureName, WorkOrderQueryFilter filter)
         {
-            using (var conn = clsDataHelper.sqlconn(false)) // read-only connection, same pattern used solution-wide
+            using (var conn = clsDataHelper.sqlconn(false))
             using (var cmd = new SqlCommand(storedProcedureName, conn))
             {
                 cmd.CommandType = CommandType.StoredProcedure;
@@ -58,6 +127,12 @@ namespace LW_Data
                     : filter.JobStatus.Trim();
                 cmd.Parameters.Add("@ItemCodesCsv", SqlDbType.VarChar, -1).Value = (object)ToCsv(filter.ItemCodes) ?? DBNull.Value;
                 cmd.Parameters.Add("@FilterItemCategoriesCsv", SqlDbType.VarChar, -1).Value = (object)ToCsv(filter.FilterItemCategories) ?? DBNull.Value;
+                cmd.Parameters.Add("@IsAssigned", SqlDbType.Bit).Value = filter.IsAssigned.HasValue
+                    ? (object)filter.IsAssigned.Value
+                    : DBNull.Value;
+                cmd.Parameters.Add("@AssignedToID", SqlDbType.Int).Value = filter.AssignedToID.HasValue
+                    ? (object)filter.AssignedToID.Value
+                    : DBNull.Value;
 
                 return ExecuteCommandToDictionaryList(cmd);
             }
@@ -87,27 +162,7 @@ namespace LW_Data
                 da.Fill(table);
             }
 
-            return DataTableToDictionaryList(table);
-        }
-
-        private static List<Dictionary<string, object>> DataTableToDictionaryList(DataTable table)
-        {
-            var rows = new List<Dictionary<string, object>>();
-
-            foreach (DataRow row in table.Rows)
-            {
-                var item = new Dictionary<string, object>();
-
-                foreach (DataColumn column in table.Columns)
-                {
-                    object value = row[column];
-                    item[column.ColumnName] = value == DBNull.Value ? null : value;
-                }
-
-                rows.Add(item);
-            }
-
-            return rows;
+            return clsDataMappingHelper.DataTableToDictionaryList(table);
         }
     }
 
@@ -120,5 +175,7 @@ namespace LW_Data
         public string JobStatus { get; set; }
         public List<string> ItemCodes { get; set; }
         public List<string> FilterItemCategories { get; set; }
+        public bool? IsAssigned { get; set; }
+        public int? AssignedToID { get; set; }
     }
 }

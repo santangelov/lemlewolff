@@ -47,53 +47,7 @@ namespace LW_Web.Controllers
 
         private bool IsAuthorized(string authorizationHeader)
         {
-            if (string.IsNullOrWhiteSpace(authorizationHeader))
-            {
-                return false;
-            }
-
-            const string basicPrefix = "Basic ";
-            if (!authorizationHeader.StartsWith(basicPrefix, StringComparison.OrdinalIgnoreCase))
-            {
-                return false;
-            }
-
-            string encodedCredentials = authorizationHeader.Substring(basicPrefix.Length).Trim();
-            if (string.IsNullOrWhiteSpace(encodedCredentials))
-            {
-                return false;
-            }
-
-            string decodedCredentials;
-            try
-            {
-                byte[] credentialBytes = Convert.FromBase64String(encodedCredentials);
-                decodedCredentials = System.Text.Encoding.UTF8.GetString(credentialBytes);
-            }
-            catch (FormatException)
-            {
-                decodedCredentials = encodedCredentials;
-            }
-
-            string[] parts = decodedCredentials.Split(new[] { ':' }, 2);
-
-            if (parts.Length != 2 && encodedCredentials.Contains(":"))
-            {
-                parts = encodedCredentials.Split(new[] { ':' }, 2);
-            }
-
-            if (parts.Length != 2)
-            {
-                return false;
-            }
-
-            string providedAccountId = parts[0];
-            string providedPassword = parts[1];
-
-            return !string.IsNullOrEmpty(providedAccountId)
-                && !string.IsNullOrEmpty(providedPassword)
-                && string.Equals(providedAccountId, _accountId)
-                && string.Equals(providedPassword, _password);
+            return clsApiAuthHelper.IsBasicAuthorized(authorizationHeader, _accountId, _password);
         }
     }
 }

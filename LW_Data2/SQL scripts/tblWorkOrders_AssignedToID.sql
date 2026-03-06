@@ -1,0 +1,13 @@
+USE [LemleWolff]
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+IF COL_LENGTH('dbo.tblWorkOrders', 'AssignedToID') IS NULL
+BEGIN
+    ALTER TABLE dbo.tblWorkOrders
+    ADD AssignedToID INT NULL;
+END
+GO

@@ -62,6 +62,7 @@
     <Compile Include="clsGeneralImportHelper.cs" />
     <Compile Include="clsReportHelper.cs" />
     <Compile Include="clsYardiHelper.cs" />
+    <Compile Include="clsApiAuthHelper.cs" />
     <Compile Include="clsSortlyHelper.cs" />
     <Compile Include="clsUtilities.cs" />
     <Compile Include="clsWebFormHelper.cs" />

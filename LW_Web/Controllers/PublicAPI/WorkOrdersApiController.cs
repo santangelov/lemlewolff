@@ -16,12 +16,14 @@ namespace LW_Web.Controllers
         private readonly string _accountId;
         private readonly string _password;
         private readonly clsWorkOrdersData _workOrdersData;
+        private readonly clsPurchaseOrdersData _purchaseOrdersData;
 
         public WorkOrdersApiController()
         {
             _accountId = ConfigurationManager.AppSettings["VacancyApiAccountId"];
             _password = ConfigurationManager.AppSettings["VacancyApiPassword"];
             _workOrdersData = new clsWorkOrdersData();
+            _purchaseOrdersData = new clsPurchaseOrdersData();
         }
 
         [HttpPost]
@@ -57,6 +59,31 @@ namespace LW_Web.Controllers
                     ToFilter(request),
                     request.IncludeWOItems.GetValueOrDefault(false),
                     request.IncludePOs.GetValueOrDefault(false));
+
+                if (request.IncludePOs.GetValueOrDefault(false) && workOrders.Count > 0)
+                {
+                    var poCacheByWONumber = new Dictionary<string, List<Dictionary<string, object>>>(StringComparer.OrdinalIgnoreCase);
+
+                    foreach (var workOrder in workOrders)
+                    {
+                        string woNumber = workOrder.ContainsKey("WONumber") && workOrder["WONumber"] != null
+                            ? Convert.ToString(workOrder["WONumber"])
+                            : null;
+
+                        if (string.IsNullOrWhiteSpace(woNumber))
+                        {
+                            workOrder["PurchaseOrders"] = new List<Dictionary<string, object>>();
+                            continue;
+                        }
+
+                        if (!poCacheByWONumber.ContainsKey(woNumber))
+                        {
+                            poCacheByWONumber[woNumber] = _purchaseOrdersData.GetByWONumber(woNumber);
+                        }
+
+                        workOrder["PurchaseOrders"] = poCacheByWONumber[woNumber];
+                    }
+                }
 
                 return new MyJsonResult { Data = workOrders };
             }

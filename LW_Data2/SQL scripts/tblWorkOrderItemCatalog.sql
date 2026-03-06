@@ -17,6 +17,6 @@ BEGIN
 END
 GO
 
-GRANT SELECT ON dbo.tblWorkOrderItemCatalog TO lemlewolffRO;
-GRANT SELECT, INSERT, UPDATE, DELETE ON dbo.tblWorkOrderItemCatalog TO lemlewolffRW;
+GRANT SELECT ON dbo.tblWorkOrderItemCatalog TO lemwolffRO;
+GRANT SELECT, INSERT, UPDATE, DELETE ON dbo.tblWorkOrderItemCatalog TO lemwolffRW;
 GO

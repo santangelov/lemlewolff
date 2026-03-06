@@ -20,5 +20,5 @@ BEGIN
 END;
 GO
 
-GRANT EXECUTE ON dbo.spWorkOrders_AssignByWONumber TO lemlewolffRW;
+GRANT EXECUTE ON dbo.spWorkOrders_AssignByWONumber TO lemwolffRW;
 GO

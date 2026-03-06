@@ -29,6 +29,6 @@ BEGIN
 END;
 GO
 
-GRANT EXECUTE ON dbo.spPurchaseOrders_ByWONumber TO lemlewolffRO;
-GRANT EXECUTE ON dbo.spPurchaseOrders_ByWONumber TO lemlewolffRW;
+GRANT EXECUTE ON dbo.spPurchaseOrders_ByWONumber TO lemwolffRO;
+GRANT EXECUTE ON dbo.spPurchaseOrders_ByWONumber TO lemwolffRW;
 GO

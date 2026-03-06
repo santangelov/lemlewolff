@@ -21,6 +21,6 @@ BEGIN
 END
 GO
 
-GRANT SELECT ON dbo.tblWorkers TO lemlewolffRO;
-GRANT SELECT, INSERT, UPDATE, DELETE ON dbo.tblWorkers TO lemlewolffRW;
+GRANT SELECT ON dbo.tblWorkers TO lemwolffRO;
+GRANT SELECT, INSERT, UPDATE, DELETE ON dbo.tblWorkers TO lemwolffRW;
 GO

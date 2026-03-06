@@ -37,5 +37,5 @@ BEGIN
 END;
 GO
 
-GRANT EXECUTE ON dbo.spWorkers_UpsertFromADP TO lemlewolffRW;
+GRANT EXECUTE ON dbo.spWorkers_UpsertFromADP TO lemwolffRW;
 GO

@@ -153,8 +153,8 @@ BEGIN
 END;
 GO
 
-GRANT EXECUTE ON OBJECT::dbo.spWorkOrders TO [lemlewolffRO];
-GRANT EXECUTE ON OBJECT::dbo.spWorkOrderItems TO [lemlewolffRO];
-GRANT EXECUTE ON OBJECT::dbo.spWorkOrders TO [lemlewolffRW];
-GRANT EXECUTE ON OBJECT::dbo.spWorkOrderItems TO [lemlewolffRW];
+GRANT EXECUTE ON OBJECT::dbo.spWorkOrders TO [lemwolffRO];
+GRANT EXECUTE ON OBJECT::dbo.spWorkOrderItems TO [lemwolffRO];
+GRANT EXECUTE ON OBJECT::dbo.spWorkOrders TO [lemwolffRW];
+GRANT EXECUTE ON OBJECT::dbo.spWorkOrderItems TO [lemwolffRW];
 GO

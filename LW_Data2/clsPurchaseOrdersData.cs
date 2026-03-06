@@ -9,11 +9,35 @@ namespace LW_Data
     {
         public List<Dictionary<string, object>> GetByWONumber(string woNumber)
         {
-            var result = new List<Dictionary<string, object>>();
             var dh = new clsDataHelper();
-
             dh.cmd.Parameters.Add("@WONumber", SqlDbType.VarChar, 50).Value = (object)(woNumber ?? string.Empty);
-            var ds = dh.GetDataSetCMD("spPurchaseOrders_ByWONumber", ref dh.cmd);
+            return ExecuteAndShape(dh, "spPurchaseOrders_ByWONumber");
+        }
+
+        public Dictionary<string, object> GetByPONumber(string poNumber)
+        {
+            var dh = new clsDataHelper();
+            dh.cmd.Parameters.Add("@PONumber", SqlDbType.VarChar, 50).Value = (object)(poNumber ?? string.Empty);
+            var purchaseOrders = ExecuteAndShape(dh, "spPurchaseOrders_ByPONumber");
+            return purchaseOrders.Count > 0 ? purchaseOrders[0] : null;
+        }
+
+        public List<Dictionary<string, object>> GetPurchaseOrders(string woNumber = null)
+        {
+            if (!string.IsNullOrWhiteSpace(woNumber))
+            {
+                return GetByWONumber(woNumber);
+            }
+
+            var dh = new clsDataHelper();
+            return ExecuteAndShape(dh, "spPurchaseOrders");
+        }
+
+        private static List<Dictionary<string, object>> ExecuteAndShape(clsDataHelper dh, string storedProcedure)
+        {
+            var result = new List<Dictionary<string, object>>();
+
+            var ds = dh.GetDataSetCMD(storedProcedure, ref dh.cmd);
             if (ds == null || ds.Tables.Count == 0)
             {
                 return result;

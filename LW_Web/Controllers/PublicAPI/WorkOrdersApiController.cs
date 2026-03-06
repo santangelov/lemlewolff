@@ -55,33 +55,10 @@ namespace LW_Web.Controllers
 
             try
             {
-                var workOrders = GetWorkOrders(request);
-
-                if (request.IncludeWOItems.GetValueOrDefault(false) && workOrders.Count > 0)
-                {
-                    Dictionary<int, List<Dictionary<string, object>>> itemLookup;
-                    try
-                    {
-                        itemLookup = GetWorkOrderItems(request);
-                    }
-                    catch (SqlException ex) when (ex.Number == 229)
-                    {
-                        return JsonError(403,
-                            "The configured database user does not have permission to read work order items (dbo.tblWorkOrderItems).",
-                            "Grant SELECT on dbo.tblWorkOrderItems, or set IncludeWOItems=false.");
-                    }
-
-                    foreach (var workOrder in workOrders)
-                    {
-                        int woNumber = workOrder.ContainsKey("WONumber") && workOrder["WONumber"] != null
-                            ? Convert.ToInt32(workOrder["WONumber"])
-                            : 0;
-
-                        workOrder["WorkOrderItems"] = itemLookup.ContainsKey(woNumber)
-                            ? itemLookup[woNumber]
-                            : new List<Dictionary<string, object>>();
-                    }
-                }
+                var workOrders = _workOrdersData.GetWorkOrdersForApi(
+                    ToFilter(request),
+                    request.IncludeWOItems.GetValueOrDefault(false),
+                    request.IncludePOs.GetValueOrDefault(false));
 
                 if (request.IncludePOs.GetValueOrDefault(false) && workOrders.Count > 0)
                 {
@@ -109,6 +86,12 @@ namespace LW_Web.Controllers
                 }
 
                 return new MyJsonResult { Data = workOrders };
+            }
+            catch (SqlException ex) when (ex.Number == 229 && request.IncludeWOItems.GetValueOrDefault(false))
+            {
+                return JsonError(403,
+                    "The configured database user does not have permission to read work order items (dbo.tblWorkOrderItems).",
+                    "Grant SELECT on dbo.tblWorkOrderItems, or set IncludeWOItems=false.");
             }
             catch (Exception ex)
             {
@@ -150,41 +133,7 @@ namespace LW_Web.Controllers
             }
         }
 
-        [HttpGet]
-        [Route("{woNumber}/purchase-orders")]
-        public ActionResult PurchaseOrdersByWorkOrder(string woNumber)
-        {
-            if (!IsAuthorized(Request.Headers["Authorization"]))
-            {
-                Response.AddHeader("WWW-Authenticate", "Basic realm=\"WorkOrderAPI\"");
-                return new HttpStatusCodeResult(401, "Unauthorized");
-            }
 
-            if (string.IsNullOrWhiteSpace(woNumber) || woNumber.Contains(","))
-            {
-                return JsonError(400, "A single woNumber is required.");
-            }
-
-            try
-            {
-                var result = _purchaseOrdersData.GetByWONumber(woNumber.Trim());
-                return new MyJsonResult { Data = result };
-            }
-            catch (Exception ex)
-            {
-                return JsonError(500, "Unexpected error while retrieving purchase orders.", ex.Message);
-            }
-        }
-
-        private List<Dictionary<string, object>> GetWorkOrders(WorkOrderSearchRequest request)
-        {
-            return _workOrdersData.GetWorkOrders(ToFilter(request));
-        }
-
-        private Dictionary<int, List<Dictionary<string, object>>> GetWorkOrderItems(WorkOrderSearchRequest request)
-        {
-            return _workOrdersData.GetWorkOrderItems(ToFilter(request));
-        }
 
         private static WorkOrderQueryFilter ToFilter(WorkOrderSearchRequest request)
         {

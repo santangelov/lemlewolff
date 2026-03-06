@@ -54,15 +54,4 @@ namespace LW_Data
             return headers;
         }
     }
-
-    public class PurchaseOrderDto
-    {
-        public Dictionary<string, object> Header { get; set; } = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
-        public List<PurchaseOrderDetailDto> Details { get; set; } = new List<PurchaseOrderDetailDto>();
-    }
-
-    public class PurchaseOrderDetailDto
-    {
-        public Dictionary<string, object> Fields { get; set; } = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
-    }
 }

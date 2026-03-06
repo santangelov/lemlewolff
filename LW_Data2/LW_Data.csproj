@@ -77,7 +77,6 @@
     <Compile Include="clsWorkersData.cs" />
     <Compile Include="clsPurchaseOrdersData.cs" />
     <Compile Include="clsDataMappingHelper.cs" />
-    <Compile Include="clsWorkOrderDto.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

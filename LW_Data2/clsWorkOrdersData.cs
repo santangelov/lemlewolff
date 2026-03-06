@@ -37,6 +37,59 @@ namespace LW_Data
             return result;
         }
 
+
+        public List<Dictionary<string, object>> GetWorkOrdersForApi(WorkOrderQueryFilter filter, bool includeWOItems, bool includePOs)
+        {
+            var workOrders = GetWorkOrders(filter);
+            if (workOrders.Count == 0)
+            {
+                return workOrders;
+            }
+
+            if (includeWOItems)
+            {
+                var itemLookup = GetWorkOrderItems(filter);
+                foreach (var workOrder in workOrders)
+                {
+                    int woNumber = workOrder.ContainsKey("WONumber") && workOrder["WONumber"] != null
+                        ? Convert.ToInt32(workOrder["WONumber"])
+                        : 0;
+
+                    workOrder["WorkOrderItems"] = itemLookup.ContainsKey(woNumber)
+                        ? itemLookup[woNumber]
+                        : new List<Dictionary<string, object>>();
+                }
+            }
+
+            if (includePOs)
+            {
+                var poCacheByWONumber = new Dictionary<string, List<Dictionary<string, object>>>(StringComparer.OrdinalIgnoreCase);
+                var purchaseOrdersData = new clsPurchaseOrdersData();
+
+                foreach (var workOrder in workOrders)
+                {
+                    string woNumber = workOrder.ContainsKey("WONumber") && workOrder["WONumber"] != null
+                        ? Convert.ToString(workOrder["WONumber"])
+                        : null;
+
+                    if (string.IsNullOrWhiteSpace(woNumber))
+                    {
+                        workOrder["PurchaseOrders"] = new List<Dictionary<string, object>>();
+                        continue;
+                    }
+
+                    if (!poCacheByWONumber.ContainsKey(woNumber))
+                    {
+                        poCacheByWONumber[woNumber] = purchaseOrdersData.GetByWONumber(woNumber);
+                    }
+
+                    workOrder["PurchaseOrders"] = poCacheByWONumber[woNumber];
+                }
+            }
+
+            return workOrders;
+        }
+
         public int AssignByWONumber(string woNumber, int? assignedToID)
         {
             var dh = new clsDataHelper();
